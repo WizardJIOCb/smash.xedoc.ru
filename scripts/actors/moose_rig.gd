@@ -16,6 +16,8 @@ const DEPTH_FAR_ARM = 5
 const DEPTH_NECK = 8
 const DEPTH_NEAR_ARM = 20
 const DEPTH_HEAD = 16
+# The fluffy paw's baked highlights are brighter/warmer than the head painting.
+const NEAR_FIST_TINT = Color(0.80, 0.82, 0.84)
 
 var skeleton: Skeleton2D
 var debug_layer: Node2D
@@ -134,7 +136,7 @@ func _ready() -> void:
 				Vector2(0.90, 0.47),
 				23,
 				arm_depth + 2,
-				shade
+				shade * NEAR_FIST_TINT
 			)
 		else:
 			_segment(
