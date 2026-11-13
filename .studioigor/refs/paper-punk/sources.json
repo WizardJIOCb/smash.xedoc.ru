@@ -25,25 +25,10 @@
       "api": "steam",
       "query": "Guacamelee! 2",
       "generated": false,
-      "note": "",
+      "note": "Взять крупные угловатые плиты, чёткую линию пола и чёрные силуэты переднего плана; рельеф стен перевести в слои бумаги. Избегать обилия мелкого орнамента и зелёного свечения; персонажей не копировать.",
       "w": 1920,
       "h": 1080,
       "sha1": "f0150cbfaca77bcc19adf1a00cf9bebe5ac77999"
-    },
-    {
-      "file": "steam-73fb1b02.jpg",
-      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/534550/ss_73fb1b02622f663524078c48d36b7a1e095bee49.1920x1080.jpg?t=1771966042",
-      "page": "https://store.steampowered.com/app/534550/",
-      "title": "Guacamelee! 2 — screenshot 2",
-      "credit": "Drinkbox Studios",
-      "license": "© Drinkbox Studios — moodboard only",
-      "api": "steam",
-      "query": "Guacamelee! 2",
-      "generated": false,
-      "note": "",
-      "w": 1920,
-      "h": 1080,
-      "sha1": "73fb1b02622f663524078c48d36b7a1e095bee49"
     },
     {
       "file": "steam-a68efe0e.jpg",
@@ -55,7 +40,7 @@
       "api": "steam",
       "query": "Guacamelee! 2",
       "generated": false,
-      "note": "",
+      "note": "Взять красную кромку опасности, резкие диагонали и контраст чёрных провалов с крупными платформами: так карантин может менять весь уровень. Избегать разноцветных светящихся контуров; персонажей и орнаменты не копировать.",
       "w": 1920,
       "h": 1080,
       "sha1": "a68efe0e2c4966cf36cee1c1135b00acd89239eb"
@@ -70,7 +55,7 @@
       "api": "steam",
       "query": "Rayman® Legends",
       "generated": false,
-      "note": "",
+      "note": "Взять сильную разницу масштаба планов, выразительные наклоны тел и пустое пространство вокруг героя; бумажные слои тоже должны давать такую глубину. Избегать густой зелени и мягкого сказочного света; чужих персонажей не копировать.",
       "w": 1920,
       "h": 1080,
       "sha1": "b608cfbefd41e1d340896c7a75683465cd884f8b"
@@ -85,7 +70,7 @@
       "api": "steam",
       "query": "Rayman® Legends",
       "generated": false,
-      "note": "",
+      "note": "Взять диагональный импульс атаки, разлёт крупных обломков и красный угловатый силуэт угрозы на приглушённом фоне. Для Лося усилить замах и отдачу скелетной анимацией; избегать круглых игрушечных врагов, персонажей не копировать.",
       "w": 1920,
       "h": 1080,
       "sha1": "7df76cacbfd7d9a46320395a293887bf17ad7f3a"
@@ -100,25 +85,40 @@
       "api": "wikimedia",
       "query": "El Lissitzky red wedge",
       "generated": false,
-      "note": "",
+      "note": "Взять тёплую бумагу, зернистую чёрную тушь, одну красную диагональ и огромные простые массы. Красный закрепить за карантином Firewall; лозунг, историческую символику и точную композицию плаката не переносить.",
       "w": 1280,
       "h": 1024,
       "sha1": "7d182ce64218cfa46be2a2d81079fa3843ed7fa6"
     },
     {
-      "file": "wikimedia-656ce5b5.jpg",
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Beat_the_Whites_with_the_Red_Wedge.jpg/1280px-Beat_the_Whites_with_the_Red_Wedge.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "page": "https://commons.wikimedia.org/wiki/File:Beat_the_Whites_with_the_Red_Wedge.jpg",
-      "title": "Beat the Whites with the Red Wedge",
-      "credit": "El Lissitzky",
-      "license": "Public domain",
-      "api": "wikimedia",
-      "query": "El Lissitzky red wedge",
+      "file": "steam-5e1ee551.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/534550/ss_5e1ee551a982aceaa283206c2eef040eb834c4fb.1920x1080.jpg?t=1771966042",
+      "page": "https://store.steampowered.com/app/534550/",
+      "title": "Guacamelee! 2 — screenshot 6",
+      "credit": "Drinkbox Studios",
+      "license": "© Drinkbox Studios — moodboard only",
+      "api": "steam",
+      "query": "Guacamelee! 2",
       "generated": false,
-      "note": "",
-      "w": 1280,
-      "h": 1048,
-      "sha1": "656ce5b51beed3de1bca04533effb1f02d2b6772"
+      "note": "Взять толстую чёрную линию, шероховатые цветовые пятна и монументальную композицию из крупных вырезанных частей: так могут выглядеть фоновые панно района. Избегать жёлтого во всём кадре и религиозного пафоса; фигуру чужого героя не копировать.",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "5e1ee551a982aceaa283206c2eef040eb834c4fb"
+    },
+    {
+      "file": "steam-e8f643c4.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/534550/ss_e8f643c47bc42e7e3538df37a95d090b44ca5b22.1920x1080.jpg?t=1771966042",
+      "page": "https://store.steampowered.com/app/534550/",
+      "title": "Guacamelee! 2 — screenshot 7",
+      "credit": "Drinkbox Studios",
+      "license": "© Drinkbox Studios — moodboard only",
+      "api": "steam",
+      "query": "Guacamelee! 2",
+      "generated": false,
+      "note": "Взять ломаные силуэты врагов, крупную кистевую дугу удара и наклонённую архитектуру арены; такие формы читаются при быстром комбо. Избегать четырёх полос HUD и одновременных кислотных цветов; чужих персонажей не копировать.",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "e8f643c47bc42e7e3538df37a95d090b44ca5b22"
     }
   ],
   "pros": [
@@ -128,5 +128,37 @@
   "cons": [
     "Меньше мягкой кинематографичной атмосферы",
     "нужны хорошие позы и силуэты, плоская графика не скрывает ошибок"
+  ],
+  "dropped": [
+    {
+      "file": "steam-73fb1b02.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/534550/ss_73fb1b02622f663524078c48d36b7a1e095bee49.1920x1080.jpg?t=1771966042",
+      "sha1": "73fb1b02622f663524078c48d36b7a1e095bee49"
+    },
+    {
+      "file": "wikimedia-656ce5b5.jpg",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Beat_the_Whites_with_the_Red_Wedge.jpg/1280px-Beat_the_Whites_with_the_Red_Wedge.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "sha1": "656ce5b51beed3de1bca04533effb1f02d2b6772"
+    },
+    {
+      "file": "openverse-6b92372d.jpg",
+      "url": "https://live.staticflickr.com/5230/5626974020_c9277eec68_b.jpg",
+      "sha1": "6b92372d33905674e90591471dbb35fe46b609e5"
+    },
+    {
+      "file": "openverse-f6207ee1.jpg",
+      "url": "https://live.staticflickr.com/6089/6108948388_3ac06071a0_b.jpg",
+      "sha1": "f6207ee1a70af433302793ec11ccdc7eabee92f4"
+    },
+    {
+      "file": "steam-239e3ff6.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/534550/ss_239e3ff68287a26efa6eba61bb0052e75629ac5f.1920x1080.jpg?t=1771966042",
+      "sha1": "239e3ff68287a26efa6eba61bb0052e75629ac5f"
+    },
+    {
+      "file": "steam-7f1af6b5.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/534550/ss_7f1af6b5969ffad7ea5aec99bb37d0cfa0f47b1f.1920x1080.jpg?t=1771966042",
+      "sha1": "7f1af6b5969ffad7ea5aec99bb37d0cfa0f47b1f"
+    }
   ]
 }

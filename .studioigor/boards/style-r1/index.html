@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en" style="color-scheme:dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Лось: район закрыт — выбираем рисунок</title>
+<style>
+:root{--bg:#111214;--panel:#1a1b1f;--line:#2a2c31;--fg:#e9e9ea;--dim:#9a9ba0;--acc:#e8a33d;--ok:#57c48a;--bad:#ec6a5e;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:7rem}
+header{padding:2rem 1.25rem 1rem;max-width:88rem;margin:0 auto}
+h1{margin:0 0 .3rem;font-size:1.7rem;letter-spacing:-.01em}
+.sub{color:var(--dim);margin:0 0 .6rem}
+.q{font-size:1.1rem;margin:.6rem 0 0;font-weight:600}
+main{max-width:88rem;margin:0 auto;padding:0 1.25rem}
+.opt{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.1rem 1.2rem;margin:0 0 1.2rem;transition:border-color .15s}
+.opt.sel{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.ohd{display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap}
+.ohd h2{margin:0;font-size:1.25rem;flex:1 1 20rem}
+.pick{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:.4rem 1rem;font:inherit;cursor:pointer}
+.opt.sel .pick{background:var(--acc);border-color:var(--acc);color:#111}
+.tags{margin:.35rem 0 0}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 .55rem;margin:0 .3rem .3rem 0;font-size:.8rem;color:var(--dim)}
+.text{margin:.6rem 0 .2rem;white-space:pre-wrap;max-width:60rem}
+.pal{display:flex;gap:.35rem;margin:.6rem 0 1.7rem;flex-wrap:wrap}
+.sw{width:3.2rem;height:2.2rem;border-radius:6px;position:relative;border:1px solid var(--line)}
+.sw span{position:absolute;bottom:-1.25rem;left:0;font-size:.68rem;color:var(--dim);font-family:ui-monospace,Menlo,monospace}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:.6rem 0;max-width:60rem}
+.pc ul{margin:.2rem 0;padding-left:1.1rem}.pc h4{margin:0;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:.6rem;margin-top:.8rem}
+.m{position:relative;border-radius:10px;overflow:hidden;background:#000;border:2px solid transparent;aspect-ratio:16/10}
+.m.like{border-color:var(--ok)}.m.dislike{border-color:var(--bad);opacity:.55}
+.m img,.m video{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.m .bar{position:absolute;left:0;right:0;bottom:0;display:flex;gap:.3rem;padding:.35rem;background:linear-gradient(transparent,rgba(0,0,0,.75))}
+.m .bar button{flex:0 0 auto;border:0;border-radius:6px;padding:.2rem .55rem;font:600 .78rem/1.4 inherit;cursor:pointer;background:rgba(255,255,255,.14);color:#fff}
+.m.like .b-like{background:var(--ok);color:#06140c}.m.dislike .b-dis{background:var(--bad);color:#1a0503}
+.m .cap{flex:1;color:#ddd;font-size:.75rem;align-self:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gen{position:absolute;top:.4rem;left:.4rem;background:rgba(0,0,0,.7);color:#fff;font-size:.7rem;padding:.05rem .45rem;border-radius:4px}
+textarea{width:100%;min-height:3.2rem;margin-top:.8rem;background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:.55rem .7rem;font:inherit;resize:vertical}
+footer{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:.7rem 1.25rem}
+.fin{max-width:88rem;margin:0 auto;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
+.fin textarea{margin:0;flex:1 1 20rem;min-height:2.6rem}
+.send{background:var(--acc);color:#111;border:0;border-radius:10px;padding:.7rem 1.4rem;font:700 1rem inherit;cursor:pointer}
+.stat{color:var(--dim);font-size:.85rem}
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:10;padding:1rem}
+#lb.on{display:flex}#lb img,#lb video{max-width:96vw;max-height:84vh;object-fit:contain}
+#lb .meta{color:#ccc;font-size:.85rem;margin-top:.6rem;text-align:center;max-width:70rem}
+#lb a{color:var(--acc)}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:11;padding:1rem}
+#ov.on{display:flex}#ov .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.4rem;max-width:44rem;width:100%}
+#ov textarea{min-height:12rem;font-family:ui-monospace,Menlo,monospace;font-size:.8rem}
+@media (max-width:40rem){.pc{grid-template-columns:1fr}.grid{grid-template-columns:repeat(auto-fill,minmax(10rem,1fr))}}
+</style>
+</head>
+<body>
+<header><h1 id="t"></h1><p class="sub" id="s"></p><p class="q" id="qq"></p></header>
+<main id="opts"></main>
+<footer><div class="fin">
+  <textarea id="gc" placeholder="Что взять из разных направлений? Чего не хватает?"></textarea>
+  <span class="stat" id="stat"></span>
+  <button class="send" id="send">Отправить выбор</button>
+</div></footer>
+<div id="lb"></div>
+<div id="ov"><div class="box" id="ovb"></div></div>
+<script type="application/json" id="data">{"title": "Лось: район закрыт — выбираем рисунок", "subtitle": "Три визуальных направления. Это референсы чужих работ; графики нашей игры здесь пока нет. Герой во всех вариантах планируется в 2D со скелетной анимацией.", "question": "Выбери направление, отметь понравившиеся кадры и напиши, что взять из остальных. Моя рекомендация — дождливый город; можно смешать его свет с пластикой бумажного мультфильма.", "mode": "single", "options": [{"id": "concrete-rain", "title": "Дождь, бетон и янтарный свет", "text": "Рекомендую. Огромный холодный город и маленькие тёплые островки жизни. Вывески отражаются в лужах, туман разделяет планы, красный оставлен карантину Firewall. Герой — выразительная рисованная фигура с костной анимацией; архитектура тяжёлая и вертикальная.", "palette": ["#101d2c", "#294957", "#d6a257", "#e8d5b3", "#f04d45"], "tags": ["2D", "город", "дождь", "рисованный герой"], "pros": ["Сильная связь с историей и юмором героя", "эффектный переход от карантина к живому району"], "cons": ["Нужны оригинальные фоны и аккуратное освещение", "3D-референсы показывают свет и масштаб, а не способ рисовать героя"], "media": [{"src": "..\\..\\refs\\concrete-rain\\steam-677b6545.jpg", "caption": "Mark of the Ninja — берём выразительный рисованный силуэт, контраст героя и тёплый конус света; японский интерьер и персонажа не заимствуем.", "source": "https://store.steampowered.com/app/860950/", "credit": "Klei Entertainment", "license": "© Klei Entertainment — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\concrete-rain\\steam-2cb5ede0.jpg", "caption": "Mark of the Ninja — холодная серверная, провода и отдельные световые зоны; игровые уступы остаются чёткими на фоне декора.", "source": "https://store.steampowered.com/app/860950/", "credit": "Klei Entertainment", "license": "© Klei Entertainment — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\concrete-rain\\steam-16fe30a5.jpg", "caption": "F.I.S.T. — тёплый островок жизни: пар, окна, маленький киоск среди тяжёлого города. Референс света и деталей; это 3D, наш герой будет рисованным 2D.", "source": "https://store.steampowered.com/app/1330470/", "credit": "TiGames", "license": "© TiGames — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\concrete-rain\\steam-79c9bc53.jpg", "caption": "F.I.S.T. — главный ориентир глубины: тёмный ближний план, провода, светящиеся вывески, дальняя улица в дымке. Берём композицию света, без копирования архитектуры.", "source": "https://store.steampowered.com/app/1330470/", "credit": "TiGames", "license": "© TiGames — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\concrete-rain\\steam-dbd52bd3.jpg", "caption": "F.I.S.T. — крупная арка обрамляет освещённый путь и узел; подходит для сцены освобождения района. Референс окружения, не техники анимации.", "source": "https://store.steampowered.com/app/1330470/", "credit": "TiGames", "license": "© TiGames — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\concrete-rain\\wikimedia-09b5bc8e.jpg", "caption": "Фото Ефремова — узнаваемый масштаб двора: панели, гаражи, провисшие провода и простые входы. Берём бытовые формы; снег и дневную палитру не переносим.", "source": "https://commons.wikimedia.org/wiki/File:Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street.jpg", "credit": "Юрий Д.К.", "license": "CC BY 4.0", "generated": false, "kind": "image"}]}, {"id": "forest-server", "title": "Лес съел серверную", "text": "Свет рождается внутри растений и забытых механизмов. Мягкие природные арки обрастают кабелями, маленький герой теряется среди огромных корней. Холодное свечение, тёплые убежища и живописная глубина; освобождение района превращает выжженную зону в живую.", "palette": ["#101c28", "#24505c", "#56d7c8", "#c8e8bf", "#e6a755"], "tags": ["2D", "живописность", "биолюминесценция", "природа"], "pros": ["Самое сказочное и атмосферное направление", "сильная смена состояний мира"], "cons": ["Самая дорогая живописная графика", "нужно специально вписать спортивку и юмор"], "media": [{"src": "..\\..\\refs\\forest-server\\steam-5a8cb579.jpg", "caption": "Берём тёмную рамку из корней, три плана глубины и светящиеся края опасных проходов; для серверной переводим корни в сплетение с кабелями. Чужой герой не заимствуется.", "source": "https://store.steampowered.com/app/1057090/", "credit": "Moon Studios GmbH", "license": "© Moon Studios GmbH — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\forest-server\\steam-946c0259.jpg", "caption": "Берём широкий яркий след удара на приглушённом фоне: направление и дистанция атаки читаются мгновенно. Архитектуру заменяем промышленными окнами; чужой герой не заимствуется.", "source": "https://store.steampowered.com/app/1369630/", "credit": "Live Wire, Adglobe", "license": "© Live Wire, Adglobe — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\forest-server\\steam-94831838.jpg", "caption": "Берём силуэт заброшенного механизма в тёплой дымке, мох на игровом мосту и холодное свечение атаки. Это опора для заросшей серверной; чужой герой не заимствуется.", "source": "https://store.steampowered.com/app/1057090/", "credit": "Moon Studios GmbH", "license": "© Moon Studios GmbH — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\forest-server\\steam-9be07f14.jpg", "caption": "Берём крупный диагональный корень как платформу, мягкие массы мха и разницу резкости ближнего и дальнего леса. Синий ночной свет связывает весь уровень; чужой герой не заимствуется.", "source": "https://store.steampowered.com/app/1057090/", "credit": "Moon Studios GmbH", "license": "© Moon Studios GmbH — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\forest-server\\steam-79bf1e48.jpg", "caption": "Берём контровой янтарный свет сквозь глубокую шахту и большие нависающие природные формы: после освобождения узла весь уровень может потеплеть. Чужой герой не заимствуется.", "source": "https://store.steampowered.com/app/1057090/", "credit": "Moon Studios GmbH", "license": "© Moon Studios GmbH — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\forest-server\\steam-eedf48cb.jpg", "caption": "Берём холодный свет активного узла на оливковом фоне и округлые формы, поглощённые растительностью. В нашей версии это стойки серверов под корнями; чужой герой не заимствуется.", "source": "https://store.steampowered.com/app/1057090/", "credit": "Moon Studios GmbH", "license": "© Moon Studios GmbH — moodboard only", "generated": false, "kind": "image"}]}, {"id": "paper-punk", "title": "Бумажный панк", "text": "Мир как оживший дерзкий плакат: крупные угловатые силуэты, грубая бумага, резкие диагонали и выразительные позы. В спокойном районе тёплая бумага и чёрная тушь; карантин разрывает композицию красными полосами. Меньше мягкого свечения, больше графики и характера.", "palette": ["#e4d0a3", "#252b33", "#c3463e", "#7d9b72", "#f5b93f"], "tags": ["2D", "плакат", "графика", "гротеск"], "pros": ["Самый выразительный смешной герой", "слои рисунка удобно проектировать под скелетную анимацию"], "cons": ["Меньше мягкой кинематографичной атмосферы", "нужны хорошие позы и силуэты, плоская графика не скрывает ошибок"], "media": [{"src": "..\\..\\refs\\paper-punk\\steam-f0150cbf.jpg", "caption": "Взять крупные угловатые плиты, чёткую линию пола и чёрные силуэты переднего плана; рельеф стен перевести в слои бумаги. Избегать обилия мелкого орнамента и зелёного свечения; персонажей не копировать.", "source": "https://store.steampowered.com/app/534550/", "credit": "Drinkbox Studios", "license": "© Drinkbox Studios — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\paper-punk\\steam-a68efe0e.jpg", "caption": "Взять красную кромку опасности, резкие диагонали и контраст чёрных провалов с крупными платформами: так карантин может менять весь уровень. Избегать разноцветных светящихся контуров; персонажей и орнаменты не копировать.", "source": "https://store.steampowered.com/app/534550/", "credit": "Drinkbox Studios", "license": "© Drinkbox Studios — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\paper-punk\\steam-b608cfbe.jpg", "caption": "Взять сильную разницу масштаба планов, выразительные наклоны тел и пустое пространство вокруг героя; бумажные слои тоже должны давать такую глубину. Избегать густой зелени и мягкого сказочного света; чужих персонажей не копировать.", "source": "https://store.steampowered.com/app/242550/", "credit": "Ubisoft Montpellier", "license": "© Ubisoft Montpellier — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\paper-punk\\steam-7df76cac.jpg", "caption": "Взять диагональный импульс атаки, разлёт крупных обломков и красный угловатый силуэт угрозы на приглушённом фоне. Для Лося усилить замах и отдачу скелетной анимацией; избегать круглых игрушечных врагов, персонажей не копировать.", "source": "https://store.steampowered.com/app/242550/", "credit": "Ubisoft Montpellier", "license": "© Ubisoft Montpellier — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\paper-punk\\wikimedia-7d182ce6.jpg", "caption": "Взять тёплую бумагу, зернистую чёрную тушь, одну красную диагональ и огромные простые массы. Красный закрепить за карантином Firewall; лозунг, историческую символику и точную композицию плаката не переносить.", "source": "https://commons.wikimedia.org/wiki/File:Klinom_Krasnym_Bej_Belych.JPG", "credit": "El Lissitzky", "license": "Public domain", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\paper-punk\\steam-5e1ee551.jpg", "caption": "Взять толстую чёрную линию, шероховатые цветовые пятна и монументальную композицию из крупных вырезанных частей: так могут выглядеть фоновые панно района. Избегать жёлтого во всём кадре и религиозного пафоса; фигуру чужого героя не копировать.", "source": "https://store.steampowered.com/app/534550/", "credit": "Drinkbox Studios", "license": "© Drinkbox Studios — moodboard only", "generated": false, "kind": "image"}, {"src": "..\\..\\refs\\paper-punk\\steam-e8f643c4.jpg", "caption": "Взять ломаные силуэты врагов, крупную кистевую дугу удара и наклонённую архитектуру арены; такие формы читаются при быстром комбо. Избегать четырёх полос HUD и одновременных кислотных цветов; чужих персонажей не копировать.", "source": "https://store.steampowered.com/app/534550/", "credit": "Drinkbox Studios", "license": "© Drinkbox Studios — moodboard only", "generated": false, "kind": "image"}]}]}</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+const KEY = 'studioigor-board:' + location.pathname;
+let S = {selected: [], reactions: {}, comments: {}, comment: ''};
+try { const v = localStorage.getItem(KEY); if (v) S = Object.assign(S, JSON.parse(v)); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} stat(); };
+const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h != null) e.textContent = h; return e; };
+document.getElementById('t').textContent = D.title || '';
+document.getElementById('s').textContent = D.subtitle || '';
+document.getElementById('qq').textContent = D.question || '';
+document.title = D.title || 'Board';
+const flat = [];
+const box = document.getElementById('opts');
+(D.options || []).forEach(o => {
+  const c = el('section', 'opt'); c.dataset.id = o.id;
+  const hd = el('div', 'ohd'); hd.appendChild(el('h2', '', o.title));
+  if (D.mode !== 'none') {
+    const b = el('button', 'pick', D.mode === 'multi' ? 'Отметить' : 'Выбрать');
+    b.onclick = () => {
+      if (D.mode === 'multi') S.selected = S.selected.includes(o.id) ? S.selected.filter(x => x !== o.id) : [...S.selected, o.id];
+      else S.selected = S.selected.includes(o.id) ? [] : [o.id];
+      paint(); save();
+    };
+    hd.appendChild(b);
+  }
+  c.appendChild(hd);
+  if (o.tags && o.tags.length) { const t = el('div', 'tags'); o.tags.forEach(x => t.appendChild(el('span', 'tag', x))); c.appendChild(t); }
+  if (o.text) c.appendChild(el('p', 'text', o.text));
+  if (o.palette && o.palette.length) {
+    const p = el('div', 'pal');
+    o.palette.forEach(h => { const w = el('div', 'sw'); w.style.background = h; w.appendChild(el('span', '', h)); p.appendChild(w); });
+    c.appendChild(p);
+  }
+  if ((o.pros && o.pros.length) || (o.cons && o.cons.length)) {
+    const pc = el('div', 'pc');
+    [['Сильные стороны', o.pros || []], ['Что потребует работы', o.cons || []]].forEach(([h, l]) => {
+      const d = el('div'); d.appendChild(el('h4', '', h)); const u = el('ul'); l.forEach(x => u.appendChild(el('li', '', x))); d.appendChild(u); pc.appendChild(d);
+    });
+    c.appendChild(pc);
+  }
+  if (o.media && o.media.length) {
+    const g = el('div', 'grid');
+    o.media.forEach(m => {
+      const idx = flat.length; flat.push(m);
+      const key = m.src;
+      const w = el('div', 'm'); w.dataset.key = key;
+      const v = m.kind === 'video' ? el('video') : el('img');
+      if (m.kind === 'video') { v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; }
+      else v.loading = 'lazy';
+      v.src = m.src; v.alt = m.caption || ''; v.onclick = () => lb(idx);
+      w.appendChild(v);
+      if (m.generated) w.appendChild(el('span', 'gen', 'generated'));
+      const bar = el('div', 'bar');
+      const bl = el('button', 'b-like', 'Нравится'); bl.onclick = () => react(key, 'like');
+      const bd = el('button', 'b-dis', 'Мимо'); bd.onclick = () => react(key, 'dislike');
+      bar.appendChild(bl); bar.appendChild(bd); bar.appendChild(el('span', 'cap', m.caption || ''));
+      w.appendChild(bar); g.appendChild(w);
+    });
+    c.appendChild(g);
+  }
+  const ta = el('textarea'); ta.placeholder = 'Что взять из направления «' + o.title + '»?';
+  ta.value = S.comments[o.id] || ''; ta.oninput = () => { S.comments[o.id] = ta.value; save(); };
+  c.appendChild(ta);
+  box.appendChild(c);
+});
+const gc = document.getElementById('gc'); gc.value = S.comment || ''; gc.oninput = () => { S.comment = gc.value; save(); };
+function react(k, v) { S.reactions[k] = S.reactions[k] === v ? undefined : v; if (!S.reactions[k]) delete S.reactions[k]; paint(); save(); }
+function paint() {
+  document.querySelectorAll('.opt').forEach(c => c.classList.toggle('sel', S.selected.includes(c.dataset.id)));
+  document.querySelectorAll('.m').forEach(w => { const r = S.reactions[w.dataset.key]; w.classList.toggle('like', r === 'like'); w.classList.toggle('dislike', r === 'dislike'); });
+}
+function stat() {
+  const r = Object.values(S.reactions);
+  document.getElementById('stat').textContent = 'Выбрано: ' + S.selected.length + ' · нравится: ' + r.filter(x => x === 'like').length + ' · мимо: ' + r.filter(x => x === 'dislike').length;
+}
+let cur = -1;
+function lb(i) {
+  cur = i; const m = flat[i]; const L = document.getElementById('lb'); L.innerHTML = '';
+  const v = m.kind === 'video' ? el('video') : el('img'); v.src = m.src;
+  if (m.kind === 'video') { v.controls = true; v.autoplay = true; v.loop = true; }
+  L.appendChild(v);
+  const meta = el('div', 'meta');
+  meta.appendChild(document.createTextNode([m.caption, m.credit, m.license, m.generated ? 'generated' : ''].filter(Boolean).join(' · ') + ' '));
+  if (m.source) { const a = el('a', '', 'источник'); a.href = m.source; a.target = '_blank'; a.rel = 'noopener'; meta.appendChild(a); }
+  meta.appendChild(el('div', '', '← → листать · Esc закрыть · L нравится · D мимо'));
+  L.appendChild(meta); L.classList.add('on');
+}
+document.getElementById('lb').onclick = e => { if (e.target.id === 'lb') { e.currentTarget.classList.remove('on'); cur = -1; } };
+document.addEventListener('keydown', e => {
+  if (cur < 0) return;
+  if (e.key === 'Escape') { document.getElementById('lb').classList.remove('on'); cur = -1; }
+  if (e.key === 'ArrowRight') lb((cur + 1) % flat.length);
+  if (e.key === 'ArrowLeft') lb((cur - 1 + flat.length) % flat.length);
+  if (e.key === 'l' || e.key === 'L' || e.key === '\u0434') react(flat[cur].src, 'like');
+  if (e.key === 'd' || e.key === 'D' || e.key === '\u0432') react(flat[cur].src, 'dislike');
+});
+function overlay(nodes) { const b = document.getElementById('ovb'); b.innerHTML = ''; nodes.forEach(n => b.appendChild(n)); document.getElementById('ov').classList.add('on'); }
+document.getElementById('ov').onclick = e => { if (e.target.id === 'ov') e.currentTarget.classList.remove('on'); };
+document.getElementById('send').onclick = async () => {
+  const payload = {board: D.title, selected: S.selected, reactions: S.reactions, comments: S.comments, comment: S.comment};
+  try {
+    const r = await fetch('/api/feedback', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)});
+    if (!r.ok) throw new Error(r.status);
+    overlay([el('h2', '', 'Выбор сохранён'), el('p', '', 'Можно вернуться в чат. Ваши отметки сохранены для следующего шага.')]);
+  } catch (e) {
+    const ta = el('textarea'); ta.value = JSON.stringify(payload, null, 2);
+    const cp = el('button', 'send', 'Copy'); cp.onclick = () => { ta.select(); try { navigator.clipboard.writeText(ta.value); } catch (x) { document.execCommand('copy'); } cp.textContent = 'Copied'; };
+    overlay([el('h2', '', 'The board server is not running'), el('p', '', 'Copy the feedback and paste it into the chat with the agent.'), ta, cp]);
+  }
+};
+paint(); stat();
+</script>
+</body>
+</html>

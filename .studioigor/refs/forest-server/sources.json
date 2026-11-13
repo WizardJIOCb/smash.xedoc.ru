@@ -16,21 +16,6 @@
   ],
   "items": [
     {
-      "file": "steam-ec5fbc34.jpg",
-      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_0cf0ec6681ae5771173790dbc99ddb3bf3b886ad.1920x1080.jpg?t=1759530749",
-      "page": "https://store.steampowered.com/app/1057090/",
-      "title": "Ori and the Will of the Wisps — screenshot 1",
-      "credit": "Moon Studios GmbH",
-      "license": "© Moon Studios GmbH — moodboard only",
-      "api": "steam",
-      "query": "Ori and the Will of the Wisps",
-      "generated": false,
-      "note": "",
-      "w": 1920,
-      "h": 1080,
-      "sha1": "ec5fbc347c419dcfcad29030d65fd56fcd023245"
-    },
-    {
       "file": "steam-5a8cb579.jpg",
       "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_f8ac174b7949e89fe1939a7bd2c471785dee55f0.1920x1080.jpg?t=1759530749",
       "page": "https://store.steampowered.com/app/1057090/",
@@ -40,25 +25,85 @@
       "api": "steam",
       "query": "Ori and the Will of the Wisps",
       "generated": false,
-      "note": "",
+      "note": "Берём тёмную рамку из корней, три плана глубины и светящиеся края опасных проходов; для серверной переводим корни в сплетение с кабелями. Чужой герой не заимствуется.",
       "w": 1920,
       "h": 1080,
       "sha1": "5a8cb5794d34fbce4bb94f75b6d2288978761598"
     },
     {
-      "file": "steam-bea6fd1b.jpg",
-      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_3ae04b208aaff3869f69617c47449ec1d7a06513.1920x1080.jpg?t=1759530749",
+      "file": "steam-946c0259.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1369630/ss_1c2bf22139c82d0c46ccee075e1e71e08b88ab44.1920x1080.jpg?t=1788931074",
+      "page": "https://store.steampowered.com/app/1369630/",
+      "title": "ENDER LILIES: Quietus of the Knights — screenshot 1",
+      "credit": "Live Wire, Adglobe",
+      "license": "© Live Wire, Adglobe — moodboard only",
+      "api": "steam",
+      "query": "ENDER LILIES: Quietus of the Knights",
+      "generated": false,
+      "note": "Берём широкий яркий след удара на приглушённом фоне: направление и дистанция атаки читаются мгновенно. Архитектуру заменяем промышленными окнами; чужой герой не заимствуется.",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "946c02596666f4652400cbb285fc72d8b8e60fcc"
+    },
+    {
+      "file": "steam-94831838.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_608e317acbb76258bedcf1a79e6673a61475908f.1920x1080.jpg?t=1759530749",
       "page": "https://store.steampowered.com/app/1057090/",
-      "title": "Ori and the Will of the Wisps — screenshot 3",
+      "title": "Ori and the Will of the Wisps — screenshot 4",
       "credit": "Moon Studios GmbH",
       "license": "© Moon Studios GmbH — moodboard only",
       "api": "steam",
       "query": "Ori and the Will of the Wisps",
       "generated": false,
-      "note": "",
+      "note": "Берём силуэт заброшенного механизма в тёплой дымке, мох на игровом мосту и холодное свечение атаки. Это опора для заросшей серверной; чужой герой не заимствуется.",
       "w": 1920,
       "h": 1080,
-      "sha1": "bea6fd1b0a4189501098f79bed8b829f251e01c5"
+      "sha1": "94831838732f2b12b844ab2665ecc09690f826ac"
+    },
+    {
+      "file": "steam-9be07f14.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_57ea45c3711319429b19ac62c0a21997b10e1042.1920x1080.jpg?t=1759530749",
+      "page": "https://store.steampowered.com/app/1057090/",
+      "title": "Ori and the Will of the Wisps — screenshot 6",
+      "credit": "Moon Studios GmbH",
+      "license": "© Moon Studios GmbH — moodboard only",
+      "api": "steam",
+      "query": "Ori and the Will of the Wisps",
+      "generated": false,
+      "note": "Берём крупный диагональный корень как платформу, мягкие массы мха и разницу резкости ближнего и дальнего леса. Синий ночной свет связывает весь уровень; чужой герой не заимствуется.",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "9be07f14e768a7937ada7fba0217ed236dd282b1"
+    },
+    {
+      "file": "steam-79bf1e48.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_2d23f9ee1da98b25895c65cf39500e18ee55f7a2.1920x1080.jpg?t=1759530749",
+      "page": "https://store.steampowered.com/app/1057090/",
+      "title": "Ori and the Will of the Wisps — screenshot 7",
+      "credit": "Moon Studios GmbH",
+      "license": "© Moon Studios GmbH — moodboard only",
+      "api": "steam",
+      "query": "Ori and the Will of the Wisps",
+      "generated": false,
+      "note": "Берём контровой янтарный свет сквозь глубокую шахту и большие нависающие природные формы: после освобождения узла весь уровень может потеплеть. Чужой герой не заимствуется.",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "79bf1e48fc2a34b5fb135337eccd67dbcb3942cf"
+    },
+    {
+      "file": "steam-eedf48cb.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_1978ac093423e8258d6f7b78259be923d8f1d2e2.1920x1080.jpg?t=1759530749",
+      "page": "https://store.steampowered.com/app/1057090/",
+      "title": "Ori and the Will of the Wisps — screenshot 9",
+      "credit": "Moon Studios GmbH",
+      "license": "© Moon Studios GmbH — moodboard only",
+      "api": "steam",
+      "query": "Ori and the Will of the Wisps",
+      "generated": false,
+      "note": "Берём холодный свет активного узла на оливковом фоне и округлые формы, поглощённые растительностью. В нашей версии это стойки серверов под корнями; чужой герой не заимствуется.",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "eedf48cbe0ef397dceb68a9515255249a7fd6bbe"
     }
   ],
   "pros": [
@@ -68,5 +113,42 @@
   "cons": [
     "Самая дорогая живописная графика",
     "нужно специально вписать спортивку и юмор"
+  ],
+  "dropped": [
+    {
+      "file": "steam-ec5fbc34.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_0cf0ec6681ae5771173790dbc99ddb3bf3b886ad.1920x1080.jpg?t=1759530749",
+      "sha1": "ec5fbc347c419dcfcad29030d65fd56fcd023245"
+    },
+    {
+      "file": "steam-bea6fd1b.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_3ae04b208aaff3869f69617c47449ec1d7a06513.1920x1080.jpg?t=1759530749",
+      "sha1": "bea6fd1b0a4189501098f79bed8b829f251e01c5"
+    },
+    {
+      "file": "steam-f80c04ad.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1369630/ss_a3d8c04253e525da1907fd8028ab66a318c1f0c1.1920x1080.jpg?t=1788931074",
+      "sha1": "f80c04adce203875a4114756b3618cc801248afa"
+    },
+    {
+      "file": "steam-1a63e153.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1369630/ss_0076f81d06eb547dbec80d06a3148c1c614f540b.1920x1080.jpg?t=1788931074",
+      "sha1": "1a63e153d5b748c382d096e33f00579f71543674"
+    },
+    {
+      "file": "steam-277f3e99.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_d33bc7bb1d106b841a28d1cf3403fb7b1188252f.1920x1080.jpg?t=1759530749",
+      "sha1": "277f3e9956db74c4ae626196b0f9a24fbc7f8dfe"
+    },
+    {
+      "file": "steam-7e468831.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_360216e1e58b6fbfcf8892b34f9a80e6648815a4.1920x1080.jpg?t=1759530749",
+      "sha1": "7e468831c4b7dfc10cae7d67ab2b88fbdcc9d904"
+    },
+    {
+      "file": "steam-a581cc98.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_ef58cebbef92a08648c77d451afd1d57922523a5.1920x1080.jpg?t=1759530749",
+      "sha1": "a581cc9840608a16f06a65ffe7a5495f2cf3437d"
+    }
   ]
 }

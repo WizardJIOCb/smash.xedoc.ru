@@ -25,7 +25,7 @@
       "api": "steam",
       "query": "Mark of the Ninja: Remastered",
       "generated": false,
-      "note": "",
+      "note": "Mark of the Ninja — берём выразительный рисованный силуэт, контраст героя и тёплый конус света; японский интерьер и персонажа не заимствуем.",
       "w": 1920,
       "h": 1080,
       "sha1": "677b6545dcf34b28c6f9c6860f6fd82556c14dde"
@@ -40,7 +40,7 @@
       "api": "steam",
       "query": "Mark of the Ninja: Remastered",
       "generated": false,
-      "note": "",
+      "note": "Mark of the Ninja — холодная серверная, провода и отдельные световые зоны; игровые уступы остаются чёткими на фоне декора.",
       "w": 1920,
       "h": 1080,
       "sha1": "2cb5ede0c1c493dc77adf1728cf80bb675f3bd9e"
@@ -55,7 +55,7 @@
       "api": "steam",
       "query": "F.I.S.T.: Forged In Shadow Torch",
       "generated": false,
-      "note": "",
+      "note": "F.I.S.T. — тёплый островок жизни: пар, окна, маленький киоск среди тяжёлого города. Референс света и деталей; это 3D, наш герой будет рисованным 2D.",
       "w": 1920,
       "h": 1080,
       "sha1": "16fe30a54d6a81acef03c82dc5ea485ce68ba0f3"
@@ -70,7 +70,7 @@
       "api": "steam",
       "query": "F.I.S.T.: Forged In Shadow Torch",
       "generated": false,
-      "note": "",
+      "note": "F.I.S.T. — главный ориентир глубины: тёмный ближний план, провода, светящиеся вывески, дальняя улица в дымке. Берём композицию света, без копирования архитектуры.",
       "w": 1920,
       "h": 1080,
       "sha1": "79c9bc53d7f81a5cd10babe425c723c10f76d657"
@@ -85,7 +85,7 @@
       "api": "steam",
       "query": "F.I.S.T.: Forged In Shadow Torch",
       "generated": false,
-      "note": "",
+      "note": "F.I.S.T. — крупная арка обрамляет освещённый путь и узел; подходит для сцены освобождения района. Референс окружения, не техники анимации.",
       "w": 1920,
       "h": 1080,
       "sha1": "dbd52bd30fe0f20b06a5292fe32cc00bd7939afd"
@@ -100,25 +100,10 @@
       "api": "wikimedia",
       "query": "Soviet apartment courtyard",
       "generated": false,
-      "note": "",
+      "note": "Фото Ефремова — узнаваемый масштаб двора: панели, гаражи, провисшие провода и простые входы. Берём бытовые формы; снег и дневную палитру не переносим.",
       "w": 1280,
       "h": 812,
       "sha1": "09b5bc8e9d7f5b31c64f73268da4b87e137890a5"
-    },
-    {
-      "file": "wikimedia-a61857b1.jpg",
-      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street1.jpg/1280px-Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "page": "https://commons.wikimedia.org/wiki/File:Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street1.jpg",
-      "title": "Efremov - 2026 - Soviet-style courtyard on Komsomolskaya street1",
-      "credit": "Юрий Д.К.",
-      "license": "CC BY 4.0",
-      "api": "wikimedia",
-      "query": "Soviet apartment courtyard",
-      "generated": false,
-      "note": "",
-      "w": 1280,
-      "h": 809,
-      "sha1": "a61857b1470d79918756920f3038060916c9078d"
     }
   ],
   "pros": [
@@ -128,5 +113,12 @@
   "cons": [
     "Нужны оригинальные фоны и аккуратное освещение",
     "3D-референсы показывают свет и масштаб, а не способ рисовать героя"
+  ],
+  "dropped": [
+    {
+      "file": "wikimedia-a61857b1.jpg",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street1.jpg/1280px-Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "sha1": "a61857b1470d79918756920f3038060916c9078d"
+    }
   ]
 }

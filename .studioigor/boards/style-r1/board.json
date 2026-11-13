@@ -1,0 +1,244 @@
+{
+  "title": "Лось: район закрыт — выбираем рисунок",
+  "subtitle": "Три визуальных направления. Это референсы чужих работ; графики нашей игры здесь пока нет. Герой во всех вариантах планируется в 2D со скелетной анимацией.",
+  "question": "Выбери направление, отметь понравившиеся кадры и напиши, что взять из остальных. Моя рекомендация — дождливый город; можно смешать его свет с пластикой бумажного мультфильма.",
+  "mode": "single",
+  "options": [
+    {
+      "id": "concrete-rain",
+      "title": "Дождь, бетон и янтарный свет",
+      "text": "Рекомендую. Огромный холодный город и маленькие тёплые островки жизни. Вывески отражаются в лужах, туман разделяет планы, красный оставлен карантину Firewall. Герой — выразительная рисованная фигура с костной анимацией; архитектура тяжёлая и вертикальная.",
+      "palette": [
+        "#101d2c",
+        "#294957",
+        "#d6a257",
+        "#e8d5b3",
+        "#f04d45"
+      ],
+      "tags": [
+        "2D",
+        "город",
+        "дождь",
+        "рисованный герой"
+      ],
+      "pros": [
+        "Сильная связь с историей и юмором героя",
+        "эффектный переход от карантина к живому району"
+      ],
+      "cons": [
+        "Нужны оригинальные фоны и аккуратное освещение",
+        "3D-референсы показывают свет и масштаб, а не способ рисовать героя"
+      ],
+      "media": [
+        {
+          "src": "..\\..\\refs\\concrete-rain\\steam-677b6545.jpg",
+          "caption": "Mark of the Ninja — берём выразительный рисованный силуэт, контраст героя и тёплый конус света; японский интерьер и персонажа не заимствуем.",
+          "source": "https://store.steampowered.com/app/860950/",
+          "credit": "Klei Entertainment",
+          "license": "© Klei Entertainment — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\concrete-rain\\steam-2cb5ede0.jpg",
+          "caption": "Mark of the Ninja — холодная серверная, провода и отдельные световые зоны; игровые уступы остаются чёткими на фоне декора.",
+          "source": "https://store.steampowered.com/app/860950/",
+          "credit": "Klei Entertainment",
+          "license": "© Klei Entertainment — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\concrete-rain\\steam-16fe30a5.jpg",
+          "caption": "F.I.S.T. — тёплый островок жизни: пар, окна, маленький киоск среди тяжёлого города. Референс света и деталей; это 3D, наш герой будет рисованным 2D.",
+          "source": "https://store.steampowered.com/app/1330470/",
+          "credit": "TiGames",
+          "license": "© TiGames — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\concrete-rain\\steam-79c9bc53.jpg",
+          "caption": "F.I.S.T. — главный ориентир глубины: тёмный ближний план, провода, светящиеся вывески, дальняя улица в дымке. Берём композицию света, без копирования архитектуры.",
+          "source": "https://store.steampowered.com/app/1330470/",
+          "credit": "TiGames",
+          "license": "© TiGames — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\concrete-rain\\steam-dbd52bd3.jpg",
+          "caption": "F.I.S.T. — крупная арка обрамляет освещённый путь и узел; подходит для сцены освобождения района. Референс окружения, не техники анимации.",
+          "source": "https://store.steampowered.com/app/1330470/",
+          "credit": "TiGames",
+          "license": "© TiGames — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\concrete-rain\\wikimedia-09b5bc8e.jpg",
+          "caption": "Фото Ефремова — узнаваемый масштаб двора: панели, гаражи, провисшие провода и простые входы. Берём бытовые формы; снег и дневную палитру не переносим.",
+          "source": "https://commons.wikimedia.org/wiki/File:Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street.jpg",
+          "credit": "Юрий Д.К.",
+          "license": "CC BY 4.0",
+          "generated": false
+        }
+      ]
+    },
+    {
+      "id": "forest-server",
+      "title": "Лес съел серверную",
+      "text": "Свет рождается внутри растений и забытых механизмов. Мягкие природные арки обрастают кабелями, маленький герой теряется среди огромных корней. Холодное свечение, тёплые убежища и живописная глубина; освобождение района превращает выжженную зону в живую.",
+      "palette": [
+        "#101c28",
+        "#24505c",
+        "#56d7c8",
+        "#c8e8bf",
+        "#e6a755"
+      ],
+      "tags": [
+        "2D",
+        "живописность",
+        "биолюминесценция",
+        "природа"
+      ],
+      "pros": [
+        "Самое сказочное и атмосферное направление",
+        "сильная смена состояний мира"
+      ],
+      "cons": [
+        "Самая дорогая живописная графика",
+        "нужно специально вписать спортивку и юмор"
+      ],
+      "media": [
+        {
+          "src": "..\\..\\refs\\forest-server\\steam-5a8cb579.jpg",
+          "caption": "Берём тёмную рамку из корней, три плана глубины и светящиеся края опасных проходов; для серверной переводим корни в сплетение с кабелями. Чужой герой не заимствуется.",
+          "source": "https://store.steampowered.com/app/1057090/",
+          "credit": "Moon Studios GmbH",
+          "license": "© Moon Studios GmbH — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\forest-server\\steam-946c0259.jpg",
+          "caption": "Берём широкий яркий след удара на приглушённом фоне: направление и дистанция атаки читаются мгновенно. Архитектуру заменяем промышленными окнами; чужой герой не заимствуется.",
+          "source": "https://store.steampowered.com/app/1369630/",
+          "credit": "Live Wire, Adglobe",
+          "license": "© Live Wire, Adglobe — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\forest-server\\steam-94831838.jpg",
+          "caption": "Берём силуэт заброшенного механизма в тёплой дымке, мох на игровом мосту и холодное свечение атаки. Это опора для заросшей серверной; чужой герой не заимствуется.",
+          "source": "https://store.steampowered.com/app/1057090/",
+          "credit": "Moon Studios GmbH",
+          "license": "© Moon Studios GmbH — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\forest-server\\steam-9be07f14.jpg",
+          "caption": "Берём крупный диагональный корень как платформу, мягкие массы мха и разницу резкости ближнего и дальнего леса. Синий ночной свет связывает весь уровень; чужой герой не заимствуется.",
+          "source": "https://store.steampowered.com/app/1057090/",
+          "credit": "Moon Studios GmbH",
+          "license": "© Moon Studios GmbH — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\forest-server\\steam-79bf1e48.jpg",
+          "caption": "Берём контровой янтарный свет сквозь глубокую шахту и большие нависающие природные формы: после освобождения узла весь уровень может потеплеть. Чужой герой не заимствуется.",
+          "source": "https://store.steampowered.com/app/1057090/",
+          "credit": "Moon Studios GmbH",
+          "license": "© Moon Studios GmbH — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\forest-server\\steam-eedf48cb.jpg",
+          "caption": "Берём холодный свет активного узла на оливковом фоне и округлые формы, поглощённые растительностью. В нашей версии это стойки серверов под корнями; чужой герой не заимствуется.",
+          "source": "https://store.steampowered.com/app/1057090/",
+          "credit": "Moon Studios GmbH",
+          "license": "© Moon Studios GmbH — moodboard only",
+          "generated": false
+        }
+      ]
+    },
+    {
+      "id": "paper-punk",
+      "title": "Бумажный панк",
+      "text": "Мир как оживший дерзкий плакат: крупные угловатые силуэты, грубая бумага, резкие диагонали и выразительные позы. В спокойном районе тёплая бумага и чёрная тушь; карантин разрывает композицию красными полосами. Меньше мягкого свечения, больше графики и характера.",
+      "palette": [
+        "#e4d0a3",
+        "#252b33",
+        "#c3463e",
+        "#7d9b72",
+        "#f5b93f"
+      ],
+      "tags": [
+        "2D",
+        "плакат",
+        "графика",
+        "гротеск"
+      ],
+      "pros": [
+        "Самый выразительный смешной герой",
+        "слои рисунка удобно проектировать под скелетную анимацию"
+      ],
+      "cons": [
+        "Меньше мягкой кинематографичной атмосферы",
+        "нужны хорошие позы и силуэты, плоская графика не скрывает ошибок"
+      ],
+      "media": [
+        {
+          "src": "..\\..\\refs\\paper-punk\\steam-f0150cbf.jpg",
+          "caption": "Взять крупные угловатые плиты, чёткую линию пола и чёрные силуэты переднего плана; рельеф стен перевести в слои бумаги. Избегать обилия мелкого орнамента и зелёного свечения; персонажей не копировать.",
+          "source": "https://store.steampowered.com/app/534550/",
+          "credit": "Drinkbox Studios",
+          "license": "© Drinkbox Studios — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\paper-punk\\steam-a68efe0e.jpg",
+          "caption": "Взять красную кромку опасности, резкие диагонали и контраст чёрных провалов с крупными платформами: так карантин может менять весь уровень. Избегать разноцветных светящихся контуров; персонажей и орнаменты не копировать.",
+          "source": "https://store.steampowered.com/app/534550/",
+          "credit": "Drinkbox Studios",
+          "license": "© Drinkbox Studios — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\paper-punk\\steam-b608cfbe.jpg",
+          "caption": "Взять сильную разницу масштаба планов, выразительные наклоны тел и пустое пространство вокруг героя; бумажные слои тоже должны давать такую глубину. Избегать густой зелени и мягкого сказочного света; чужих персонажей не копировать.",
+          "source": "https://store.steampowered.com/app/242550/",
+          "credit": "Ubisoft Montpellier",
+          "license": "© Ubisoft Montpellier — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\paper-punk\\steam-7df76cac.jpg",
+          "caption": "Взять диагональный импульс атаки, разлёт крупных обломков и красный угловатый силуэт угрозы на приглушённом фоне. Для Лося усилить замах и отдачу скелетной анимацией; избегать круглых игрушечных врагов, персонажей не копировать.",
+          "source": "https://store.steampowered.com/app/242550/",
+          "credit": "Ubisoft Montpellier",
+          "license": "© Ubisoft Montpellier — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\paper-punk\\wikimedia-7d182ce6.jpg",
+          "caption": "Взять тёплую бумагу, зернистую чёрную тушь, одну красную диагональ и огромные простые массы. Красный закрепить за карантином Firewall; лозунг, историческую символику и точную композицию плаката не переносить.",
+          "source": "https://commons.wikimedia.org/wiki/File:Klinom_Krasnym_Bej_Belych.JPG",
+          "credit": "El Lissitzky",
+          "license": "Public domain",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\paper-punk\\steam-5e1ee551.jpg",
+          "caption": "Взять толстую чёрную линию, шероховатые цветовые пятна и монументальную композицию из крупных вырезанных частей: так могут выглядеть фоновые панно района. Избегать жёлтого во всём кадре и религиозного пафоса; фигуру чужого героя не копировать.",
+          "source": "https://store.steampowered.com/app/534550/",
+          "credit": "Drinkbox Studios",
+          "license": "© Drinkbox Studios — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "..\\..\\refs\\paper-punk\\steam-e8f643c4.jpg",
+          "caption": "Взять ломаные силуэты врагов, крупную кистевую дугу удара и наклонённую архитектуру арены; такие формы читаются при быстром комбо. Избегать четырёх полос HUD и одновременных кислотных цветов; чужих персонажей не копировать.",
+          "source": "https://store.steampowered.com/app/534550/",
+          "credit": "Drinkbox Studios",
+          "license": "© Drinkbox Studios — moodboard only",
+          "generated": false
+        }
+      ]
+    }
+  ]
+}
