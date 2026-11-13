@@ -11,6 +11,16 @@ func _ready() -> void:
 	var preferences := ConfigFile.new()
 	if preferences.load("user://audio.cfg") == OK:
 		muted = bool(preferences.get_value("sound", "muted", true))
+	if OS.has_feature("web"):
+		var saved = JavaScriptBridge.eval(
+			(
+				"(() => { try { return localStorage.getItem('smash-sound-muted'); }"
+				+ " catch (_) { return null; } })()"
+			),
+			true
+		)
+		if saved is String and saved in ["true", "false"]:
+			muted = saved == "true"
 	var settings := {
 		"hit": [92, 0.15, 0.7],
 		"block": [520, 0.12, 0.45],
@@ -38,6 +48,16 @@ func set_muted(value: bool) -> void:
 	var preferences := ConfigFile.new()
 	preferences.set_value("sound", "muted", muted)
 	preferences.save("user://audio.cfg")
+	# Web user:// flush is asynchronous. Persist this small explicit choice now,
+	# including when the player immediately reloads or follows ?cache=clear.
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval(
+			(
+				"try { localStorage.setItem('smash-sound-muted', %s); } catch (_) {}"
+				% JSON.stringify(str(muted).to_lower())
+			),
+			true
+		)
 
 
 func play(id: String) -> void:
