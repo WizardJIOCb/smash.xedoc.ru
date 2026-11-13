@@ -43,3 +43,17 @@ One session — one section. The user's feedback — verbatim. The first questio
 - Checks: 13/13 pure motion/sequence/rig tests. Earlier native combat-v9/v10: 147 frames each, zero engine errors. Live v9 browser proved four alternating punches, air/low attacks, backpedalling and planned stopping distance (105.2644 planned/actual); current v11 final review recorded separately in captures/combos-v11.
 - Awaiting user feedback on feel; full combat damage/enemies and phase5 visual acceptance remain open.
 - Final follow-ups: rear airborne shoe gets a distinct toe angle; high kick v13 drives hips further toward support and torso farther back before extension. Native high-kick-v13: 94 frames, zero errors; combos-v12: 100 frames, zero errors. Web v11 accepted 6 live taps as kick1:near / kick2:far / kick3:near / kick1:far / kick2:near / kick3:far. Final browser revision13 verified separately.
+
+
+## PT-06 — 2026-11-14 — physical deaths and guard v22
+- User: align enemy boots with Moose; physical skeletal deaths responding to hit location,
+  direction and height, blood mist/droplets/splashes and fading stains. Add a block key near attacks.
+- I holds a raised guard: damage25% rounded up, slow walk, no sprint/attacks;3guarded boar
+  hits leave85HP. Blood is smaller on ordinary hits, stronger on lethal; drones leak dark oil.
+- Native26tests/296assertions. Final route70frames,5kills/3relays/upper ledge/100HP,
+  no errors. Defense62frames: death25.35s,15physical bones, R restart restores upright hips.
+- Stable physics gallery distinguishes head hit, trip and inherited airborne fall; anatomy,
+  ground/ledge contacts, reflected skin, antlers and held weapons retain the painting.
+- Public v22 observed: guard reduces damage, player death uses physics; R returns control;
+  fatal impulse creates1corpse and34droplets with ground stains. Shared records remain online.
+- User art/feel approval remains open. Release https://smash.xedoc.ru/; cache reset via ?cache=clear.
