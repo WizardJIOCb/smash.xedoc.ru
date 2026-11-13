@@ -10,6 +10,8 @@ const PaintedRig = preload("res://scripts/actors/enemy_rig.gd")
 const Contact = preload("res://scripts/core/combat_contact.gd")
 const Ragdoll = preload("res://scripts/actors/skeletal_ragdoll.gd")
 
+@export var art_profile: String = ""
+
 var kind: String = "shield"
 var target: Node2D
 var tuning: Dictionary
@@ -28,6 +30,15 @@ var aim := Vector2.ZERO
 var paused: bool = false
 var hits_received: int = 0
 var corpse: Ragdoll
+var boss: bool = false
+var phase: int = 1
+var phase_count: int = 1
+var attacks_completed: int = 0
+var shots_fired: int = 0
+var melee_contacts: int = 0
+var _events_fired: int = 0
+var _attack_index: int = 0
+var _phase_pause: float = 0.0
 var _contact := Contact.new()
 var _clock: float = 0.0
 var _base_y: float = 0.0
@@ -38,15 +49,20 @@ func _ready() -> void:
 	maximum_health = int(tuning.health)
 	health = maximum_health
 	_base_y = position.y
+	boss = bool(tuning.get("boss", false))
+	phase_count = 3 if kind == "firewall" else (2 if boss else 1)
 	rig = PaintedRig.new()
 	rig.kind = kind
+	rig.art_profile = art_profile
+	rig.body_scale = float(tuning.get("scale", 1.0))
 	add_child(rig)
 
 
 func hurtbox() -> Rect2:
 	if kind == "drone":
 		return Rect2(position + Vector2(-46, -95), Vector2(92, 52))
-	return Rect2(position + Vector2(-31, -170), Vector2(62, 167))
+	var size := float(tuning.get("scale", 1.0))
+	return Rect2(position + Vector2(-31 * size, 10 - 180 * size), Vector2(62, 167) * size)
 
 
 func receive_hit(
@@ -67,15 +83,20 @@ func receive_hit(
 		feedback.emit(position + Vector2(0, -140), "ЩИТ РАСКРЫТ", Color("e2b36e"), "block")
 	health = maxi(0, health - damage)
 	flash = 0.16
-	stun = 0.24 if kind_hit == "punch" else 0.42
+	stun = (0.07 if boss else 0.24) if kind_hit == "punch" else (0.12 if boss else 0.42)
 	guard_down = maxf(guard_down, stun)
-	push = signf(position.x - source.x) * (90 if kind_hit == "punch" else 155)
-	state = "recovery"
-	elapsed = 0
+	push = (
+		signf(position.x - source.x) * (90 if kind_hit == "punch" else 155) * (0.2 if boss else 1.0)
+	)
+	# Boss attacks remain readable and cannot be permanently stun-locked by fast punches.
+	if not boss:
+		state = "recovery"
+		elapsed = 0
 	feedback.emit(hurtbox().get_center(), str(damage), Color("e7d3ac"), "hit")
 	var at: Vector2 = impact.get("at", hurtbox().get_center())
 	var direction: Vector2 = impact.get("direction", Vector2(signf(position.x - source.x), -0.3))
-	wounded.emit(at, direction, health <= 0, kind == "drone")
+	wounded.emit(at, direction, health <= 0, kind in ["drone", "firewall"])
+	_update_phase()
 	if health <= 0:
 		dead = true
 		elapsed = 0
@@ -97,7 +118,7 @@ func receive_corpse_hit(serial: int, at: Vector2, direction: Vector2, kind_hit: 
 		return false
 	if not corpse.react(at, direction, kind_hit):
 		return false
-	wounded.emit(at, direction, false, kind == "drone")
+	wounded.emit(at, direction, false, kind in ["drone", "firewall"])
 	return true
 
 
@@ -111,6 +132,8 @@ func _physics_process(delta: float) -> void:
 		return
 	_clock += delta
 	elapsed += delta
+	rig.recoil = move_toward(rig.recoil, 0, delta * 8)
+	rig.stomp = move_toward(rig.stomp, 0, delta * 5)
 	flash = maxf(0, flash - delta)
 	guard_down = maxf(0, guard_down - delta)
 	stun = maxf(0, stun - delta)
@@ -120,6 +143,12 @@ func _physics_process(delta: float) -> void:
 	position.x = clampf(position.x + push * delta, 70, 1175)
 	push = move_toward(push, 0, delta * 430)
 	if not is_instance_valid(target):
+		return
+	if _phase_pause > 0:
+		_phase_pause = maxf(0, _phase_pause - delta)
+		rig.pace = 0
+		rig.wind = 0
+		rig.strike = 0
 		return
 	if kind == "drone":
 		position.y = _base_y + sin(_clock * 2.4) * 12
@@ -132,6 +161,7 @@ func _physics_process(delta: float) -> void:
 			state = "attack"
 			elapsed = 0
 			_attack_fired = false
+			_events_fired = 0
 	elif state == "attack":
 		_attack(delta)
 	elif state == "recovery":
@@ -163,10 +193,20 @@ func _approach(delta: float) -> void:
 		state = "windup"
 		elapsed = 0
 		aim = target.position + Vector2(0, -100)
-		feedback.emit(position + Vector2(0, -180), "!", Color("e44a42"), "warn")
+		var warning := "!"
+		if kind in ["fox", "lynx"]:
+			warning = "ПРИЦЕЛ"
+		elif kind == "firewall":
+			warning = "ИМПУЛЬС · ПРЫГАЙ" if _uses_pulse() else "ЗАЛП"
+		elif kind == "foreman" and _uses_pulse():
+			warning = "ТОПОТ · ПРЫГАЙ"
+		feedback.emit(position + Vector2(0, -180), warning, Color("e44a42"), "warn")
 
 
 func _attack(delta: float) -> void:
+	if kind not in ["shield", "whip", "drone"]:
+		_new_attack(delta)
+		return
 	rig.wind = 0
 	rig.strike = sin(minf(elapsed / float(tuning.active), 1) * PI)
 	if kind == "shield":
@@ -186,6 +226,92 @@ func _attack(delta: float) -> void:
 	if elapsed >= float(tuning.active):
 		state = "recovery"
 		elapsed = 0
+		attacks_completed += 1
+
+
+func is_ranged() -> bool:
+	return kind in ["drone", "fox", "lynx", "firewall"]
+
+
+func _update_phase() -> void:
+	if not boss or health <= 0:
+		return
+	var next := 1
+	if kind == "firewall":
+		next = (
+			3
+			if health <= maximum_health / 3.0
+			else (2 if health <= maximum_health * 2.0 / 3.0 else 1)
+		)
+	elif health <= maximum_health / 2.0:
+		next = 2
+	if next <= phase:
+		return
+	phase = next
+	state = "recovery"
+	elapsed = 0
+	_phase_pause = 0.8
+	feedback.emit(hurtbox().get_center(), "ФАЗА %d" % phase, Color("ffba70"), "warn")
+
+
+func _uses_pulse() -> bool:
+	return (
+		(kind == "firewall" and _attack_index % 2 == 1)
+		or (kind == "foreman" and phase == 2 and _attack_index % 2 == 1)
+	)
+
+
+func _new_attack(_delta: float) -> void:
+	var duration := float(tuning.active)
+	var count := 1
+	if kind == "hare" or (kind == "foreman" and phase == 2 and not _uses_pulse()):
+		count = 2
+	elif kind == "lynx":
+		count = 3
+	elif kind == "firewall" and not _uses_pulse():
+		count = phase + 1
+	# Every beat is emitted once even if a slow frame crosses several event times.
+	var interval := duration / maxf(count, 1)
+	var next_time := _events_fired * interval
+	rig.wind = 0
+	rig.strike = sin(fposmod(elapsed, interval) / interval * PI)
+	while _events_fired < count and elapsed >= next_time:
+		_events_fired += 1
+		if is_ranged() and not _uses_pulse():
+			var muzzle: Vector2 = rig.bones.near_hand.global_position + Vector2(facing * 18, -2)
+			shot.emit(muzzle, aim, int(tuning.damage))
+			shots_fired += 1
+			rig.recoil = 1.0
+		elif _uses_pulse():
+			_ground_pulse()
+		else:
+			_melee_beat()
+		next_time = _events_fired * interval
+	if elapsed >= duration:
+		state = "recovery"
+		elapsed = 0
+		_attack_index += 1
+		attacks_completed += 1
+		if kind in ["fox", "lynx"]:
+			feedback.emit(position + Vector2(0, -155), "ПЕРЕЗАРЯДКА", Color("e2b36e"), "")
+
+
+func _melee_beat() -> void:
+	var reach := float(tuning.reach)
+	var start := position.x if facing > 0 else position.x - reach
+	var area := Rect2(Vector2(start, position.y - 156), Vector2(reach, 146))
+	if area.intersects(_player_box()):
+		hit_player.emit(int(tuning.damage), position, false)
+		melee_contacts += 1
+
+
+func _ground_pulse() -> void:
+	rig.stomp = 1.0
+	feedback.emit(position + Vector2(0, -15), "УДАРНАЯ ВОЛНА", Color("ff704c"), "hit")
+	var near_ground := target.position.y >= position.y - 42
+	if near_ground and absf(target.position.x - position.x) <= float(tuning.reach):
+		hit_player.emit(int(tuning.damage), position, false)
+		melee_contacts += 1
 
 
 func _player_box() -> Rect2:
@@ -209,8 +335,18 @@ func _draw() -> void:
 		draw_arc(
 			center, 15 + charge * 10, -PI / 2, -PI / 2 + TAU * charge, 28, Color("e44a42"), 2, true
 		)
-		if kind == "drone":
+		if is_ranged() and not _uses_pulse():
 			draw_line(center, to_local(aim), Color(0.9, 0.22, 0.17, 0.3), 1, true)
+		if _uses_pulse():
+			draw_line(
+				Vector2(-float(tuning.reach), 5),
+				Vector2(float(tuning.reach), 5),
+				Color(1, 0.3, 0.12, 0.7),
+				4
+			)
+	if _uses_pulse() and state == "attack":
+		var radius := float(tuning.reach) * minf(elapsed / float(tuning.active), 1)
+		draw_arc(Vector2(0, 8), radius, PI, TAU, 32, Color(1, 0.4, 0.2, 0.8), 3, true)
 	if kind == "whip" and state == "attack":
 		var points := PackedVector2Array()
 		var grip := to_local(rig.bones.near_hand.global_position)
