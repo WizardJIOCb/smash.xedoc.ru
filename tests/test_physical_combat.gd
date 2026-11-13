@@ -52,7 +52,8 @@ func test_mirrored_ragdoll_keeps_skeleton_attached_and_hits_ground() -> void:
 	rig.add_child(corpse)
 	corpse.start(rig, rig.position + Vector2(0, -130), Vector2(-180, -80), Vector2(50, 250))
 	assert_eq(corpse.bodies.size(), 15)
-	assert_eq(corpse.joints.size(), 14)
+	assert_eq(corpse.physical_bodies.size(), 13)
+	assert_eq(corpse.joints.size(), 12)
 	for frame in range(150):
 		await get_tree().physics_frame
 	assert_gt(corpse.bodies.hips.position.y, 480.0, "Inherited fall reaches the ground")
@@ -73,8 +74,13 @@ func test_blood_lands_on_upper_surface_and_fades_with_bounded_particles() -> voi
 		blood._physics_process(0.025)
 	assert_gt(blood.landed, 34, "Droplets create secondary splashes")
 	assert_gt(blood.stains.size(), 0)
+	var depth_min := INF
+	var depth_max := -INF
 	for stain: Dictionary in blood.stains:
-		assert_almost_eq(stain.at.y, 120.5, 0.01, "Swept collision uses the first platform")
+		assert_between(stain.at.y, 106.0, 127.0, "First platform contact includes its road depth")
+		depth_min = minf(depth_min, stain.at.y)
+		depth_max = maxf(depth_max, stain.at.y)
+	assert_gt(depth_max - depth_min, 12.0, "Stains scatter through depth instead of forming a line")
 	for frame in range(760):
 		blood._physics_process(0.025)
 	assert_eq(blood.stains.size(), 0, "Rain washes all stains away after their lifetime")
@@ -96,6 +102,7 @@ func test_enemy_ragdolls_settle_without_stretched_joints_after_head_hit_and_trip
 	ground.add_child(shape)
 	add_child_autofree(ground)
 	var corpses: Array[Ragdoll] = []
+	var neck_spans: Array[float] = []
 	for index in range(2):
 		var rig := EnemyRig.new()
 		rig.kind = "shield" if index == 0 else "whip"
@@ -103,6 +110,9 @@ func test_enemy_ragdolls_settle_without_stretched_joints_after_head_hit_and_trip
 		rig.position = Vector2(300 + index * 600, 550)
 		add_child_autofree(rig)
 		await get_tree().process_frame
+		neck_spans.append(
+			rig.bones.head.global_position.distance_to(rig.bones.hips.global_position)
+		)
 		rig.ragdoll_active = true
 		var corpse := Ragdoll.new()
 		rig.add_child(corpse)
@@ -120,7 +130,9 @@ func test_enemy_ragdolls_settle_without_stretched_joints_after_head_hit_and_trip
 	)
 	for frame in range(240):
 		await get_tree().physics_frame
-	for corpse: Ragdoll in corpses:
+	await get_tree().process_frame
+	for index in range(corpses.size()):
+		var corpse := corpses[index]
 		assert_lt(corpse.joint_error(), 3.0, "Mirrored joints stay attached after settling")
 		assert_gt(corpse.bodies.hips.position.y, 490.0)
 		assert_lt(corpse.bodies.hips.position.y, 562.0)
@@ -129,3 +141,18 @@ func test_enemy_ragdolls_settle_without_stretched_joints_after_head_hit_and_trip
 			5.0,
 			"Corpse settles instead of gaining energy"
 		)
+		var painted: Node2D = corpse.rig
+		assert_lt(
+			absf(painted.bones.body.rotation), 0.3, "Spine keeps the trunk and pelvis aligned"
+		)
+		assert_lt(
+			absf(painted.bones.head.rotation), 0.45, "Neck cannot fold the muzzle into the chest"
+		)
+		assert_gt(
+			painted.bones.head.global_position.distance_to(painted.bones.hips.global_position),
+			neck_spans[index] * 0.95,
+			"Head stays outside the pelvis"
+		)
+		assert_true(corpse.settled, "A resting corpse stops simulating before its visual fade")
+		for body: RigidBody2D in corpse.physical_bodies:
+			assert_true(body.freeze, "Settled limbs consume no active solver work")

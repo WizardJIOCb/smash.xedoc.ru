@@ -24,6 +24,7 @@ def main():
     (OUT / 'cache-loader.js').write_text(loader, encoding='utf-8')
     page = (OUT / 'index.html').read_text(encoding='utf-8')
     page = page.replace('<html lang="en">', '<html lang="ru">')
+    page = page.replace('</head>', '<style>html,body{overscroll-behavior:none}canvas{touch-action:none;-webkit-user-select:none;user-select:none}</style></head>')
     page = page.replace('<script src="index.js"></script>', '<script src="cache-loader.js"></script>')
     page = page.replace('const GODOT_CONFIG = ', '(async () => {\nawait window.smashCacheReady;\nawait window.smashLoadEngine();\nconst GODOT_CONFIG = ', 1)
     page = page.replace("setStatusMode('hidden');", "setStatusMode('hidden');\n            window.smashPruneCache();", 1)

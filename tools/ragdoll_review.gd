@@ -79,7 +79,7 @@ func _physics_process(delta: float) -> void:
 		var item := {"t": time, "errors": []}
 		for corpse: Ragdoll in corpses:
 			var details := {}
-			for joint: PinJoint2D in corpse.joints:
+			for joint: PinJoint2D in corpse.joints if not corpse.settled else []:
 				var a: RigidBody2D = joint.get_node(joint.node_a)
 				var b: RigidBody2D = joint.get_node(joint.node_b)
 				details[str(b.name)] = snappedf(a.to_global(joint.get_meta("a")).distance_to(b.to_global(joint.get_meta("b"))), 0.01)

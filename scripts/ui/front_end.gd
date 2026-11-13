@@ -5,6 +5,7 @@ signal resume_requested
 signal submit_requested(name_text: String)
 signal mute_requested
 signal records_requested
+signal fps_requested(enabled: bool)
 
 const Moose = preload("res://scripts/actors/moose_rig.gd")
 const FONT = preload("res://assets/fonts/Manrope-Semibold.tres")
@@ -17,6 +18,7 @@ var home_title: Label
 var page: String = "home"
 var can_resume: bool = false
 var muted: bool = true
+var fps_enabled: bool = true
 var clock: float = 0.0
 var rows: Array = []
 var online: bool = false
@@ -75,7 +77,7 @@ func show_home(resumable: bool) -> void:
 	_button("Продолжить" if can_resume else "Войти во двор", 374, _play, true)
 	_button("Рекорды района", 438, show_records)
 	_button("Как играть", 502, show_help)
-	_button("Звук: " + ("выключен" if muted else "включён"), 566, _toggle_sound)
+	_button("Настройки", 566, show_settings)
 	if can_resume:
 		var restart := _button("Начать заново", 614, func() -> void: start_requested.emit())
 		restart.add_theme_font_size_override("font_size", 16)
@@ -232,7 +234,22 @@ func _play() -> void:
 func _toggle_sound() -> void:
 	muted = not muted
 	mute_requested.emit()
-	show_home(can_resume)
+	show_settings()
+
+
+func show_settings() -> void:
+	_page("settings")
+	_label(content, Vector2(64, 112), "Настройки", 48)
+	_label(content, Vector2(72, 216), "Параметры сохраняются на этом устройстве.", 20)
+	_button("Звук: " + ("выключен" if muted else "включён"), 342, _toggle_sound, true)
+	_button("Показывать FPS: " + ("да" if fps_enabled else "нет"), 414, _toggle_fps)
+	_button("← Главное меню", 614, func() -> void: show_home(can_resume))
+
+
+func _toggle_fps() -> void:
+	fps_enabled = not fps_enabled
+	fps_requested.emit(fps_enabled)
+	show_settings()
 
 
 func _button(text: String, y: float, action: Callable, primary: bool = false) -> Button:

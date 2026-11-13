@@ -43,4 +43,4 @@ renderer/rendering_method.mobile="gl_compatibility"
 
 [physics]
 
-2d/solver/solver_iterations=24
+2d/solver/solver_iterations=12

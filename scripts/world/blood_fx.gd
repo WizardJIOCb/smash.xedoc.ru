@@ -8,10 +8,22 @@ var surfaces: Array[Rect2] = []
 var paused: bool = false
 var emitted: int = 0
 var landed: int = 0
+var stain_layer: Node2D
 var rng := RandomNumberGenerator.new()
 var tuning: Dictionary = (
 	JSON.parse_string(FileAccess.get_file_as_string("res://data/physical_combat.json")).blood
 )
+var _stains_dirty: bool = false
+var _fade_redraw: float = 0.0
+var _air_visible: bool = false
+
+
+func _ready() -> void:
+	stain_layer = Node2D.new()
+	stain_layer.z_as_relative = false
+	stain_layer.z_index = 0
+	stain_layer.draw.connect(_draw_stains)
+	add_child(stain_layer)
 
 
 func spill(at: Vector2, direction: Vector2, lethal: bool, mechanical: bool = false) -> void:
@@ -29,6 +41,7 @@ func spill(at: Vector2, direction: Vector2, lethal: bool, mechanical: bool = fal
 				"age": 0.0,
 				"r": rng.randf_range(1.0, 3.0 if lethal else 2.0),
 				"color": color,
+				"depth": rng.randf_range(float(tuning.depth_back), float(tuning.depth_front)),
 				"splash": false
 			}
 		)
@@ -58,32 +71,27 @@ func _physics_process(delta: float) -> void:
 		item.v.y += float(tuning.gravity) * delta
 		item.at += item.v * delta
 		for surface: Rect2 in surfaces:
-			if before.y <= surface.position.y and item.at.y >= surface.position.y:
-				var fraction := (surface.position.y - before.y) / maxf(0.001, item.at.y - before.y)
+			var depth_scale := 1.0 if surface.size.x > 600 else float(tuning.ledge_depth_scale)
+			var plane := surface.position.y + float(item.depth) * depth_scale
+			if before.y <= plane and item.at.y >= plane:
+				var fraction := (plane - before.y) / maxf(0.001, item.at.y - before.y)
 				var x := lerpf(before.x, item.at.x, fraction)
 				if x < surface.position.x or x > surface.end.x:
 					continue
 				item.age = 10
 				landed += 1
-				stains.append(
-					{
-						"at": Vector2(x, surface.position.y + 0.5),
-						"r": item.r * rng.randf_range(1.5, 3.2),
-						"age": 0.0,
-						"life":
-						rng.randf_range(float(tuning.stain_min_life), float(tuning.stain_max_life)),
-						"color": item.color
-					}
-				)
+				stains.append(_stain(Vector2(x, plane), item))
+				_stains_dirty = true
 				if not item.splash:
 					for index in range(3):
 						splashes.append(
 							{
-								"at": Vector2(x, surface.position.y - 1),
+								"at": Vector2(x, plane - 1),
 								"v": Vector2(rng.randf_range(-55, 55), rng.randf_range(-65, -25)),
 								"r": 0.8,
 								"age": 0.0,
 								"color": item.color,
+								"depth": item.depth,
 								"splash": true
 							}
 						)
@@ -94,28 +102,69 @@ func _physics_process(delta: float) -> void:
 		item.age += delta
 		item.at += item.v * delta
 	clouds = clouds.filter(func(item: Dictionary) -> bool: return item.age < 0.5)
+	var fading := false
+	var previous_count := stains.size()
 	for item: Dictionary in stains:
 		item.age += delta
+		fading = fading or item.age > item.life - float(tuning.stain_fade)
 	stains = stains.filter(func(item: Dictionary) -> bool: return item.age < item.life)
 	while stains.size() > int(tuning.stain_limit):
 		stains.pop_front()
 	while drops.size() > int(tuning.drop_limit):
 		drops.pop_front()
-	queue_redraw()
+	var air_visible := not drops.is_empty() or not clouds.is_empty()
+	if air_visible or _air_visible:
+		queue_redraw()
+	_air_visible = air_visible
+	_fade_redraw -= delta
+	if (
+		is_instance_valid(stain_layer)
+		and (_stains_dirty or previous_count != stains.size() or (fading and _fade_redraw <= 0))
+	):
+		stain_layer.queue_redraw()
+		_stains_dirty = false
+		_fade_redraw = 1.0 / 12.0
 
 
-func _draw() -> void:
+func _stain(at: Vector2, drop: Dictionary) -> Dictionary:
+	var radius: float = drop.r * rng.randf_range(1.6, 3.6)
+	var lobes: Array[Dictionary] = []
+	for index in range(4):
+		lobes.append(
+			{
+				"at": Vector2(rng.randf_range(-0.8, 0.8), rng.randf_range(-0.55, 0.55)) * radius,
+				"r": radius * rng.randf_range(0.3, 0.65)
+			}
+		)
+	return {
+		"at": at,
+		"r": radius,
+		"age": 0.0,
+		"life": rng.randf_range(float(tuning.stain_min_life), float(tuning.stain_max_life)),
+		"color": drop.color,
+		"lobes": lobes,
+		"angle": rng.randf_range(-0.15, 0.15),
+		"squash": rng.randf_range(0.38, 0.58)
+	}
+
+
+func _draw_stains() -> void:
 	for item: Dictionary in stains:
 		var color: Color = item.color
 		color.a = (
 			0.8 * (1.0 - smoothstep(item.life - float(tuning.stain_fade), item.life, item.age))
 		)
-		draw_set_transform(item.at, 0, Vector2(1, 0.2))
-		draw_circle(Vector2.ZERO, item.r, color)
-		draw_circle(
-			Vector2(-item.r * 0.5, -0.5), item.r * 0.3, Color(0.65, 0.12, 0.13, color.a * 0.3)
-		)
-	draw_set_transform(Vector2.ZERO)
+		stain_layer.draw_set_transform(item.at, item.angle, Vector2(1, item.squash))
+		for lobe: Dictionary in item.lobes:
+			stain_layer.draw_circle(lobe.at, lobe.r, color)
+		stain_layer.draw_circle(Vector2.ZERO, item.r * 0.75, color)
+		var highlight := color.lightened(0.25)
+		highlight.a *= 0.2
+		stain_layer.draw_circle(Vector2(-item.r * 0.2, -item.r * 0.25), item.r * 0.3, highlight)
+	stain_layer.draw_set_transform(Vector2.ZERO)
+
+
+func _draw() -> void:
 	for item: Dictionary in clouds:
 		var color: Color = item.color
 		color.a = 0.09 * pow(1 - item.age / 0.5, 2)

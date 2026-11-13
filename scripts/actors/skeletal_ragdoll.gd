@@ -5,9 +5,21 @@ extends Node2D
 const TERRAIN_LAYER = 8
 const CORPSE_LAYER = 16
 
+static var leased_layers: int = 0
+
 var bodies: Dictionary = {}
 var bindings: Dictionary = {}
 var joints: Array[PinJoint2D] = []
+
+var physical_bodies: Array[RigidBody2D] = []
+var skin_bindings: Array[Dictionary] = []
+var constraints: Array[Dictionary] = []
+var impact_centers: Dictionary = {}
+var self_layer: int = 0
+var settled: bool = false
+var still_time: float = 0.0
+var pose_dirty: bool = true
+var settled_joint_error: float = 0.0
 var rig: Node2D
 var age: float = 0.0
 var paused: bool = false
@@ -28,9 +40,9 @@ func start(painted_rig: Node2D, hit: Vector2, impulse: Vector2, velocity: Vector
 	if bones.size() <= 2:
 		_segment("body", Vector2(-35, -17), Vector2(35, 17), 14, 5)
 	else:
-		_segment("hips", Vector2(-12, 0), Vector2(12, 0), 9, 4)
+		_segment("hips", Vector2(-12, 0), Vector2(12, 0), 9, 6)
 		var head_local: Vector2 = bones.body.to_local(bones.head.global_position)
-		_segment("body", Vector2.ZERO, head_local, 17, 6)
+		_segment("body", Vector2.ZERO, head_local, 15, 9)
 		var is_moose := bones.has("near_thigh")
 		_segment(
 			"head",
@@ -64,24 +76,43 @@ func start(painted_rig: Node2D, hit: Vector2, impulse: Vector2, velocity: Vector
 		if bones.has("shield"):
 			_segment("shield", Vector2(-20, -27), Vector2(-20, 30), 15, 2.5)
 			_segment("baton", Vector2(-39, 0), Vector2(-3, 0), 4, 0.5)
+		_weld_core()
 		# Insertion order is parent before child, required when copying transforms.
 		for id: String in bodies:
 			var parent: Node = bones[id].get_parent()
-			if parent is Bone2D and bodies.has(str(parent.name)):
+			if (
+				parent is Bone2D
+				and bodies.has(str(parent.name))
+				and bodies[str(parent.name)] != bodies[id]
+			):
 				_joint(str(parent.name), id, bones[id].global_position)
+		_setup_self_contacts()
 	var nearest_distance := INF
+	for body: RigidBody2D in physical_bodies:
+		body.linear_velocity = (
+			velocity
+			+ Vector2(
+				impulse.x * float(tuning.launch_horizontal),
+				impulse.y * 0.4 - float(tuning.launch_lift)
+			)
+		)
 	for id: String in bodies:
-		var body: RigidBody2D = bodies[id]
-		body.linear_velocity = velocity + impulse * 0.22
-		var distance := body.global_position.distance_squared_to(hit)
+		skin_bindings.append({"bone": bones[id], "body": bodies[id], "offset": bindings[id]})
+		var distance: float = impact_centers[id].distance_squared_to(hit)
 		if distance < nearest_distance:
 			nearest_distance = distance
 			impact_bone = id
 	if not impact_bone.is_empty():
 		var struck: RigidBody2D = bodies[impact_bone]
 		struck.apply_impulse(
-			impulse * minf(struck.mass, 2.0), (hit - struck.global_position).limit_length(12)
+			impulse * minf(struck.mass, 2.0) * 0.6, (hit - struck.global_position).limit_length(12)
 		)
+		if bodies.size() > 1:
+			var trunk: RigidBody2D = bodies.body
+			trunk.apply_impulse(
+				impulse * float(tuning.core_impulse_share),
+				(hit - trunk.global_position).limit_length(75)
+			)
 
 
 func _extra_shape(id: String, at: Vector2, radius: float) -> void:
@@ -132,6 +163,8 @@ func _segment(id: String, from: Vector2, to: Vector2, radius: float, mass_value:
 	body.add_child(shape)
 	add_child(body)
 	bodies[id] = body
+	physical_bodies.append(body)
+	impact_centers[id] = body.global_position
 	bindings[id] = body.global_transform.affine_inverse() * bone.global_transform
 
 
@@ -143,37 +176,154 @@ func _joint(parent_id: String, child_id: String, anchor: Vector2) -> void:
 	# Godot's pin angular limits measure the WORLD center-to-center direction.
 	# That fights a falling articulated chain. Use relative torsion below instead.
 	joint.angular_limit_enabled = false
-	var limit := 1.1
-	if child_id == "head":
-		limit = 0.5
-	elif child_id == "body":
-		limit = 0.65
-	elif "fore" in child_id or "shin" in child_id:
-		limit = 1.6
-	elif "foot" in child_id or "hand" in child_id:
-		limit = 0.55
-	joint.angular_limit_lower = -limit
-	joint.angular_limit_upper = limit
+	var profile := _anatomy_profile(child_id)
 	add_child(joint)
 	joint.node_a = joint.get_path_to(bodies[parent_id])
 	joint.node_b = joint.get_path_to(bodies[child_id])
 	joint.set_meta("a", bodies[parent_id].to_local(anchor))
 	joint.set_meta("b", bodies[child_id].to_local(anchor))
-	joint.set_meta("relative_rest", bodies[child_id].rotation - bodies[parent_id].rotation)
-	joint.set_meta("limit", limit)
+	var bone: Bone2D = rig.bones[child_id]
+	var mirror := signf(bone.global_transform.determinant())
+	var captured: float = bodies[child_id].rotation - bodies[parent_id].rotation
+	var displacement := angle_difference(bone.rest.get_rotation(), bone.rotation)
+	var neutral := captured - displacement * mirror
+	if child_id in ["shield", "baton"]:
+		neutral = captured
+	joint.set_meta("capture_rest", captured)
+	joint.set_meta("relative_rest", neutral)
+	joint.set_meta("mirror", mirror)
+	joint.set_meta("profile", profile)
 	joints.append(joint)
+	var a: RigidBody2D = bodies[parent_id]
+	var b: RigidBody2D = bodies[child_id]
+	var ia: float = a.get_meta("inertia_estimate")
+	var ib: float = b.get_meta("inertia_estimate")
+	constraints.append(
+		{
+			"a": a,
+			"b": b,
+			"capture": captured,
+			"rest": neutral,
+			"mirror": mirror,
+			"profile": profile,
+			"inertia": ia * ib / maxf(1.0, ia + ib)
+		}
+	)
+
+
+func _weld_core() -> void:
+	# A compound rigid trunk supports pelvis, chest and neck without two nearly
+	# coincident joints fighting each other. Limbs remain fully articulated.
+	var trunk: RigidBody2D = bodies.body
+	for id: String in ["hips", "head"]:
+		var part: RigidBody2D = bodies[id]
+		trunk.mass += part.mass
+		for child: Node in part.get_children():
+			if child is CollisionShape2D:
+				child.reparent(trunk, true)
+		physical_bodies.erase(part)
+		remove_child(part)
+		part.free()
+		bodies[id] = trunk
+		bindings[id] = trunk.global_transform.affine_inverse() * rig.bones[id].global_transform
+	trunk.set_meta("inertia_estimate", trunk.mass * 900.0)
+
+
+func _anatomy_profile(id: String) -> Dictionary:
+	var moose: bool = rig.bones.has("near_thigh")
+	var bounds := Vector2(-1.6, 1.6)
+	var spring := 0.0
+	var stiffness := float(tuning.torsion_stiffness)
+	var damping := float(tuning.torsion_damping)
+	if id == "body" or id == "head":
+		var limit := float(tuning.spine_limit if id == "body" else tuning.neck_limit)
+		bounds = Vector2(-limit, limit)
+		stiffness = float(tuning.core_stiffness)
+		damping = float(tuning.core_damping)
+		spring = float(tuning.core_spring if id == "body" else tuning.neck_spring)
+	elif "thigh" in id or id.ends_with("_leg"):
+		bounds = Vector2(-float(tuning.hip_flexion), float(tuning.hip_extension))
+		if not moose:
+			bounds = Vector2(-bounds.y, -bounds.x)
+		spring = float(tuning.hip_spring)
+	elif "shin" in id:
+		bounds = Vector2(-0.04, float(tuning.knee_flexion))
+		if not moose:
+			bounds = Vector2(-bounds.y, -bounds.x)
+	elif "fore" in id:
+		bounds = Vector2(-2.3, -0.04)
+		if not moose:
+			var rest: float = rig.bones[id].rest.get_rotation()
+			bounds = Vector2(0.04 - rest, 2.3 - rest)
+	elif "foot" in id or "hand" in id:
+		bounds = Vector2(-0.5, 0.5)
+	return {"bounds": bounds, "spring": spring, "stiffness": stiffness, "damping": damping}
+
+
+func _setup_self_contacts() -> void:
+	# Isolate each articulated corpse. Overlapping near/far artwork and separate
+	# corpses must not create a quadratic pile of colliding limb pairs.
+	for index in range(5, 25):
+		var candidate := 1 << index
+		if not leased_layers & candidate:
+			self_layer = candidate
+			leased_layers |= candidate
+			break
+	for body: RigidBody2D in physical_bodies:
+		body.collision_layer = CORPSE_LAYER | self_layer
+		body.collision_mask = TERRAIN_LAYER | self_layer
+	for index in range(physical_bodies.size()):
+		var a := physical_bodies[index]
+		for other in range(index + 1, physical_bodies.size()):
+			var b := physical_bodies[other]
+			var core := a if a == bodies.body else b
+			var limb := b if core == a else a
+			var distal := "_shin_" in limb.name or "_foot_" in limb.name
+			if core != bodies.body or not distal:
+				a.add_collision_exception_with(b)
+
+
+func _exit_tree() -> void:
+	leased_layers &= ~self_layer
 
 
 func _physics_process(delta: float) -> void:
-	for body: RigidBody2D in bodies.values():
-		var should_freeze := paused or age > lifetime
+	for body: RigidBody2D in physical_bodies:
+		var should_freeze := paused or settled or age > lifetime
 		if body.freeze != should_freeze:
 			body.freeze = should_freeze
-	if not paused:
+	if paused:
+		return
+	age += delta
+	if not settled:
 		_constrain_angles()
-		age += delta
+		var quiet := age > 1.0
+		for body: RigidBody2D in physical_bodies:
+			quiet = (
+				quiet
+				and body.linear_velocity.length_squared() < 2025
+				and absf(body.angular_velocity) < 2.0
+			)
+		var core: RigidBody2D = bodies.body
+		quiet = (
+			quiet
+			and core.linear_velocity.length_squared() < 144
+			and absf(core.angular_velocity) < 0.25
+		)
+		still_time = still_time + delta if quiet else 0.0
+		if still_time >= 0.45:
+			settled_joint_error = joint_error()
+			settled = true
+			pose_dirty = true
+			for joint: PinJoint2D in joints:
+				joint.node_a = NodePath("")
+				joint.node_b = NodePath("")
+			for body: RigidBody2D in physical_bodies:
+				body.freeze = true
+				body.collision_layer = 0
+				body.collision_mask = 0
 	if age > lifetime:
-		for body: RigidBody2D in bodies.values():
+		for body: RigidBody2D in physical_bodies:
 			body.freeze = true
 		visible = false
 		rig.visible = false
@@ -182,24 +332,27 @@ func _physics_process(delta: float) -> void:
 
 
 func _constrain_angles() -> void:
-	for joint: PinJoint2D in joints:
-		var a: RigidBody2D = joint.get_node(joint.node_a)
-		var b: RigidBody2D = joint.get_node(joint.node_b)
-		var angle := angle_difference(
-			float(joint.get_meta("relative_rest")), b.rotation - a.rotation
+	for constraint: Dictionary in constraints:
+		var a: RigidBody2D = constraint.a
+		var b: RigidBody2D = constraint.b
+		var reference := lerp_angle(
+			float(constraint.capture),
+			float(constraint.rest),
+			smoothstep(0, float(tuning.pose_release), age)
 		)
-		var limit: float = joint.get_meta("limit")
-		var excess := angle - clampf(angle, -limit, limit)
-		if absf(excess) < 0.001:
+		var mirror: float = constraint.mirror
+		var angle := angle_difference(reference, b.rotation - a.rotation) * mirror
+		var profile: Dictionary = constraint.profile
+		var bounds: Vector2 = profile.bounds
+		var excess := angle - clampf(angle, bounds.x, bounds.y)
+		if absf(excess) < 0.001 and float(profile.spring) == 0:
 			continue
-		var ia: float = a.get_meta("inertia_estimate")
-		var ib: float = b.get_meta("inertia_estimate")
-		var effective := ia * ib / maxf(1.0, ia + ib)
+		var effective: float = constraint.inertia
 		var torque := (
 			clampf(
 				(
-					-excess * float(tuning.torsion_stiffness)
-					- (b.angular_velocity - a.angular_velocity) * float(tuning.torsion_damping)
+					(-excess * float(profile.stiffness) - angle * float(profile.spring)) * mirror
+					- (b.angular_velocity - a.angular_velocity) * float(profile.damping)
 				),
 				-float(tuning.torsion_cap),
 				float(tuning.torsion_cap)
@@ -213,13 +366,17 @@ func _constrain_angles() -> void:
 func _process(_delta: float) -> void:
 	if not is_instance_valid(rig):
 		return
-	for id: String in bodies:
-		rig.bones[id].global_transform = bodies[id].global_transform * bindings[id]
+	if not settled or pose_dirty:
+		for binding: Dictionary in skin_bindings:
+			binding.bone.global_transform = binding.body.global_transform * binding.offset
+		pose_dirty = false
 	# Each owner may tint its artwork; fading belongs to the skeleton alone.
 	rig.skeleton.modulate.a = 1.0 - smoothstep(lifetime - float(tuning.fade), lifetime, age)
 
 
 func joint_error() -> float:
+	if settled:
+		return settled_joint_error
 	var worst := 0.0
 	for joint: PinJoint2D in joints:
 		var a: RigidBody2D = joint.get_node(joint.node_a)

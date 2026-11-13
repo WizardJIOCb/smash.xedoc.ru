@@ -57,3 +57,20 @@ One session — one section. The user's feedback — verbatim. The first questio
 - Public v22 observed: guard reduces damage, player death uses physics; R returns control;
   fatal impulse creates1corpse and34droplets with ground stains. Shared records remain online.
 - User art/feel approval remains open. Release https://smash.xedoc.ru/; cache reset via ?cache=clear.
+
+## PT-07 — 2026-11-14 — falls, performance, touch v24
+- User: L block/O impulse; bodies fold into themselves; THIRD-room ground; blood forms
+  a line; unobtrusive FPS with Settings toggle; ragdolls cause slowdown; mobile stick and
+  action buttons, then replace overflowing labels with icons/smaller captions.
+- Compound core preserves trunk/neck length, native articulated limbs and local hit torque;
+  quiet corpses freeze/detach solver joints, avoid cross-corpse collision piles. Native
+  benchmark resting p95 16.69->5.925ms, active parts47->0 after settling (machine-specific).
+- Blood randomized depth and lobed wet pools below actors, cached static drawing. Third
+  floor545->529 with enemy spawn/terrain/FX. Other rooms unchanged.
+- 27GUT/350assertions; route70frames/zeroerrors/5kills/3relays/100HP; gate-ground4frames;
+  ragdoll32frames distinguishes high strike, trip and airborne Moose. Core intentionally stiff.
+- Native raw ScreenTouch route32frames: punch near/far,1air kick/1crouch kick,1jump,
+  T world/Q ultimate/O impulse and touch pause. Independent stick/action fingers. Default
+  desktop has no overlay; small FPS and Settings page checked in local Web. Physical phone
+  browser and final public activation remain to be checked/reported separately.
+- User feel/art approval stays open; final Firewall/full map remain future work.

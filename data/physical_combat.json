@@ -1,8 +1,13 @@
 {
   "guard": {"damage_multiplier": 0.25, "move_multiplier": 0.28, "knockback": 60.0},
   "ragdoll": {"lifetime": 12.0, "fade": 2.0, "gravity_scale": 1.53, "linear_damp": 0.6,
-    "angular_damp": 4.0, "torsion_stiffness": 80.0, "torsion_damping": 12.0, "torsion_cap": 150.0},
+    "angular_damp": 4.0, "torsion_stiffness": 120.0, "torsion_damping": 16.0, "torsion_cap": 240.0,
+    "spine_limit": 0.2, "neck_limit": 0.35, "hip_flexion": 0.85, "hip_extension": 0.3,
+    "knee_flexion": 1.45, "core_stiffness": 260.0, "core_damping": 28.0,
+    "core_spring": 75.0, "neck_spring": 40.0, "hip_spring": 10.0, "pose_release": 0.28,
+    "launch_horizontal": 0.85, "launch_lift": 220.0, "core_impulse_share": 0.8},
   "blood": {"hit_drops": 9, "lethal_drops": 34, "gravity": 780.0,
     "stain_min_life": 12.0, "stain_max_life": 18.0, "stain_fade": 4.0,
-    "drop_limit": 300, "mist_limit": 48, "stain_limit": 220}
+    "drop_limit": 300, "mist_limit": 48, "stain_limit": 220,
+    "depth_back": -14.0, "depth_front": 7.0, "ledge_depth_scale": 0.15}
 }

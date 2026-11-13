@@ -12,6 +12,8 @@ const NightPower = preload("res://scripts/core/night_power.gd")
 const NightEffects = preload("res://scripts/world/night_fx.gd")
 const BloodEffects = preload("res://scripts/world/blood_fx.gd")
 const Ragdoll = preload("res://scripts/actors/skeletal_ragdoll.gd")
+const FpsCounter = preload("res://scripts/ui/fps_counter.gd")
+const TouchControls = preload("res://scripts/ui/touch_controls.gd")
 
 var rooms: Array
 var encounter: Dictionary
@@ -49,6 +51,9 @@ var blood: BloodEffects
 var terrain: Node2D
 var player_corpse: Ragdoll
 var blocked_hits: int = 0
+var fps_counter: FpsCounter
+var touch_controls: TouchControls
+var controls_hint: Label
 var elapsed_run: float = 0.0
 var _finish_shown: bool = false
 var _tip_serial: int = -1
@@ -102,12 +107,18 @@ func _ready() -> void:
 	scores.submitted.connect(_record_submitted)
 	front = FrontEnd.new()
 	front.muted = audio.muted
+	fps_counter = FpsCounter.new()
+	add_child(fps_counter)
+	front.fps_enabled = fps_counter.enabled
 	add_child(front)
 	front.start_requested.connect(_start_new_run)
 	front.resume_requested.connect(_resume_run)
 	front.records_requested.connect(scores.refresh)
 	front.submit_requested.connect(_submit_record)
 	front.mute_requested.connect(func() -> void: audio.set_muted(front.muted))
+	front.fps_requested.connect(fps_counter.set_enabled)
+	touch_controls = TouchControls.new()
+	add_child(touch_controls)
 	run_state = "menu"
 	for enemy: Enemy in enemies:
 		enemy.paused = true
@@ -132,7 +143,7 @@ func _build_hud() -> void:
 	message = _label(layer, Vector2(300, 53), 17, "")
 	message.size = Vector2(940, 50)
 	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_label(
+	controls_hint = _label(
 		layer,
 		Vector2(30, 668),
 		14,
@@ -322,6 +333,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if is_instance_valid(touch_controls):
+		touch_controls.set_context("menu" if front.is_open() else run_state)
+		controls_hint.visible = not touch_controls.enabled
 	var simulation_paused := run_state in ["menu", "paused", "won"]
 	blood.paused = simulation_paused
 	if is_instance_valid(player_corpse):
@@ -782,7 +796,7 @@ func _sync_metrics() -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 23,
+			"revision": 24,
 			"room": room_index + 1,
 			"health": health,
 			"run_state": run_state,
@@ -800,6 +814,18 @@ func _sync_metrics() -> void:
 	)
 	Metrics.rig["seconds"] = elapsed_run
 	Metrics.rig["blocking"] = moose.blocking
+	Metrics.rig["fps_visible"] = fps_counter.enabled if is_instance_valid(fps_counter) else true
+	Metrics.rig["fps"] = Engine.get_frames_per_second()
+	Metrics.rig["touch_controls"] = (
+		touch_controls.enabled if is_instance_valid(touch_controls) else false
+	)
+	var active_bodies := 0
+	for enemy: Enemy in enemies:
+		if is_instance_valid(enemy.corpse) and not enemy.corpse.settled:
+			active_bodies += enemy.corpse.physical_bodies.size()
+	if is_instance_valid(player_corpse) and not player_corpse.settled:
+		active_bodies += player_corpse.physical_bodies.size()
+	Metrics.rig["ragdoll_active_bodies"] = active_bodies
 	Metrics.rig["blocked_hits"] = blocked_hits
 	Metrics.rig["player_ragdoll"] = moose.ragdoll_active
 	Metrics.rig["corpses"] = enemies.filter(func(enemy: Enemy) -> bool: return enemy.dead).size()
