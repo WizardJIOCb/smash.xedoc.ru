@@ -63,6 +63,7 @@ func start(painted_rig: Node2D, hit: Vector2, impulse: Vector2, velocity: Vector
 			_segment(side + "_hand", Vector2.ZERO, Vector2(0, 13), 7, 0.6)
 		if bones.has("shield"):
 			_segment("shield", Vector2(-20, -27), Vector2(-20, 30), 15, 2.5)
+			_segment("baton", Vector2(-39, 0), Vector2(-3, 0), 4, 0.5)
 		# Insertion order is parent before child, required when copying transforms.
 		for id: String in bodies:
 			var parent: Node = bones[id].get_parent()
