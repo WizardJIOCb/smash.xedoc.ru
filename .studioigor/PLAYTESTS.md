@@ -132,3 +132,9 @@ One session — one section. The user's feedback — verbatim. The first questio
   tokenchapter binding/replay and tables. No public record submitted.
 - Source art/prompts retained; runtime8WebP backdrops+6skeletal enemy sets+painted weapons.
   Artist/feel gates remain open. Physical mobile hardware untested.
+- Public v28: revision28, muted, chapter picker/depot bat/tower pistol verified visually.
+  Seven real-key shots -> loaded0/hits7/kills2; F -> loaded7/reserve63; wave2 appears.
+  Cache update2/1 then repeat3/0,100% ready; console errors0, QA tab closed.
+- PHP symlink cache initially served prior handler; nginx SCRIPT_FILENAME changed to
+  $realpath_root, nginx -t/reload passed. Live chapter1 keeps two legacy scores,
+  chapter2/3 empty. No test score submitted. All18 release hashes verified, rollbackv27.

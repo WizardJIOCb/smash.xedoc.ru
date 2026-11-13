@@ -1,39 +1,45 @@
-# Public release v27
+# Public release v28
 
 - Domain: https://smash.xedoc.ru/
 - Fresh load: https://smash.xedoc.ru/?cache=clear
-- Runtime source: 04838e2f3646d27cf291795614bda9f726507f2a
-- Current: /var/www/smash.xedoc.ru/releases/v27-04838e2f3646
-- Previous/rollback: /var/www/smash.xedoc.ru/releases/v26-d523f66c1eb2
-- Archive SHA256: a321be1865b4f75c96363e8bd8df1a8994958d53730818dfc9c80fcccfb86113
-- Archive: 87,529,192 bytes;18 verified manifest files.
+- Runtime source: 374fd893bf59d4430061f5f67690a1757f157393
+- Current: /var/www/smash.xedoc.ru/releases/v28-374fd893bf59
+- Previous/rollback: /var/www/smash.xedoc.ru/releases/v27-04838e2f3646
+- Archive SHA256: 86d283ac0183094e9b8f8dfef200a4eb4edc7b1a2c7ac436d43d3c8f8201c913
+- Archive: 120,866,060 bytes; 18 verified manifest files.
 
 Changes:
-- Moose/enemy ragdolls keep a natural captured knee/ankle bend with semi-rigid legs,
-  separate hip hinges and articulated arms. Stronger capped hip support; decorative
-  antler tips no longer prop Moose up.9 physical bodies Moose/11 shield enemy.
-- Melee and O pulse affect actual moving corpse shapes. Resting bodies reattach cached
-  pins and wake on hit, get small capped knockback, then stop physics again at rest.
-  No new body allocations; shared attack serial prevents repeat contacts in one swing.
-  Corpse hits do not grant kills or ultimate charge; small regular blood effect retained.
-- Damage knockback preserves facing unless the user moves in the opposite direction.
-  Removed damage alpha blink and player temporary invulnerability, including checkpoint grace.
-- R immediately detaches/disables corpse before restoring rest bones, preventing a late
-  ragdoll process from overwriting the revived stance.
+- Two continuation chapters of four rooms each: Rust Depot and Firewall Tower.
+  Eight original backdrops, four ordinary enemy types, Foreman and Firewall bosses
+  with two/three phases; all three chapters can be selected from the menu.
+- Six weapons: knuckles, bat, shovel, hockey stick, seven-round pistol and rifle.
+  E pickup/use, Tab cycle, F reload, J weapon, K kick. Gear carries to next chapter.
+- Physical cargo lifts with return calls, reinforcements, checkpoints and separate
+  per-chapter records. Original first chapter retained.
+- Built-in image_gen originals, exact prompts and processed paths retained in
+  art/campaign/prompts.json and generated-manifest.json.
 
 Validation:
--29GUT/390assertions, format/lint; clean final Web export.
-- Native anatomy32frames; defense42/0errors,3blocks=85HP, death/R/upright100HP.
-  Full route35/0errors,5kills3relays/completed100HP. Corpse input36/0errors,
-  10postmortem hits after boar settles,1kill retained,0active bodies when resting.
-- Public revision27 ready, sound muted, scores online/session ready. Cache update hit2/
-  download1 retains engine. Real keys kill boar, crouch-kick corpse twice: corpse_hits2,
-  kills1/alive0. No record submitted. Browser death/restart closure follows below.
-- Installer verified all18manifest hashes/archive, PHP/nginx checks, services active.
-  Scores SHA unchanged across activation:
-  2e71d73f8875c9ef3966ba72a41e97f0a021df163d843154c5d3e47125ef8b19.
-- Semi-rigid legs are an explicit anatomy/stability tradeoff, not independently simulated
-  knee/ankle joints. User appearance/feel gates remain open; physical phone untested.
-- Public death/R closure:0HP/lost/player_ragdoll=true/facing1; R returns100HP,
-  playing/player_ragdoll=false/x170, visually upright. Browser console errors0.
-  Screenshots public-v27/death.png and restarted.png; temporary QA tab closed.
+- 42 GUT tests / 589 assertions, format/lint; clean Web export.
+- Full normal-input native routes: chapter1 35frames/5kills/3relays; chapter2
+  46frames/14kills/4relays; chapter3 46frames/12kills/4relays. All completed with
+  zero script errors. Both boss phase sequences observed and frames reviewed.
+- Native menu input selects tower, picks pistol, fires seven and reloads seven.
+  Actual PHP isolated tests pass all three finish contracts, token chapter binding,
+  replay rejection and legacy preservation. Disposable storage only.
+- Public revision28 ready and muted. Chapter2 selects/picks bat; chapter3 selects,
+  picks pistol, fires7/loaded0/bullet_hits7/kills2, F reloads7/reserve70->63.
+  Reinforcement wave2 observed. Console errors0. Screenshots public-v28.
+- Cache upgrade2hits/1download preserves JS/WASM; repeat3hits/0downloads,100% ready.
+- Live records: original two rows retained in chapter1, chapter2/3 empty at check.
+  No public score submitted. PHP SCRIPT_FILENAME now uses $realpath_root so symlink
+  releases cannot retain the previous API in FPM caches; nginx -t passed.
+- All18 archive hashes verified by installer; HTTPS/public release.json confirmed;
+  nginx and php8.3-fpm active. Scores SHA unchanged during activation:
+  a581415790bdf837110ec7ab20b9fb45188a3e75eeaca1e1b98b5384215bb746.
+  Subsequent QA creates ordinary run tokens, not leaderboard rows.
+- Physical phone and user art/feel acceptance remain open. Full boss routes were
+  verified natively; public browser review covered chapter selection and first rooms.
+
+Operational config closure is committed after the frozen runtime source; it changes
+nginx configuration and release notes, not the v28 game archive.
