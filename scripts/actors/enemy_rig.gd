@@ -3,7 +3,13 @@ extends Node2D
 
 const ArmSkin = preload("res://scripts/actors/enemy_arm_skin.gd")
 
+## Explicit preview-only donor. Production loads the actual species.
+@export var art_profile: String = ""
+
 var kind: String = "shield"
+var body_scale: float = 1.0
+var recoil: float = 0.0
+var stomp: float = 0.0
 var skeleton: Skeleton2D
 var bones: Dictionary = {}
 var phase: float = 0.0
@@ -54,17 +60,39 @@ func _ready() -> void:
 	for side: String in ["far", "near"]:
 		_leg_skin(side)
 		var arm := ArmSkin.new()
-		arm.setup(skeleton, bones, kind, side)
+		arm.setup(skeleton, bones, kind if art_profile.is_empty() else art_profile, side)
 		arm_meshes[side] = arm
 	if kind == "shield":
 		_bone("shield", bones.near_hand, Vector2.ZERO, 50)
 		_part("weapon", bones.shield, Vector2(59, 99), Vector2(0.84, 0.47), 16)
 		_bone("baton", bones.far_hand, Vector2.ZERO, 20)
 		_part("extra", bones.baton, Vector2(54, 19), Vector2(0.86, 0.5), 6)
-	else:
+	elif kind == "whip":
 		_part("extra", bones.body, Vector2(26, 32), Vector2(0.5, 0), 11).position += Vector2(22, -7)
 		_bone("cable", bones.near_hand, Vector2.ZERO, 20)
 		_part("weapon", bones.cable, Vector2(31, 30), Vector2(0.32, 0.12), 16)
+	else:
+		_bone("weapon", bones.near_hand, Vector2.ZERO, 24)
+		var gun := kind in ["fox", "lynx", "firewall"]
+		_part(
+			"weapon",
+			bones.weapon,
+			Vector2(62, 25) if gun else Vector2(30, 77),
+			Vector2(0.82, 0.5) if gun else Vector2(0.5, 0.8),
+			18
+		)
+		_part("extra", bones.body, Vector2(26, 32), Vector2(0.5, 0), 11).position += Vector2(22, -7)
+	_apply_scale()
+
+
+func asset_path(id: String) -> String:
+	return "res://assets/enemies/%s/%s.png" % [kind if art_profile.is_empty() else art_profile, id]
+
+
+func _apply_scale() -> void:
+	scale = Vector2(-facing * body_scale, body_scale)
+	# Art's planted sole is root+10 at any body size.
+	position.y = 10.0 * (1.0 - body_scale)
 
 
 func _bone(id: String, parent: Node, at: Vector2, length: float) -> void:
@@ -82,7 +110,7 @@ func _bone(id: String, parent: Node, at: Vector2, length: float) -> void:
 func _part(id: String, parent: Node, size: Vector2, pivot: Vector2, depth: int) -> Sprite2D:
 	var sprite := Sprite2D.new()
 	sprite.name = id
-	sprite.texture = load("res://assets/enemies/%s/%s.png" % [kind, id])
+	sprite.texture = load(asset_path(id))
 	sprite.centered = false
 	sprite.scale = size / sprite.texture.get_size()
 	sprite.position = -size * pivot
@@ -94,7 +122,7 @@ func _part(id: String, parent: Node, size: Vector2, pivot: Vector2, depth: int) 
 
 func _leg_skin(side: String) -> void:
 	var mesh := Polygon2D.new()
-	mesh.texture = load("res://assets/enemies/%s/%s_leg.png" % [kind, side])
+	mesh.texture = load(asset_path(side + "_leg"))
 	skeleton.add_child(mesh)
 	mesh.skeleton = mesh.get_path_to(skeleton)
 	mesh.z_index = 3 if side == "near" else 1
@@ -138,7 +166,7 @@ func _process(delta: float) -> void:
 		foot_support.clear()
 		_previous_facing = facing
 	phase += absf(pace) * delta / 56 * TAU
-	scale.x = -facing
+	_apply_scale()
 	if kind == "drone":
 		bones.body.rotation = sin(clock * 6) * 0.06 + wind * 0.18 - strike * 0.35
 		bones.hips.position.y = -70 + sin(clock * 4) * 5 + collapse * 45
@@ -156,11 +184,29 @@ func _process(delta: float) -> void:
 	bones.near_fore.rotation += wind * 0.5 - strike * 0.75
 	bones.far_arm.rotation += -wind * 0.65 + strike * 0.9
 	bones.far_fore.rotation += wind * 0.35 - strike * 0.55
+	if kind in ["beaver", "foreman"]:
+		# Raise the tool above the shoulder, then follow through with the trunk.
+		bones.near_arm.rotation += -wind * 1.15 + strike * 0.55
+		bones.near_fore.rotation += -wind * 0.4
+		bones.body.rotation += -wind * 0.15 + strike * 0.22
+	elif kind == "hare":
+		bones.far_arm.rotation += strike * 0.45
+		bones.body.rotation += strike * 0.1
+	elif kind in ["fox", "lynx", "firewall"]:
+		# Both hands stay on the gun; far arm supports the fore-end.
+		bones.near_arm.rotation = upper_rest + 0.35 + wind * 0.08 - recoil * 0.2
+		bones.near_fore.rotation = fore_rest - 0.6 + recoil * 0.16
+		bones.far_arm.rotation = upper_rest + 0.8 - recoil * 0.1
+		bones.far_fore.rotation = fore_rest - 0.8
+		bones.body.rotation = -wind * 0.06 - recoil * 0.09 + stomp * 0.22
+		bones.hips.position.y += stomp * 6
 	if kind == "shield":
 		bones.shield.rotation = _grip_rotation("near") + (0.45 if shield_down else 0.0)
 		bones.baton.rotation = _grip_rotation("far") - wind * 0.65 + strike * 0.3
-	else:
+	elif kind == "whip":
 		bones.cable.rotation = _grip_rotation("near") + strike * 0.35
+	else:
+		bones.weapon.rotation = _grip_rotation("near") - wind * 0.15 + strike * 0.25
 
 
 func _grip_rotation(side: String) -> float:
