@@ -60,6 +60,19 @@ acceptance criteria · "feel" (targets) · research: research/mech-M01.md -->
 - Acceptance: J×4 alternates hands; J/K chain; Space→J and Space→K differ; no autonomous strikes after taps stop. Scene `scenes/gyms/attack_gym.tscn`, status playtest. Phase5 art approval remains open.
 - Research: `research/mech-M01-attacks.md`.
 
+### M03 — contact, physical deaths and guard (v22, playtest)
+- All planted soles share actor floor+10px; enemies use anchored ankle IK and a third foot skin weight.
+- Death transfers the current pose to native rigid bodies/pin joints; mirrored mesh bind transforms retained.
+  Capture fall velocity, hit location and direction; strike nearest anatomical body, then gravity/contact.
+  Relative torsion limits, no self-collision; antlers and shield have physical shapes. Corpse12s, fade2s.
+- Small hit9drops / lethal34; upward mist/droplets, swept ground and one-way ledge contacts,
+  secondary splash, wet marks12–18s and fade4s. Drones leak dark oil. Bounded effect counts.
+- Hold I: visible raised guard, damage25% rounded up, knockback60 vs190, movement28%, sprint/attacks cancelled.
+  Compatible with crouch and ultimate; guard has no charge cost. Parameters in `data/physical_combat.json`.
+- Acceptance: both species/facings planted, head hit vs trip vs airborne Moose fall differ;
+  bones remain attached, effects settle/fade, player R restores the upright rig, all3relays remain reachable.
+- Research: `research/mech-M03-ragdoll-block.md`. User feel/art approval remains open.
+
 ## Changelog
 
 | date | what | why |
@@ -68,3 +81,4 @@ acceptance criteria · "feel" (targets) · research: research/mech-M01.md -->
 | 2026-11-13 | Серии рук/ног, присед, Shift, остановка по шагу и обратный ход | Прямые запросы пользователя в тесте анимаций; ждёт оценки |
 | 2026-11-14 | Ночная ульта, тихий первый запуск, 4 пальца, двухслойные кроссовки и меховой край головы; Web-кеш с cache=clear | Прямые запросы по публичному playtest; художественная оценка остаётся у пользователя |
 | 2026-11-14 | Исправлены плечи/локти врагов; второй уступ ниже20px; T время суток отдельно от Q ульты, L импульс; пушистая ближняя лапа приглушена до тона шерсти | Прямые замечания по публичной версии; проверены фактическое приземление, независимость режимов и новый тон |
+| 2026-11-14 | Общая опора ботинок; физические смерти с местом/направлением удара, инерцией и падением; кровь со следами; блок I | Прямой запрос: ragdoll игрока/врагов и защита с уменьшением урона |

@@ -10,6 +10,8 @@ const FrontEnd = preload("res://scripts/ui/front_end.gd")
 const Scores = preload("res://scripts/core/run_scores.gd")
 const NightPower = preload("res://scripts/core/night_power.gd")
 const NightEffects = preload("res://scripts/world/night_fx.gd")
+const BloodEffects = preload("res://scripts/world/blood_fx.gd")
+const Ragdoll = preload("res://scripts/actors/skeletal_ragdoll.gd")
 
 var rooms: Array
 var encounter: Dictionary
@@ -43,6 +45,10 @@ var night_damage: int = 0
 var burst_hits: int = 0
 var world_night: bool = false
 var time_switches: int = 0
+var blood: BloodEffects
+var terrain: Node2D
+var player_corpse: Ragdoll
+var blocked_hits: int = 0
 var elapsed_run: float = 0.0
 var _finish_shown: bool = false
 var _tip_serial: int = -1
@@ -79,6 +85,9 @@ func _ready() -> void:
 	effects = Effects.new()
 	effects.z_index = 30
 	add_child(effects)
+	blood = BloodEffects.new()
+	blood.z_index = 24
+	add_child(blood)
 	audio = Sound.new()
 	add_child(audio)
 	night_fx = NightEffects.new()
@@ -129,7 +138,7 @@ func _build_hud() -> void:
 		14,
 		(
 			"A/D — ход   Shift — бег   W/↑/Пробел — прыжок   S/↓ — присед"
-			+ "   J/K — бой   E — реле   T — день/ночь   Q — ульта   L — импульс   Esc — меню"
+			+ "   J/K — бой   I — блок   E — реле   T — день/ночь   Q — ульта   L — импульс   Esc — меню"
 		)
 	)
 	outcome = _label(layer, Vector2(290, 255), 30, "")
@@ -165,6 +174,16 @@ func _label(parent: Node, at: Vector2, size: int, caption: String) -> Label:
 
 
 func _load_room(index: int, spawn_x: float) -> void:
+	if is_instance_valid(player_corpse):
+		player_corpse.queue_free()
+		player_corpse = null
+	moose.ragdoll_active = false
+	for bone: Bone2D in moose.bones.values():
+		bone.transform = bone.rest
+	moose.visible = true
+	moose.skeleton.modulate = Color.WHITE
+	moose.blocking = false
+	moose.guard_blend = 0
 	room_index = index
 	for enemy: Enemy in enemies:
 		enemy.queue_free()
@@ -188,6 +207,7 @@ func _load_room(index: int, spawn_x: float) -> void:
 		dark.material = material
 	floor_y = float(room.floor)
 	moose.position = Vector2(spawn_x, floor_y)
+	moose.land(0)
 	lift = 0
 	speed = 0
 	vertical_speed = 0
@@ -211,6 +231,7 @@ func _load_room(index: int, spawn_x: float) -> void:
 		ledge.position.y -= 4
 		ledge.z_index = -1
 		scenery.add_child(ledge)
+	_build_physics_surfaces(float(room.floor))
 	if not cleared[index]:
 		for entry: Array in room.enemies:
 			_spawn_enemy(entry)
@@ -236,8 +257,37 @@ func _spawn_enemy(entry: Array) -> void:
 	enemy.shot.connect(_projectile)
 	enemy.feedback.connect(_feedback)
 	enemy.defeated.connect(_enemy_down)
+	enemy.wounded.connect(blood.spill)
 	add_child(enemy)
 	enemies.append(enemy)
+
+
+func _build_physics_surfaces(base_floor: float) -> void:
+	if is_instance_valid(terrain):
+		remove_child(terrain)
+		terrain.queue_free()
+	terrain = Node2D.new()
+	add_child(terrain)
+	blood.drops.clear()
+	blood.clouds.clear()
+	blood.stains.clear()
+	blood.surfaces = [Rect2(-200, base_floor + 10, 1680, 24)]
+	for ledge: Rect2 in ledges:
+		blood.surfaces.append(Rect2(ledge.position + Vector2(0, 10), ledge.size))
+	# Sort high platforms first for swept droplet impacts.
+	blood.surfaces.sort_custom(func(a: Rect2, b: Rect2) -> bool: return a.position.y < b.position.y)
+	for surface: Rect2 in blood.surfaces:
+		var body := StaticBody2D.new()
+		body.collision_layer = Ragdoll.TERRAIN_LAYER
+		body.collision_mask = Ragdoll.CORPSE_LAYER
+		body.position = surface.position + Vector2(surface.size.x / 2, 12)
+		var shape := CollisionShape2D.new()
+		var rectangle := RectangleShape2D.new()
+		rectangle.size = Vector2(surface.size.x, 24)
+		shape.shape = rectangle
+		shape.one_way_collision = surface.position.y < base_floor
+		body.add_child(shape)
+		terrain.add_child(body)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -266,12 +316,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			super._unhandled_input(event)
 		if event.is_action_pressed("interact"):
 			_interact()
-		if event.is_action_pressed("super_strike") and night.try_burst():
+		if event.is_action_pressed("super_strike") and not moose.blocking and night.try_burst():
 			moose.combat.interrupt()
 			Metrics.record("night_impulse_windup")
 
 
 func _physics_process(delta: float) -> void:
+	var simulation_paused := run_state in ["menu", "paused", "won"]
+	blood.paused = simulation_paused
+	if is_instance_valid(player_corpse):
+		player_corpse.paused = simulation_paused
 	if run_state != "playing":
 		moose.horizontal_speed = 0
 		moose.travel = 0
@@ -358,7 +412,14 @@ func _release_impulse() -> void:
 		)
 		if not enemy.dead and at.distance_to(nearest) <= radius:
 			if enemy.receive_hit(
-				-1000 - night.bursts, "super", int(night.tuning.burst_damage), moose.position
+				-1000 - night.bursts,
+				"super",
+				int(night.tuning.burst_damage),
+				moose.position,
+				{
+					"at": nearest,
+					"direction": (box.get_center() - at).normalized() + Vector2(0, -0.35)
+				}
 			):
 				burst_hits += 1
 				enemy.push *= 1.6
@@ -387,7 +448,19 @@ func _resolve_attacks() -> void:
 	for enemy: Enemy in enemies:
 		if not enemy.dead and area.intersects(enemy.hurtbox()):
 			var before := enemy.health
-			if enemy.receive_hit(attack.serial, attack.kind, amount, moose.position):
+			var box := enemy.hurtbox()
+			var at := Vector2(
+				clampf(tip.x, box.position.x, box.end.x), clampf(tip.y, box.position.y, box.end.y)
+			)
+			var motion_axis := (tip - _previous_tip).normalized()
+			var direction := (Vector2(moose.facing, -0.3) + motion_axis * 0.7).normalized()
+			if enemy.receive_hit(
+				attack.serial,
+				attack.kind,
+				amount,
+				moose.position,
+				{"at": at, "direction": direction}
+			):
 				hits_landed += 1
 				_shake = 4 if attack.kind == "kick" else 2
 				if enemy.health < before:
@@ -397,25 +470,48 @@ func _resolve_attacks() -> void:
 	_previous_tip = tip
 
 
-func _hurt_player(amount: int, source: Vector2, _high: bool = false) -> void:
+func _hurt_player(
+	amount: int, source: Vector2, high: bool = false, contact: Vector2 = Vector2.INF
+) -> void:
 	if invincible > 0 or run_state != "playing":
 		return
 	if night.active():
 		amount = maxi(1, roundi(amount * float(night.tuning.incoming_multiplier)))
+	var guarded := moose.blocking and not moose.ragdoll_active
+	if guarded:
+		amount = maxi(1, ceili(amount * float(guard_tuning.damage_multiplier)))
+		blocked_hits += 1
 	health = maxi(0, health - amount)
 	player_hits += 1
 	invincible = float(encounter.invulnerability)
-	speed = signf(moose.position.x - source.x) * 190
+	var inherited_velocity := Vector2(speed, vertical_speed)
+	speed = signf(moose.position.x - source.x) * (float(guard_tuning.knockback) if guarded else 190)
 	moose.combat.interrupt()
-	_feedback(moose.position + Vector2(0, -145), "−" + str(amount), Color("e44a42"), "hurt")
-	_shake = 8
+	_feedback(
+		moose.position + Vector2(0, -145),
+		("БЛОК −" if guarded else "−") + str(amount),
+		Color("e2b36e") if guarded else Color("e44a42"),
+		"block" if guarded else "hurt"
+	)
+	_shake = 3 if guarded else 8
+	var at := (
+		contact if contact != Vector2.INF else moose.position + Vector2(0, -133 if high else -95)
+	)
+	var direction := Vector2(signf(moose.position.x - source.x), -0.35)
+	if not guarded or health <= 0:
+		blood.spill(at, direction, health <= 0)
 	Metrics.record("player_hit")
 	if health <= 0:
 		night.cancel()
 		deaths += 1
 		run_state = "lost"
+		moose.ragdoll_active = true
+		moose.blocking = false
+		player_corpse = Ragdoll.new()
+		moose.add_child(player_corpse)
+		player_corpse.start(moose, at, direction * 230, inherited_velocity)
 		for enemy: Enemy in enemies:
-			enemy.paused = true
+			enemy.paused = not enemy.dead
 		Metrics.record("defeated")
 
 
@@ -437,7 +533,15 @@ func _move_projectiles(delta: float) -> void:
 		item.at += item.velocity * delta
 		var swept := Rect2(before, Vector2.ZERO).expand(item.at).grow(5)
 		if swept.intersects(box):
-			_hurt_player(int(item.damage), before)
+			_hurt_player(
+				int(item.damage),
+				before,
+				false,
+				Vector2(
+					clampf(item.at.x, box.position.x, box.end.x),
+					clampf(item.at.y, box.position.y, box.end.y)
+				)
+			)
 			item.age = 10
 	effects.projectiles = effects.projectiles.filter(
 		func(item: Dictionary) -> bool: return item.age < 4
@@ -495,6 +599,7 @@ func _restart() -> void:
 
 
 func _start_new_run() -> void:
+	blocked_hits = 0
 	world_night = false
 	time_switches = 0
 	night.reset()
@@ -587,7 +692,7 @@ func _process(delta: float) -> void:
 	_notice_left = maxf(0, _notice_left - delta)
 	_shake = move_toward(_shake, 0, delta * 30)
 	camera.offset = Vector2(sin(clock * 123), cos(clock * 97)) * _shake
-	moose.modulate.a = 0.5 if invincible > 0 and fmod(clock, 0.12) < 0.06 else 1.0
+	moose.modulate.a = 0.5 if invincible > 0 and health > 0 and fmod(clock, 0.12) < 0.06 else 1.0
 	effects.seal = move_toward(effects.seal, 0.0 if cleared[room_index] else 1.0, delta * 1.8)
 	health_bar.size.x = health * 2.2
 	health_label.text = "ЛОСЬ  /  " + str(health) + " HP"
@@ -608,7 +713,7 @@ func _process(delta: float) -> void:
 		message.text = (
 			"Охрана: "
 			+ str(_remaining())
-			+ "   ·   J — руки / K — ноги   ·   "
+			+ "   ·   J/K — бой · I — блок   ·   "
 			+ str(rooms[room_index].hint)
 		)
 	if run_state == "lost":
@@ -677,7 +782,7 @@ func _sync_metrics() -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 21,
+			"revision": 22,
 			"room": room_index + 1,
 			"health": health,
 			"run_state": run_state,
@@ -694,6 +799,13 @@ func _sync_metrics() -> void:
 		true
 	)
 	Metrics.rig["seconds"] = elapsed_run
+	Metrics.rig["blocking"] = moose.blocking
+	Metrics.rig["blocked_hits"] = blocked_hits
+	Metrics.rig["player_ragdoll"] = moose.ragdoll_active
+	Metrics.rig["corpses"] = enemies.filter(func(enemy: Enemy) -> bool: return enemy.dead).size()
+	Metrics.rig["blood_drops"] = blood.drops.size() if is_instance_valid(blood) else 0
+	Metrics.rig["blood_stains"] = blood.stains.size() if is_instance_valid(blood) else 0
+	Metrics.rig["blood_landed"] = blood.landed if is_instance_valid(blood) else 0
 	Metrics.rig.merge(
 		{
 			"world_night": world_night,

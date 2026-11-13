@@ -18,6 +18,9 @@ var shield_down: bool = false
 var arm_meshes: Dictionary = {}
 var upper_rest: float = 0.0
 var fore_rest: float = 0.0
+var ragdoll_active: bool = false
+var foot_support: Dictionary = {}
+var _previous_facing: float = -1.0
 
 
 func _ready() -> void:
@@ -35,6 +38,7 @@ func _ready() -> void:
 		var near_side := side == "near"
 		_bone(side + "_leg", bones.hips, Vector2(-9 if near_side else 10, -2), 36)
 		_bone(side + "_shin", bones[side + "_leg"], Vector2(0, 36), 34)
+		_bone(side + "_foot", bones[side + "_shin"], Vector2(0, 34), 16)
 		# Source art faces LEFT: the visible shoulder socket is on the RIGHT.
 		var upper := ArmSkin.upper_vector()
 		var lower := ArmSkin.lower_vector()
@@ -99,6 +103,7 @@ func _leg_skin(side: String) -> void:
 	var uv := PackedVector2Array()
 	var upper := PackedFloat32Array()
 	var lower := PackedFloat32Array()
+	var ankle := PackedFloat32Array()
 	var triangles: Array[PackedInt32Array] = []
 	var hip: Vector2 = bones.hips.position + bones[side + "_leg"].position
 	for row in range(11):
@@ -107,8 +112,10 @@ func _leg_skin(side: String) -> void:
 			points.append(hip + Vector2((unit.x - 0.58) * 38, unit.y * 74 - 3))
 			uv.append(unit * mesh.texture.get_size())
 			var weight := smoothstep(0.35, 0.65, unit.y)
+			var foot_weight := smoothstep(0.76, 0.9, unit.y)
 			upper.append(1.0 - weight)
-			lower.append(weight)
+			lower.append(weight * (1.0 - foot_weight))
+			ankle.append(weight * foot_weight)
 			if row < 10 and col < 3:
 				var index := row * 4 + col
 				triangles.append(PackedInt32Array([index, index + 1, index + 5]))
@@ -118,12 +125,18 @@ func _leg_skin(side: String) -> void:
 	mesh.polygons = triangles
 	mesh.add_bone(skeleton.get_path_to(bones[side + "_leg"]), upper)
 	mesh.add_bone(skeleton.get_path_to(bones[side + "_shin"]), lower)
+	mesh.add_bone(skeleton.get_path_to(bones[side + "_foot"]), ankle)
 	if side == "far":
 		mesh.modulate = Color(0.79, 0.85, 0.85)
 
 
 func _process(delta: float) -> void:
+	if ragdoll_active:
+		return
 	clock += delta
+	if facing != _previous_facing:
+		foot_support.clear()
+		_previous_facing = facing
 	phase += absf(pace) * delta / 56 * TAU
 	scale.x = -facing
 	if kind == "drone":
@@ -131,13 +144,12 @@ func _process(delta: float) -> void:
 		bones.hips.position.y = -70 + sin(clock * 4) * 5 + collapse * 45
 		return
 	var walk := clampf(absf(pace) / 50, 0, 1)
-	bones.hips.position.y = -70 + sin(clock * 2.4) * 0.6 + absf(sin(phase)) * walk * 2
+	bones.hips.position.y = -56 + sin(clock * 2.4) * 0.6 + absf(sin(phase)) * walk * 2
 	bones.body.rotation = -wind * 0.18 + strike * 0.38 - hurt * 0.24 + collapse * 1.3
 	bones.head.rotation = -bones.body.rotation * 0.65
 	for side: String in ["far", "near"]:
 		var cycle := phase + (PI if side == "far" else 0.0)
-		bones[side + "_leg"].rotation = sin(cycle) * 0.36 * walk
-		bones[side + "_shin"].rotation = -maxf(0, cos(cycle)) * walk * 0.42
+		_pose_ground_leg(side, cycle, walk)
 		bones[side + "_arm"].rotation = upper_rest + sin(cycle + PI) * 0.17 * walk
 		bones[side + "_fore"].rotation = fore_rest + sin(cycle) * 0.1 * walk
 	bones.near_arm.rotation += -wind * 0.75 + strike * 1.05
@@ -153,3 +165,34 @@ func _process(delta: float) -> void:
 
 func _grip_rotation(side: String) -> float:
 	return -bones.body.rotation - bones[side + "_arm"].rotation - bones[side + "_fore"].rotation
+
+
+func _pose_ground_leg(side: String, cycle: float, walk: float) -> void:
+	# The painted sole is 1px beyond the shin endpoint: common ground is root+10.
+	var unit := fposmod(cycle, TAU) / TAU
+	var support := unit < 0.6 and walk > 0.05
+	var hip: Vector2 = bones.hips.position + bones[side + "_leg"].position
+	var goal := Vector2(hip.x + (-10 if side == "near" else 10), 9)
+	if walk > 0.05:
+		if support:
+			if not foot_support.get(side + "_active", false):
+				foot_support[side] = global_position.x + scale.x * (hip.x - 16)
+			goal.x = (
+				(float(foot_support.get(side, global_position.x)) - global_position.x) / scale.x
+			)
+		else:
+			var swing := clampf((unit - 0.6) / 0.4, 0, 1)
+			goal.x = hip.x + lerpf(16, -16, smoothstep(0, 1, swing))
+			goal.y -= sin(swing * PI) * 13
+	foot_support[side + "_active"] = support
+	var target := goal - hip
+	var distance := clampf(target.length(), 2.01, 69.98)
+	var thigh := (
+		atan2(-target.x, target.y)
+		- acos(clampf((distance * distance + 36 * 36 - 34 * 34) / (72 * distance), -1, 1))
+	)
+	var knee := PI - acos(clampf((36 * 36 + 34 * 34 - distance * distance) / (2 * 36 * 34), -1, 1))
+	var angles := Vector2(thigh, knee)
+	bones[side + "_leg"].rotation = angles.x
+	bones[side + "_shin"].rotation = angles.y
+	bones[side + "_foot"].rotation = -angles.x - angles.y

@@ -1,0 +1,8 @@
+{
+  "guard": {"damage_multiplier": 0.25, "move_multiplier": 0.28, "knockback": 60.0},
+  "ragdoll": {"lifetime": 12.0, "fade": 2.0, "gravity_scale": 1.53, "linear_damp": 0.6,
+    "angular_damp": 4.0, "torsion_stiffness": 80.0, "torsion_damping": 12.0, "torsion_cap": 150.0},
+  "blood": {"hit_drops": 9, "lethal_drops": 34, "gravity": 780.0,
+    "stain_min_life": 12.0, "stain_max_life": 18.0, "stain_fade": 4.0,
+    "drop_limit": 300, "mist_limit": 48, "stain_limit": 220}
+}

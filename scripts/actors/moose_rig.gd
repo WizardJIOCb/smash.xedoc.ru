@@ -53,6 +53,9 @@ var camera_glance: bool = false
 var glance_count: int = 0
 var power_scale: float = 1.0
 var power_pose := Vector2.ZERO
+var ragdoll_active: bool = false
+var blocking: bool = false
+var guard_blend: float = 0.0
 
 var _travel_blend: float = 0.0
 var _air_blend: float = 0.0
@@ -212,6 +215,8 @@ func _segment(
 
 
 func _process(delta: float) -> void:
+	if ragdoll_active:
+		return
 	clock += delta
 	_update_gaze(delta)
 	landing_time += delta
@@ -299,6 +304,14 @@ func _process(delta: float) -> void:
 		bones[side + "_fore"].rotation = -1.55 - absf(swing) * 0.25 - _air_blend * 0.18
 		bones[side + "_hand"].rotation = 0.0
 	attack_pose.apply(self)
+	guard_blend = move_toward(guard_blend, float(blocking), delta * 12)
+	if guard_blend > 0:
+		for side: String in ["near", "far"]:
+			var arm: Bone2D = bones[side + "_arm"]
+			var fore: Bone2D = bones[side + "_fore"]
+			arm.rotation = lerp_angle(arm.rotation, -0.95 if side == "near" else -0.6, guard_blend)
+			fore.rotation = lerp_angle(fore.rotation, -1.8, guard_blend)
+			bones[side + "_hand"].rotation = -0.2 * guard_blend
 	if power_pose.length_squared() > 0.001:
 		for side: String in ["near", "far"]:
 			bones[side + "_arm"].rotation = lerpf(

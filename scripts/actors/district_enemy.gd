@@ -4,9 +4,11 @@ signal hit_player(amount: int, source: Vector2, high: bool)
 signal shot(origin: Vector2, aim: Vector2, damage: int)
 signal feedback(at: Vector2, label: String, color: Color, sound: String)
 signal defeated
+signal wounded(at: Vector2, direction: Vector2, lethal: bool, mechanical: bool)
 
 const PaintedRig = preload("res://scripts/actors/enemy_rig.gd")
 const Contact = preload("res://scripts/core/combat_contact.gd")
+const Ragdoll = preload("res://scripts/actors/skeletal_ragdoll.gd")
 
 var kind: String = "shield"
 var target: Node2D
@@ -25,6 +27,7 @@ var dead: bool = false
 var aim := Vector2.ZERO
 var paused: bool = false
 var hits_received: int = 0
+var corpse: Ragdoll
 var _contact := Contact.new()
 var _clock: float = 0.0
 var _base_y: float = 0.0
@@ -46,7 +49,9 @@ func hurtbox() -> Rect2:
 	return Rect2(position + Vector2(-31, -170), Vector2(62, 167))
 
 
-func receive_hit(serial: int, kind_hit: String, damage: int, source: Vector2) -> bool:
+func receive_hit(
+	serial: int, kind_hit: String, damage: int, source: Vector2, impact: Dictionary = {}
+) -> bool:
 	if dead or not _contact.accept(serial):
 		return false
 	hits_received += 1
@@ -68,15 +73,30 @@ func receive_hit(serial: int, kind_hit: String, damage: int, source: Vector2) ->
 	state = "recovery"
 	elapsed = 0
 	feedback.emit(hurtbox().get_center(), str(damage), Color("e7d3ac"), "hit")
+	var at: Vector2 = impact.get("at", hurtbox().get_center())
+	var direction: Vector2 = impact.get("direction", Vector2(signf(position.x - source.x), -0.3))
+	wounded.emit(at, direction, health <= 0, kind == "drone")
 	if health <= 0:
 		dead = true
 		elapsed = 0
+		rig.modulate = Color.WHITE
+		var velocity := Vector2(facing * rig.pace, 0)
+		rig.ragdoll_active = true
+		corpse = Ragdoll.new()
+		rig.add_child(corpse)
+		corpse.start(
+			rig, at, direction.normalized() * (260 if kind_hit != "punch" else 180), velocity
+		)
 		defeated.emit()
 		feedback.emit(hurtbox().get_center(), "ВЫРУБЛЕН", Color("e2b36e"), "down")
 	return true
 
 
 func _physics_process(delta: float) -> void:
+	if is_instance_valid(corpse):
+		corpse.paused = paused
+		queue_redraw()
+		return
 	if paused:
 		rig.pace = 0
 		return
@@ -90,12 +110,6 @@ func _physics_process(delta: float) -> void:
 	rig.shield_down = guard_down > 0 or state == "recovery"
 	position.x = clampf(position.x + push * delta, 70, 1175)
 	push = move_toward(push, 0, delta * 430)
-	if dead:
-		rig.pace = 0
-		rig.collapse = minf(1, elapsed * 2.8)
-		rig.modulate.a = clampf(1 - (elapsed - 0.6), 0, 1)
-		queue_redraw()
-		return
 	if not is_instance_valid(target):
 		return
 	if kind == "drone":

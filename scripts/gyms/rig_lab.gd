@@ -24,6 +24,9 @@ var floor_y: float = 555.0
 var movement_bounds := Vector2(90, 1170)
 var move_power: float = 1.0
 var combat_rate: float = 1.0
+var guard_tuning: Dictionary = (
+	JSON.parse_string(FileAccess.get_file_as_string("res://data/physical_combat.json")).guard
+)
 
 var _jump_buffer: float = 0.0
 var _preparation_time: float = -1.0
@@ -57,6 +60,7 @@ func _ready() -> void:
 		["jump", KEY_UP],
 		["strike", KEY_J],
 		["kick", KEY_K],
+		["block", KEY_I],
 		["crouch", KEY_S],
 		["crouch", KEY_DOWN],
 		["sprint", KEY_SHIFT],
@@ -93,6 +97,8 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Events retain quick taps between physics frames and reject keyboard repeat.
+	if Input.is_action_pressed("block") or moose.ragdoll_active:
+		return
 	var low: bool = Input.is_action_pressed("crouch") and not moose.airborne
 	if event.is_action_pressed("strike"):
 		moose.combat.request("punch", moose.airborne, low)
@@ -123,8 +129,16 @@ func _background(path: String) -> TextureRect:
 func _physics_process(delta: float) -> void:
 	var direction := Input.get_axis("left", "right")
 	var crouching := Input.is_action_pressed("crouch") and lift == 0
+	moose.blocking = Input.is_action_pressed("block")
+	if moose.blocking:
+		moose.combat.interrupt()
 	moose.crouch_requested = crouching
-	moose.sprinting = Input.is_action_pressed("sprint") and direction != 0 and not crouching
+	moose.sprinting = (
+		Input.is_action_pressed("sprint")
+		and direction != 0
+		and not crouching
+		and not moose.blocking
+	)
 	var previous_speed := speed
 	var rate: float = motion.acceleration if direction else motion.braking
 	if lift < 0:
@@ -134,6 +148,8 @@ func _physics_process(delta: float) -> void:
 	if crouching:
 		target_speed = float(motion.crouch_speed)
 	target_speed *= move_power
+	if moose.blocking:
+		target_speed *= float(guard_tuning.move_multiplier)
 	if moose.combat.elapsed >= 0 and lift == 0:
 		move_scale = minf(move_scale, 0.2 if moose.combat.kind == "kick" else 0.48)
 	var previous_x := moose.position.x
@@ -159,7 +175,7 @@ func _physics_process(delta: float) -> void:
 	moose.horizontal_speed = speed
 	moose.horizontal_acceleration = (speed - previous_speed) / delta
 	moose.travel = absf(speed) / float(motion.run_speed)
-	if absf(speed) > 20 and moose.combat.chain_length == 0:
+	if absf(speed) > 20 and moose.combat.chain_length == 0 and not moose.blocking:
 		moose.facing = signf(speed)
 	_jump_buffer = maxf(0, _jump_buffer - delta)
 	if Input.is_action_just_pressed("jump"):
