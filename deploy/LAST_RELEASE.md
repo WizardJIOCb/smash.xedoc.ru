@@ -1,39 +1,40 @@
-# Public release v19
+# Public release v21
 
 - Domain: https://smash.xedoc.ru/
 - Fresh load: https://smash.xedoc.ru/?cache=clear
-- Runtime source: 7090e522849331b268acd6740cc6cd60059c0a81
-- Current: /var/www/smash.xedoc.ru/releases/v19-7090e5228493
-- Rollback: /var/www/smash.xedoc.ru/releases/v18-b2e4e1f43245
-- Archive SHA256: 982fe14b314a17dfd63655ab52761c7a1de607533793b94a624b40f9ca13b250
-- 15 manifest files checked before atomic activation. GitHub main pushed.
+- Runtime source: be8d1e30f05e02b19c7c619725aef49a2800f996
+- Current: /var/www/smash.xedoc.ru/releases/v21-be8d1e30f05e
+- Rollback: /var/www/smash.xedoc.ru/releases/v20-9ece5d4be811
+- Archive SHA256: 3611cce7bc4a63285bb5657c25c7e3e442a1daf3aac3805477d994aaefd720f7
+- 15 manifest files verified before atomic activation; GitHub main pushed.
 
-User-requested corrections:
-- Softer, fluffy, cartoon near fist, 3 curled fingers plus thumb, no sinewy ridges
-  or fingernail. Built-in image_gen source art/characters/los/fist-back-v9.png,
-  exact prompt fist-back-v9-prompt.md; prepare_rig_v9.py fits runtime texture.
-- Boar and rat near shoulder moved into the actual visible socket on right of
-  left-facing source art. Existing complete arm paintings retained. Forearm/hand
-  bones, continuous weighted elbow meshes; shield/baton/cable follow hands.
-  Procedural whip line starts at the actual gripping hand. Both facings checked.
-- Upper alley ledge y395 to415, rise now40 instead of60; relay moved down20 too.
+User requests fulfilled in v20/v21:
+- T toggles persistent day/night, no charge cost or combat boost.
+- Q activates 8s ultimate, now named Багровая ярость. L remains its impulse.
+- Separate world-grade and power/aura strengths. Ultimate expiry preserves time
+  of day; switching time works with zero charge and during the ultimate.
+  Quarantine relay progression stays independent; daylight has a subtle warning
+  wash, night uses the painted quarantine state and cool grade. New run starts day.
+- Near fist uses local Sprite2D multiplier (0.80,0.82,0.84): about18% dimmer and
+  slightly less orange, matching the head fur. Source painting, soft texture and
+  four digits preserved; no new generated image or raster modification needed.
 
 Validation:
-- 22/22 GUT; headless Web export, no SCRIPT ERROR/ERROR.
-- Native enemy-arms-v19: 29 frames, 0 errors/warnings; both species and facings,
-  guard, walk, windup, attack and recovery.
-- Native ledge-route-v19: 70 frames, 0 errors/warnings, completed=true; 5 enemies,
-  3 relays, 21.65 seconds. Upper ledge ACTUAL landing at 13.5667 seconds recorded
-  before the driver permits its relay interaction. No health/position cheats.
-- menu-v19: 4 frames, 0 errors. Local browser revision19 and soft fist checked.
-- Public revision19, shared scores available, fresh run and real D/Z controls;
-  new fist and boar arm visible, 100HP. Capture public-v19/hero-and-shield-full.png
-  (1280x720) and identical-sized hero-and-shield.png. Browser error log empty.
-- Cache version update: 2 asset hits and 1 download, unchanged engine reused.
-- Nginx/PHP8.3-FPM active. Public release.json matches runtime source.
+- 22/22 GUT, Web export without SCRIPT ERROR/ERROR.
+- day-power-v20: 28 native frames, zero errors/warnings, all four observed checks:
+  night without power, day with power, night remaining after expiry, switches with
+  empty charge. day-power-v21 repeated the scenario with initial tint adjustment.
+- Final tint: menu-v21 4 frames, tone-modes-v21 10 frames, zero errors; inspected
+  day, night and aura combinations. v20/v21 menu help and HUD bindings updated.
+- Public v20 real keys: T -> world_night=true, ultimate=false, charge100, scale1;
+  T then Q -> world_night=false, ultimate=true, charge0, scale1.12, one cast.
+- Public v21 revision21/menu and actual final fist tone verified; shared scores
+  available, muted=true, cache hit2/download1; browser error log empty.
+- Public screenshot public-v21/menu-fur-tone.png; fur-tone-closeup.png is a crop
+  retaining face, neck, jacket and both fists for color comparison.
+- Nginx/PHP8.3-FPM active; release.json matches source. Scores unchanged across v21
+  activation: af52413102fb21f5d10b15a5dddd68455097a88115b6a4a319136333842c27d4.
+  Real players added records during the work; no synthetic record was submitted.
 
-Persistent score-store SHA256 unchanged before/after deployment:
-01374a70e10ca4a1bcbad5af9d001ae34f9a34e02a0410fcb976cd14bff0e40b.
-No synthetic score submitted. Records, sound preference, night ability and cache
-clear mechanism retained. Art approval remains with user; final Firewall boss
-and full metroidvania map are still future work.
+Earlier v19 enemy arms, soft four-digit fist and lowered second ledge retained.
+Art/feel approval remains with user. Final Firewall and full map remain future work.
