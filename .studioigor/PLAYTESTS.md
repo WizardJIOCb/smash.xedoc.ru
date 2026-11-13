@@ -101,3 +101,6 @@ One session — one section. The user's feedback — verbatim. The first questio
 - Rain2pooled batches: uppermost road/ledge, random depth, ballistic droplets and fading rings.
 - Landing spray floor_y+8:48nativeframes/0errors, room3 and upper ledge415/spray423.
 - Full route70frames/0errors,5kills/3relays;27GUT/358assertions pass. User taste gates remain open.
+- Public v26: new menu and branded loading seen; cache update hit2/download1, clear link hit0/download3
+  reaches100/ready. Real-key battle1kill/172marks/100HP, later180FPS/88calls (includes corpse,
+  not isolated benchmark). Console errors0; external records unchanged during activation.
