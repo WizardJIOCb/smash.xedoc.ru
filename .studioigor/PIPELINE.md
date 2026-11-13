@@ -33,14 +33,14 @@ files: ART_BIBLE.md
 files: TECH.md
 - [x] stack research done — check: python -c "import pathlib,sys; p=pathlib.Path('.studioigor/research/stack.md'); sys.exit(0 if p.is_file() and p.stat().st_size else 1)"
 - [x] user chose the platforms — check: user
-- [ ] user chose the engine; alternatives and reasons in TECH.md — check: user
+- [x] user chose the engine; alternatives and reasons in TECH.md — check: user
 
 ## Phase 4 — Environment
 files: ENV.md
-- [ ] research of the best engine setup done — check: test -s .studioigor/research/environment.md
-- [ ] full setup installed: engine, CLI, plugin/skills, MCP, tests, linter, export — check: python3 {skill}/scripts/envcheck.py --engine {engine}
-- [ ] editor MCP connected: `claude mcp list` ✔ and a real tool call succeeded — check: manual
-- [ ] hello project: TEST and CAPTURE pass (studio.py verify) — check: grep -q "^VERIFIED: yes" .studioigor/ENV.md
+- [x] research of the best engine setup done — check: python -c "import pathlib,sys; p=pathlib.Path('.studioigor/research/environment.md'); sys.exit(0 if p.is_file() and p.stat().st_size else 1)"
+- [x] full setup installed: engine, CLI, plugin/skills, MCP, tests, linter, export — check: .tools\python\Scripts\python.exe tools/envcheck_windows.py
+- [x] editor MCP connected: authenticated stdio bridge and real scene_get_hierarchy succeeded — check: manual
+- [x] hello project: TEST and CAPTURE pass (studio.py verify) — check: python -c "import pathlib,sys; sys.exit(0 if 'VERIFIED: yes' in pathlib.Path('.studioigor/ENV.md').read_text(encoding='utf-8') else 1)"
 - [ ] user saw the project running on their machine — check: user
 
 ## Phase 5 — Assets and look-dev
