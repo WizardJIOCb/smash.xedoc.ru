@@ -4,14 +4,14 @@ extends Node2D
 
 const RigMath = preload("res://scripts/core/rig_math.gd")
 const TorsoSkin = preload("res://scripts/actors/torso_skin.gd")
+const PantLegSkin = preload("res://scripts/actors/pant_leg_skin.gd")
 
-# Explicit silhouette order: legs, hips, far arm, neck, jacket, near arm, head.
+# Camera-side anatomy stays consistent when the whole rig is mirrored.
 const DEPTH_FAR_LEG = 0
 const DEPTH_NEAR_LEG = 2
-const DEPTH_HIPS = 4
 const DEPTH_FAR_ARM = 5
 const DEPTH_NECK = 8
-const DEPTH_NEAR_ARM = 12
+const DEPTH_NEAR_ARM = 20
 const DEPTH_HEAD = 16
 
 var skeleton: Skeleton2D
@@ -32,6 +32,7 @@ var motion: Dictionary
 var landing_time: float = 1.0
 var landing_strength: float = 0.0
 var mesh: Polygon2D
+var leg_meshes: Dictionary = {}
 var gaze_material: ShaderMaterial
 var camera_glance: bool = false
 var glance_count: int = 0
@@ -59,7 +60,6 @@ func _ready() -> void:
 	add_child(skeleton)
 	_bone("hips", skeleton, Vector2(0, -80), 12)
 	_bone("body", bones.hips, Vector2(0, -9), 65)
-	_part("pelvis", bones.hips, Vector2(46, 25), Vector2(0.5, 0.23), DEPTH_HIPS)
 	var neck := _part("neck", bones.body, Vector2(27, 43), Vector2(0.5, 0.18), DEPTH_NECK)
 	neck.position += Vector2(12, -58)
 	_bone("head", bones.body, Vector2(13, -64), 25)
@@ -77,22 +77,10 @@ func _ready() -> void:
 		var near_side := side == "near"
 		var depth := DEPTH_NEAR_LEG if near_side else DEPTH_FAR_LEG
 		var arm_depth := DEPTH_NEAR_ARM if near_side else DEPTH_FAR_ARM
-		var shade := Color.WHITE if near_side else Color(0.65, 0.73, 0.77)
-		_bone(side + "_thigh", bones.hips, Vector2(7 if near_side else -9, 5), 38)
+		var shade := Color.WHITE if near_side else Color(0.78, 0.83, 0.85)
+		_bone(side + "_thigh", bones.hips, Vector2(-8 if near_side else 8, 5), 38)
 		_bone(side + "_shin", bones[side + "_thigh"], Vector2(0, 38), 38)
 		_bone(side + "_foot", bones[side + "_shin"], Vector2(0, 38), 20)
-		_segment(
-			"thigh",
-			bones[side + "_thigh"],
-			Vector2(0.43, 0.12),
-			Vector2(0.62, 0.88),
-			38,
-			depth,
-			shade
-		)
-		_segment(
-			"shin", bones[side + "_shin"], Vector2(0.53, 0.1), Vector2(0.48, 0.91), 38, depth, shade
-		)
 		_part("shoe", bones[side + "_foot"], Vector2(48, 27), Vector2(0.3, 0.4), depth + 1, shade)
 		_bone(side + "_arm", bones.body, Vector2(-19 if near_side else 18, -54), 31)
 		_bone(side + "_fore", bones[side + "_arm"], Vector2(0, 31), 30)
@@ -115,19 +103,34 @@ func _ready() -> void:
 			arm_depth + 1,
 			shade
 		)
-		_segment(
-			"fist",
-			bones[side + "_hand"],
-			Vector2(0.17, 0.73),
-			Vector2(0.8, 0.4),
-			18,
-			arm_depth + 2,
-			shade
-		)
+		if near_side:
+			_segment(
+				"fist_back",
+				bones.near_hand,
+				Vector2(0.15, 0.8),
+				Vector2(0.78, 0.27),
+				18,
+				arm_depth + 2,
+				shade
+			)
+		else:
+			_segment(
+				"fist",
+				bones.far_hand,
+				Vector2(0.17, 0.73),
+				Vector2(0.8, 0.4),
+				18,
+				arm_depth + 2,
+				shade
+			)
 	for bone: Bone2D in bones.values():
 		bone.rest = bone.transform
 	mesh = TorsoSkin.new()
 	mesh.setup(skeleton, bones.hips, bones.body)
+	for side: String in ["far", "near"]:
+		var trousers := PantLegSkin.new()
+		trousers.setup(skeleton, bones, side, DEPTH_NEAR_LEG if side == "near" else DEPTH_FAR_LEG)
+		leg_meshes[side] = trousers
 	_reset_feet()
 	debug_layer = Node2D.new()
 	debug_layer.z_index = 50
@@ -150,6 +153,7 @@ func _part(
 	id: String, parent: Node, size: Vector2, pivot: Vector2, depth: int, shade: Color = Color.WHITE
 ) -> Sprite2D:
 	var sprite := Sprite2D.new()
+	sprite.name = id
 	sprite.texture = load("res://assets/characters/los/%s.png" % id)
 	sprite.centered = false
 	sprite.scale = size / sprite.texture.get_size()
@@ -165,6 +169,7 @@ func _segment(
 	id: String, parent: Node, start: Vector2, end: Vector2, length: float, depth: int, shade: Color
 ) -> void:
 	var sprite := Sprite2D.new()
+	sprite.name = id
 	sprite.texture = load("res://assets/characters/los/%s.png" % id)
 	var size := sprite.texture.get_size()
 	var axis := (end - start) * size
@@ -277,7 +282,7 @@ func _reset_feet() -> void:
 	gait = TAU * 0.18
 	for side: String in ["far", "near"]:
 		var hip_x: float = bones[side + "_thigh"].position.x
-		var rest := 10.0 if side == "near" else -12.0
+		var rest := 19.0 if side == "near" else -19.0
 		_foot_world[side] = position.x + facing * (hip_x + rest)
 		var cycle := fposmod(gait + (PI if side == "far" else 0.0), TAU) / TAU
 		_was_support[side] = cycle < float(motion.stance_ratio)
@@ -291,7 +296,7 @@ func _pose_leg(side: String, delta: float) -> void:
 	var stride := float(motion.stride_half)
 	var moving := absf(horizontal_speed) > 8.0
 	var supporting := cycle < stance and moving and not airborne
-	var target := Vector2(hip_x + (10 if side == "near" else -12), -6)
+	var target := Vector2(hip_x + (19 if side == "near" else -19), -6)
 	var foot_angle := 0.0
 	if moving:
 		if supporting:

@@ -18,6 +18,12 @@ One session — one section. The user's feedback — verbatim. The first questio
 - User art approval remains open.
 - Self-check: 79 current main-scene frames and 12 isolated idle-gaze frames, zero engine errors in both captures; 4/4 tests. Idle review recorded one camera_glance and returned to forward gaze. Live Web shows revision=3, forward gaze during movement/attack, glance counter advances during idle.
 
+## PT-03 — 2026-11-13 — rig v3 correction
+- User: near fist needs dorsal artwork; static pelvis/thigh connection and stripe discontinuity are visible; leg perspective/layers disagree on turns; near arm falls behind head. Follow-up: neck colour does not match head at seam.
+- V4 actions: separate dorsal near fist; near arm above head; near hip aligned with near shoulder; 2 continuous skinned pant legs replace pelvis/thigh/shin stack, continuous stripes and shared hips root. Neck bridge cropped from actual head fur, collar fur matched to that palette.
+- Validation: 6/6 tests including actual rig render priority in both directions and resolved normalized leg skin weights. Native 52 frames, zero engine errors; Web revision4/trouser_meshes2 checked with real keys.
+- Visual approval remains open.
+
 <!--
 ## PT-01 — 2026-09-28 — M01 Drift (gym)
 - build: <commit> · run: `<command>`

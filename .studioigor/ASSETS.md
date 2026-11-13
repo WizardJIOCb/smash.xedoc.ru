@@ -10,6 +10,7 @@
 | Courtyard, alive and quarantine | environment | teal forest district / red lockdown | 2 backgrounds, 1672x941 | original image_gen edits | empty backgrounds in scene |
 | Rain, spores, punch arc | VFX | quiet warm particles / cold rain | 80 streaks, 18 spores | GDScript drawing | first pass |
 | v3 correction kit | character | same moose identity | neck, compact pelvis, fur-lined torso and two eye donor crops | original image_gen edits | review |
+| v4 cloth and near hand | character | continuous navy stripes and dorsal fist | 2 pant meshes x 133 vertices; 1 near fist sprite | original image_gen / head fur crop | review |
 
 ## Strategy by category
 | category | source (pack / Blender / procedural / generation / user) | why | status |
@@ -35,3 +36,5 @@
 Reference-board screenshots remain reference-only; none is used in the game build. Engine/addon licenses remain in their installed source trees. Exact art prompts: art/characters/los/prompts-v1.md and torso-v2-prompt.md.
 
 V3 overrides: tools/prepare_rig_v3.py crops and fits generated neck, pelvis and torso; crops the largest connected alpha component of the old atlas fist to exclude a stray tuft; crops forward eyes from generated head art. Head source stays unchanged. Runtime eye shader blends only two small rectangles with feathered edges; original camera gaze returns for 750 ms after 4.5 s idle, subsequent intervals 8–12 s. Moving/jumping/attacking cancels the glance. Prompts: art/characters/los/parts-v3-prompts.md. Export and crop bounds: assets/characters/los/parts_v3_manifest.json.
+
+V4 replaces the pelvis/thigh/shin picture stack with continuous pant-leg skins. Upper rows blend hips to thigh, knee rows blend thigh to shin; stripes share one texture from waist to cuff. Far-leg UV shows the opposite seam. Near hip is now on the same side as near shoulder; relative near/far render priority is retained when mirroring. Near arm/fist are above head. Near fist uses fist_back.png; far fist retains fist.png. Neck bridge is an unpainted crop of head.png; fur inside collar was corrected to its brown palette. tools/prepare_rig_v4.py is the last step in canonical tools/slice_moose.py. Prompts and source paths: art/characters/los/parts-v4-prompts.md.

@@ -73,6 +73,8 @@ var _wait_scene := 0
 var _finished := false
 var _fails: Array = []
 var _logger: Object = null
+var _key_actions: Dictionary = {}
+var _input_isolated := false
 
 
 func _initialize() -> void:
@@ -144,6 +146,8 @@ func _process(delta: float) -> bool:
 		_fps.append(Engine.get_frames_per_second())
 		_last_fps_ms = now
 
+	if not _input_isolated:
+		_isolate_capture_input()
 	_t += delta
 	while not _events.is_empty() and float(_events[0]["t"]) <= _t:
 		_dispatch(_events.pop_front())
@@ -253,6 +257,14 @@ func _finish() -> void:
 # ---------------------------------------------------------------- input
 
 func _dispatch(e: Dictionary) -> void:
+	if e.has("keycode") and _key_actions.has(int(e["keycode"])):
+		for action: StringName in _key_actions[int(e["keycode"])]:
+			var synthetic := InputEventAction.new()
+			synthetic.action = action
+			synthetic.pressed = e["pressed"]
+			synthetic.strength = 1.0 if e["pressed"] else 0.0
+			Input.parse_input_event(synthetic)
+		return
 	var ev: InputEvent
 	if e.has("action"):
 		var a := InputEventAction.new()
@@ -275,6 +287,20 @@ func _dispatch(e: Dictionary) -> void:
 		ev = m
 	if ev:
 		Input.parse_input_event(ev)
+
+
+func _isolate_capture_input() -> void:
+	# Preserve scripted key -> action mapping, then disconnect live OS keyboard events.
+	# This affects only this disposable capture process, never project.godot or the browser.
+	for action: StringName in InputMap.get_actions():
+		for event: InputEvent in InputMap.action_get_events(action):
+			if event is InputEventKey:
+				var key: int = event.physical_keycode if event.physical_keycode else event.keycode
+				if not _key_actions.has(key):
+					_key_actions[key] = []
+				_key_actions[key].append(action)
+		InputMap.action_erase_events(action)
+	_input_isolated = true
 
 
 func _load_inputs(path: String) -> bool:

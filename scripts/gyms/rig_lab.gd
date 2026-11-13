@@ -151,7 +151,7 @@ func _process(delta: float) -> void:
 	blend = move_toward(blend, float(quarantine), delta * 0.75)
 	dark.modulate.a = blend
 	moose.modulate = Color.WHITE.lerp(Color(0.82, 0.74, 0.78), blend)
-	status.text = ("КАРАНТИН FIREWALL" if quarantine else "ТИХИЙ ДВОР") + "  /  Анимация v3"
+	status.text = ("КАРАНТИН FIREWALL" if quarantine else "ТИХИЙ ДВОР") + "  /  Анимация v4"
 	queue_redraw()
 
 
@@ -217,7 +217,8 @@ func _sync_metrics() -> void:
 		"jumps": jumps,
 		"landings": landings,
 		"mesh_vertices": moose.mesh.polygon.size(),
-		"revision": 3,
+		"revision": 4,
+		"trouser_meshes": moose.leg_meshes.size(),
 		"closeup": closeup,
 		"camera_glance": moose.camera_glance,
 		"glance_count": moose.glance_count

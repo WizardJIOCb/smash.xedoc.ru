@@ -1,0 +1,50 @@
+{
+  "fist_back": {
+    "source": "art/characters/los/fist-back-v4.png",
+    "crop": [
+      43,
+      47,
+      1242,
+      1175
+    ],
+    "size": [
+      512,
+      482
+    ]
+  },
+  "pant_leg": {
+    "source": "art/characters/los/pant-leg-v4.png",
+    "crop": [
+      79,
+      60,
+      613,
+      2129
+    ],
+    "size": [
+      198,
+      768
+    ]
+  },
+  "torso": {
+    "source": "art/characters/los/torso-v4.png",
+    "crop": [
+      287,
+      7,
+      1062,
+      1086
+    ],
+    "size": [
+      512,
+      713
+    ]
+  },
+  "neck": {
+    "source": "assets/characters/los/head.png",
+    "crop": [
+      190,
+      224,
+      293,
+      330
+    ]
+  }
+}
