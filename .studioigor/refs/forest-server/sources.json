@@ -1,0 +1,72 @@
+{
+  "title": "Лес съел серверную",
+  "text": "Свет рождается внутри растений и забытых механизмов. Мягкие природные арки обрастают кабелями, маленький герой теряется среди огромных корней. Холодное свечение, тёплые убежища и живописная глубина; освобождение района превращает выжженную зону в живую.",
+  "palette": [
+    "#101c28",
+    "#24505c",
+    "#56d7c8",
+    "#c8e8bf",
+    "#e6a755"
+  ],
+  "tags": [
+    "2D",
+    "живописность",
+    "биолюминесценция",
+    "природа"
+  ],
+  "items": [
+    {
+      "file": "steam-ec5fbc34.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_0cf0ec6681ae5771173790dbc99ddb3bf3b886ad.1920x1080.jpg?t=1759530749",
+      "page": "https://store.steampowered.com/app/1057090/",
+      "title": "Ori and the Will of the Wisps — screenshot 1",
+      "credit": "Moon Studios GmbH",
+      "license": "© Moon Studios GmbH — moodboard only",
+      "api": "steam",
+      "query": "Ori and the Will of the Wisps",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "ec5fbc347c419dcfcad29030d65fd56fcd023245"
+    },
+    {
+      "file": "steam-5a8cb579.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_f8ac174b7949e89fe1939a7bd2c471785dee55f0.1920x1080.jpg?t=1759530749",
+      "page": "https://store.steampowered.com/app/1057090/",
+      "title": "Ori and the Will of the Wisps — screenshot 2",
+      "credit": "Moon Studios GmbH",
+      "license": "© Moon Studios GmbH — moodboard only",
+      "api": "steam",
+      "query": "Ori and the Will of the Wisps",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "5a8cb5794d34fbce4bb94f75b6d2288978761598"
+    },
+    {
+      "file": "steam-bea6fd1b.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1057090/ss_3ae04b208aaff3869f69617c47449ec1d7a06513.1920x1080.jpg?t=1759530749",
+      "page": "https://store.steampowered.com/app/1057090/",
+      "title": "Ori and the Will of the Wisps — screenshot 3",
+      "credit": "Moon Studios GmbH",
+      "license": "© Moon Studios GmbH — moodboard only",
+      "api": "steam",
+      "query": "Ori and the Will of the Wisps",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "bea6fd1b0a4189501098f79bed8b829f251e01c5"
+    }
+  ],
+  "pros": [
+    "Самое сказочное и атмосферное направление",
+    "сильная смена состояний мира"
+  ],
+  "cons": [
+    "Самая дорогая живописная графика",
+    "нужно специально вписать спортивку и юмор"
+  ]
+}

@@ -12,16 +12,16 @@ the user (AskUserQuestion) + `studio.py decide --by user`. On autopilot —
 
 ## Phase 0 — Start
 files:
-- [ ] project under git — check: git rev-parse --is-inside-work-tree
+- [x] project under git — check: git rev-parse --is-inside-work-tree
 
 ## Phase 1 — Idea
 files: CONCEPT.md
-- [ ] interview done, concept slots filled with source tags — check: manual
-- [ ] 3–5 falsifiable pillars and anti-pillars — check: manual
-- [ ] story skeleton in STORY.md (or decided there is no story) — check: manual
-- [ ] draft mechanics in DESIGN.md and scale in SCOPE.md — check: manual
-- [ ] game designer proposed signature hooks, the user chose — check: user
-- [ ] user approved the pitch card — check: user
+- [x] interview done, concept slots filled with source tags — check: manual
+- [x] 3–5 falsifiable pillars and anti-pillars — check: manual
+- [x] story skeleton in STORY.md (or decided there is no story) — check: manual
+- [x] draft mechanics in DESIGN.md and scale in SCOPE.md — check: manual
+- [x] game designer proposed signature hooks, the user chose — check: user
+- [x] user approved the pitch card — check: user
 
 ## Phase 2 — Style
 files: ART_BIBLE.md

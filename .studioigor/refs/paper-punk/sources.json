@@ -1,0 +1,132 @@
+{
+  "title": "Бумажный панк",
+  "text": "Мир как оживший дерзкий плакат: крупные угловатые силуэты, грубая бумага, резкие диагонали и выразительные позы. В спокойном районе тёплая бумага и чёрная тушь; карантин разрывает композицию красными полосами. Меньше мягкого свечения, больше графики и характера.",
+  "palette": [
+    "#e4d0a3",
+    "#252b33",
+    "#c3463e",
+    "#7d9b72",
+    "#f5b93f"
+  ],
+  "tags": [
+    "2D",
+    "плакат",
+    "графика",
+    "гротеск"
+  ],
+  "items": [
+    {
+      "file": "steam-f0150cbf.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/534550/ss_f0150cbfaca77bcc19adf1a00cf9bebe5ac77999.1920x1080.jpg?t=1771966042",
+      "page": "https://store.steampowered.com/app/534550/",
+      "title": "Guacamelee! 2 — screenshot 1",
+      "credit": "Drinkbox Studios",
+      "license": "© Drinkbox Studios — moodboard only",
+      "api": "steam",
+      "query": "Guacamelee! 2",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "f0150cbfaca77bcc19adf1a00cf9bebe5ac77999"
+    },
+    {
+      "file": "steam-73fb1b02.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/534550/ss_73fb1b02622f663524078c48d36b7a1e095bee49.1920x1080.jpg?t=1771966042",
+      "page": "https://store.steampowered.com/app/534550/",
+      "title": "Guacamelee! 2 — screenshot 2",
+      "credit": "Drinkbox Studios",
+      "license": "© Drinkbox Studios — moodboard only",
+      "api": "steam",
+      "query": "Guacamelee! 2",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "73fb1b02622f663524078c48d36b7a1e095bee49"
+    },
+    {
+      "file": "steam-a68efe0e.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/534550/ss_a68efe0e2c4966cf36cee1c1135b00acd89239eb.1920x1080.jpg?t=1771966042",
+      "page": "https://store.steampowered.com/app/534550/",
+      "title": "Guacamelee! 2 — screenshot 3",
+      "credit": "Drinkbox Studios",
+      "license": "© Drinkbox Studios — moodboard only",
+      "api": "steam",
+      "query": "Guacamelee! 2",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "a68efe0e2c4966cf36cee1c1135b00acd89239eb"
+    },
+    {
+      "file": "steam-b608cfbe.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242550/6aafd4edc1ca27550361fb06f3832209a427e89c/ss_6aafd4edc1ca27550361fb06f3832209a427e89c.1920x1080.jpg?t=1792072424",
+      "page": "https://store.steampowered.com/app/242550/",
+      "title": "Rayman® Legends — screenshot 1",
+      "credit": "Ubisoft Montpellier",
+      "license": "© Ubisoft Montpellier — moodboard only",
+      "api": "steam",
+      "query": "Rayman® Legends",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "b608cfbefd41e1d340896c7a75683465cd884f8b"
+    },
+    {
+      "file": "steam-7df76cac.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242550/f7c86e4d2170ed9c539e4b6afdba2531abb47c70/ss_f7c86e4d2170ed9c539e4b6afdba2531abb47c70.1920x1080.jpg?t=1792072424",
+      "page": "https://store.steampowered.com/app/242550/",
+      "title": "Rayman® Legends — screenshot 2",
+      "credit": "Ubisoft Montpellier",
+      "license": "© Ubisoft Montpellier — moodboard only",
+      "api": "steam",
+      "query": "Rayman® Legends",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "7df76cacbfd7d9a46320395a293887bf17ad7f3a"
+    },
+    {
+      "file": "wikimedia-7d182ce6.jpg",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fd/Klinom_Krasnym_Bej_Belych.JPG/1280px-Klinom_Krasnym_Bej_Belych.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "page": "https://commons.wikimedia.org/wiki/File:Klinom_Krasnym_Bej_Belych.JPG",
+      "title": "Клином красным бей белых",
+      "credit": "El Lissitzky",
+      "license": "Public domain",
+      "api": "wikimedia",
+      "query": "El Lissitzky red wedge",
+      "generated": false,
+      "note": "",
+      "w": 1280,
+      "h": 1024,
+      "sha1": "7d182ce64218cfa46be2a2d81079fa3843ed7fa6"
+    },
+    {
+      "file": "wikimedia-656ce5b5.jpg",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Beat_the_Whites_with_the_Red_Wedge.jpg/1280px-Beat_the_Whites_with_the_Red_Wedge.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "page": "https://commons.wikimedia.org/wiki/File:Beat_the_Whites_with_the_Red_Wedge.jpg",
+      "title": "Beat the Whites with the Red Wedge",
+      "credit": "El Lissitzky",
+      "license": "Public domain",
+      "api": "wikimedia",
+      "query": "El Lissitzky red wedge",
+      "generated": false,
+      "note": "",
+      "w": 1280,
+      "h": 1048,
+      "sha1": "656ce5b51beed3de1bca04533effb1f02d2b6772"
+    }
+  ],
+  "pros": [
+    "Самый выразительный смешной герой",
+    "слои рисунка удобно проектировать под скелетную анимацию"
+  ],
+  "cons": [
+    "Меньше мягкой кинематографичной атмосферы",
+    "нужны хорошие позы и силуэты, плоская графика не скрывает ошибок"
+  ]
+}

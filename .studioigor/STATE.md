@@ -1,7 +1,7 @@
 # studioigor — Лось: район закрыт
 
 PROJECT: Лось: район закрыт
-PHASE: 0 — Start
+PHASE: 1 — Idea
 UPDATED: 2026-11-13 21:20
 
 ## Now

@@ -1,0 +1,132 @@
+{
+  "title": "Дождь, бетон и янтарный свет",
+  "text": "Рекомендую. Огромный холодный город и маленькие тёплые островки жизни. Вывески отражаются в лужах, туман разделяет планы, красный оставлен карантину Firewall. Герой — выразительная рисованная фигура с костной анимацией; архитектура тяжёлая и вертикальная.",
+  "palette": [
+    "#101d2c",
+    "#294957",
+    "#d6a257",
+    "#e8d5b3",
+    "#f04d45"
+  ],
+  "tags": [
+    "2D",
+    "город",
+    "дождь",
+    "рисованный герой"
+  ],
+  "items": [
+    {
+      "file": "steam-677b6545.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/860950/ss_9b8226dd2a991a87676e2c98cf2d8d2de08f9359.1920x1080.jpg?t=1792788425",
+      "page": "https://store.steampowered.com/app/860950/",
+      "title": "Mark of the Ninja: Remastered — screenshot 1",
+      "credit": "Klei Entertainment",
+      "license": "© Klei Entertainment — moodboard only",
+      "api": "steam",
+      "query": "Mark of the Ninja: Remastered",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "677b6545dcf34b28c6f9c6860f6fd82556c14dde"
+    },
+    {
+      "file": "steam-2cb5ede0.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/860950/ss_187e513e6fde575ccded11cdb181cb7b3fe8f02a.1920x1080.jpg?t=1792788425",
+      "page": "https://store.steampowered.com/app/860950/",
+      "title": "Mark of the Ninja: Remastered — screenshot 2",
+      "credit": "Klei Entertainment",
+      "license": "© Klei Entertainment — moodboard only",
+      "api": "steam",
+      "query": "Mark of the Ninja: Remastered",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "2cb5ede0c1c493dc77adf1728cf80bb675f3bd9e"
+    },
+    {
+      "file": "steam-16fe30a5.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1330470/ss_7df6a4834d21faef268c54e82b228c4442c33ea8.1920x1080.jpg?t=1750952195",
+      "page": "https://store.steampowered.com/app/1330470/",
+      "title": "F.I.S.T.: Forged In Shadow Torch — screenshot 1",
+      "credit": "TiGames",
+      "license": "© TiGames — moodboard only",
+      "api": "steam",
+      "query": "F.I.S.T.: Forged In Shadow Torch",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "16fe30a54d6a81acef03c82dc5ea485ce68ba0f3"
+    },
+    {
+      "file": "steam-79c9bc53.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1330470/ss_d859bc7d1eeb92ba0b863820a3f5b8d2aeaa626b.1920x1080.jpg?t=1750952195",
+      "page": "https://store.steampowered.com/app/1330470/",
+      "title": "F.I.S.T.: Forged In Shadow Torch — screenshot 2",
+      "credit": "TiGames",
+      "license": "© TiGames — moodboard only",
+      "api": "steam",
+      "query": "F.I.S.T.: Forged In Shadow Torch",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "79c9bc53d7f81a5cd10babe425c723c10f76d657"
+    },
+    {
+      "file": "steam-dbd52bd3.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1330470/ss_e1d32451f4ad62c603c2778ad4075fd11d0dbc16.1920x1080.jpg?t=1750952195",
+      "page": "https://store.steampowered.com/app/1330470/",
+      "title": "F.I.S.T.: Forged In Shadow Torch — screenshot 3",
+      "credit": "TiGames",
+      "license": "© TiGames — moodboard only",
+      "api": "steam",
+      "query": "F.I.S.T.: Forged In Shadow Torch",
+      "generated": false,
+      "note": "",
+      "w": 1920,
+      "h": 1080,
+      "sha1": "dbd52bd30fe0f20b06a5292fe32cc00bd7939afd"
+    },
+    {
+      "file": "wikimedia-09b5bc8e.jpg",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street.jpg/1280px-Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "page": "https://commons.wikimedia.org/wiki/File:Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street.jpg",
+      "title": "Efremov - 2026 - Soviet-style courtyard on Komsomolskaya street",
+      "credit": "Юрий Д.К.",
+      "license": "CC BY 4.0",
+      "api": "wikimedia",
+      "query": "Soviet apartment courtyard",
+      "generated": false,
+      "note": "",
+      "w": 1280,
+      "h": 812,
+      "sha1": "09b5bc8e9d7f5b31c64f73268da4b87e137890a5"
+    },
+    {
+      "file": "wikimedia-a61857b1.jpg",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street1.jpg/1280px-Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "page": "https://commons.wikimedia.org/wiki/File:Efremov_-_2026_-_Soviet-style_courtyard_on_Komsomolskaya_street1.jpg",
+      "title": "Efremov - 2026 - Soviet-style courtyard on Komsomolskaya street1",
+      "credit": "Юрий Д.К.",
+      "license": "CC BY 4.0",
+      "api": "wikimedia",
+      "query": "Soviet apartment courtyard",
+      "generated": false,
+      "note": "",
+      "w": 1280,
+      "h": 809,
+      "sha1": "a61857b1470d79918756920f3038060916c9078d"
+    }
+  ],
+  "pros": [
+    "Сильная связь с историей и юмором героя",
+    "эффектный переход от карантина к живому району"
+  ],
+  "cons": [
+    "Нужны оригинальные фоны и аккуратное освещение",
+    "3D-референсы показывают свет и масштаб, а не способ рисовать героя"
+  ]
+}

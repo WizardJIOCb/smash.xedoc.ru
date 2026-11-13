@@ -9,7 +9,12 @@ Line syntax:
     - [ ] <name>: <N> <unit> — count: <command that prints a number>
 
 ## Reference inventory
-<what the reference game has: levels, enemies, weapons, tracks, hours>
+Первый этап — оригинальный фрагмент, инвентарь полной чужой игры не используется для оценки сроков. Игры на доске нужны для сравнения рисунка, света и читаемости. Цифры ниже — рабочие цели из показанной концепции.
 
 ## Contract
-- [ ] <content unit>: <N> <pcs> — count: <command>
+- [ ] Визуальный образец: 1 комната с героем и двумя состояниями — count: manual: после выбора стиля
+- [ ] Связанные комнаты: 6–8 — count: manual: после этапа 4
+- [ ] Обычные враги: 3 архетипа — count: manual: после этапа 4
+- [ ] Способности доступа: 1 — count: manual: после этапа 4
+- [ ] Мини-босс: 1 — count: manual: после этапа 4
+- [ ] Полный цикл первого фрагмента: меню → 10–15 минут игры → итог → повтор — count: manual: playtest
