@@ -1,0 +1,51 @@
+{
+  "title": "Лось — серия ударов и пинки v6",
+  "subtitle": "Кадры настоящего рендера Godot. Играть: http://127.0.0.1:8770/index.html",
+  "question": "Оцени движение в игре, затем ответь в чате: подходит ли направление и что поправить?",
+  "mode": "none",
+  "options": [
+    {
+      "id": "rig",
+      "title": "Лось в живописном дворе",
+      "text": "J — чередование рук, K — пинок. В прыжке J и K используют отдельные позы. Один следующий удар буферизуется; можно смешивать руки и ноги. Ближний рукав теперь цельная деформируемая сетка, полосы проходят через локоть. Врагов и расчёта урона пока нет.",
+      "media": [
+        {
+          "src": "../../captures/attacks-v6/frame_001.png",
+          "caption": "Новая стойка: ближняя нога сзади, дальняя спереди.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/attacks-v6/frame_005.png",
+          "caption": "Левая рука: цельный рукав с непрерывными полосами.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/attacks-v6/frame_009.png",
+          "caption": "Правая рука: серия чередует две руки.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/attacks-v6/frame_025.png",
+          "caption": "Пинок с земли: подъём колена, вынос стопы и возврат.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/attacks-v6/frame_038.png",
+          "caption": "Удар рукой в прыжке по диагонали вниз.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/attacks-v6/frame_050.png",
+          "caption": "Пинок в воздухе с поджатой второй ногой.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        }
+      ]
+    }
+  ]
+}

@@ -36,3 +36,10 @@ One session — one section. The user's feedback — verbatim. The first questio
 - Actions: separate inner cloth textures, compact dorsal fist remounted and enlarged, near elbow cloth overlap, far cuff over its own shoe and extended 3 units.
 - Validation: 6/6 tests; native capture 52 frames, error_count=0; actual Web revision5 with movement and two punches in opposite directions. Browser screenshot `captures/browser-v5.png`, review board `boards/lookdev-r5`.
 - User visual acceptance remains open.
+
+## PT-05 — 2026-11-13 — combat animation iteration
+- User: alternating hand series; kicks/air attacks; continuous elbow stripes; near foot behind in guard; crouch movement and attacks; inertia to end of walk; varied kick combos with whole-body high-kick motion; backpedal during punches; Shift run; swap arm counterbalances when the kicking leg changes.
+- Implemented in attack_gym: buffered input, separate attack/pose modules, continuous near sleeve, three kick profiles and alternating legs across cycles, crouch, walk/run, backward swing direction and analytical stride stop. High kick transfers hips and leans torso from chamber; arms follow side of kicking leg.
+- Checks: 13/13 pure motion/sequence/rig tests. Earlier native combat-v9/v10: 147 frames each, zero engine errors. Live v9 browser proved four alternating punches, air/low attacks, backpedalling and planned stopping distance (105.2644 planned/actual); current v11 final review recorded separately in captures/combos-v11.
+- Awaiting user feedback on feel; full combat damage/enemies and phase5 visual acceptance remain open.
+- Final follow-ups: rear airborne shoe gets a distinct toe angle; high kick v13 drives hips further toward support and torso farther back before extension. Native high-kick-v13: 94 frames, zero errors; combos-v12: 100 frames, zero errors. Web v11 accepted 6 live taps as kick1:near / kick2:far / kick3:near / kick1:far / kick2:near / kick3:far. Final browser revision13 verified separately.

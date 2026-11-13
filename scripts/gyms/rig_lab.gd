@@ -2,8 +2,9 @@ extends Node2D
 ## First art and animation playtest. No enemies or damage simulation yet.
 
 const Moose = preload("res://scripts/actors/moose_rig.gd")
+const StrideStop = preload("res://scripts/core/stride_stop.gd")
 
-var moose: Node2D
+var moose: Moose
 var dark: TextureRect
 var status: Label
 var speed: float = 0.0
@@ -13,6 +14,7 @@ var quarantine: bool = false
 var blend: float = 0.0
 var clock: float = 0.0
 var punches: int = 0
+var kicks: int = 0
 var jumps: int = 0
 var landings: int = 0
 var motion: Dictionary
@@ -23,6 +25,10 @@ var _jump_buffer: float = 0.0
 var _preparation_time: float = -1.0
 var _dust_time: float = 1.0
 var _dust_x: float = 0.0
+var _trail: Array[Vector2] = []
+var _trail_serial: int = -1
+var _stride_stop := StrideStop.new()
+var _direction_was_held: bool = false
 
 
 func _ready() -> void:
@@ -36,6 +42,7 @@ func _ready() -> void:
 	moose = Moose.new()
 	moose.position = Vector2(420, 555)
 	add_child(moose)
+	moose.combat.started.connect(_attack_started)
 	for pair: Array in [
 		["left", KEY_A],
 		["left", KEY_LEFT],
@@ -43,6 +50,10 @@ func _ready() -> void:
 		["right", KEY_RIGHT],
 		["jump", KEY_SPACE],
 		["strike", KEY_J],
+		["kick", KEY_K],
+		["crouch", KEY_S],
+		["crouch", KEY_DOWN],
+		["sprint", KEY_SHIFT],
 		["world", KEY_T],
 		["bones", KEY_B],
 		["closeup", KEY_Z]
@@ -64,11 +75,31 @@ func _ready() -> void:
 	status.add_theme_font_size_override("font_size", 16)
 	layer.add_child(status)
 	var controls := Label.new()
-	controls.text = "A/D — бег   Пробел — прыжок   J — удар   T — карантин   B — кости   Z — крупнее"
+	controls.text = (
+		"A/D — ход   Shift — бег   S/↓ — присед   Пробел — прыжок   J/K — руки/ноги"
+		+ "   T — карантин   B — кости   Z — крупнее"
+	)
 	controls.position = Vector2(30, 668)
-	controls.add_theme_font_size_override("font_size", 19)
+	controls.add_theme_font_size_override("font_size", 17)
 	layer.add_child(controls)
 	_sync_metrics()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Events retain quick taps between physics frames and reject keyboard repeat.
+	var low: bool = Input.is_action_pressed("crouch") and not moose.airborne
+	if event.is_action_pressed("strike"):
+		moose.combat.request("punch", moose.airborne, low)
+	elif event.is_action_pressed("kick"):
+		moose.combat.request("kick", moose.airborne, low)
+
+
+func _attack_started(kind: String, _side: String, in_air: bool, low: bool) -> void:
+	if kind == "punch":
+		punches += 1
+	else:
+		kicks += 1
+	Metrics.record(("air_" if in_air else ("crouch_" if low else "ground_")) + kind)
 
 
 func _background(path: String) -> TextureRect:
@@ -85,18 +116,43 @@ func _background(path: String) -> TextureRect:
 
 func _physics_process(delta: float) -> void:
 	var direction := Input.get_axis("left", "right")
+	var crouching := Input.is_action_pressed("crouch") and lift == 0
+	moose.crouch_requested = crouching
+	moose.sprinting = Input.is_action_pressed("sprint") and direction != 0 and not crouching
 	var previous_speed := speed
 	var rate: float = motion.acceleration if direction else motion.braking
 	if lift < 0:
 		rate *= 0.7
-	speed = move_toward(speed, direction * float(motion.run_speed), delta * rate)
+	var move_scale := 1.0
+	var target_speed := float(motion.run_speed) if moose.sprinting else float(motion.walk_speed)
+	if crouching:
+		target_speed = float(motion.crouch_speed)
+	if moose.combat.elapsed >= 0 and lift == 0:
+		move_scale = minf(move_scale, 0.2 if moose.combat.kind == "kick" else 0.48)
 	var previous_x := moose.position.x
-	moose.position.x = clampf(previous_x + speed * delta, 90, 1170)
+	var stopping: bool = direction == 0 and lift == 0 and moose.strike < 0 and _preparation_time < 0
+	if not stopping:
+		_stride_stop.active = false
+	moose.finishing_step = false
+	moose.stop_cycle_distance = 0
+	if stopping and _direction_was_held and not _stride_stop.active and absf(speed) > 25:
+		var final_phase := PI if speed * moose.facing >= 0 else 0.0
+		_stride_stop.begin(speed, moose.gait, moose.stride_cycle_distance(), final_phase)
+	_direction_was_held = direction != 0
+	var displacement: float
+	if _stride_stop.active:
+		moose.finishing_step = true
+		moose.stop_cycle_distance = _stride_stop.cycle_distance
+		displacement = _stride_stop.advance(delta)
+	else:
+		speed = move_toward(speed, direction * target_speed * move_scale, delta * rate)
+		displacement = speed * delta
+	moose.position.x = clampf(previous_x + displacement, 90, 1170)
 	speed = (moose.position.x - previous_x) / delta
 	moose.horizontal_speed = speed
 	moose.horizontal_acceleration = (speed - previous_speed) / delta
 	moose.travel = absf(speed) / float(motion.run_speed)
-	if absf(speed) > 20:
+	if absf(speed) > 20 and moose.combat.chain_length == 0:
 		moose.facing = signf(speed)
 	_jump_buffer = maxf(0, _jump_buffer - delta)
 	if Input.is_action_just_pressed("jump"):
@@ -127,10 +183,7 @@ func _physics_process(delta: float) -> void:
 	moose.position.y = 555 + lift
 	moose.airborne = lift < -0.01
 	moose.vertical_speed = vertical_speed
-	if Input.is_action_just_pressed("strike") and moose.strike < 0:
-		moose.strike = 0
-		punches += 1
-		Metrics.record("attack_preview")
+	moose.combat.advance(delta, moose.airborne, crouching)
 	if Input.is_action_just_pressed("world"):
 		quarantine = not quarantine
 	if Input.is_action_just_pressed("bones"):
@@ -151,8 +204,34 @@ func _process(delta: float) -> void:
 	blend = move_toward(blend, float(quarantine), delta * 0.75)
 	dark.modulate.a = blend
 	moose.modulate = Color.WHITE.lerp(Color(0.82, 0.74, 0.78), blend)
-	status.text = ("КАРАНТИН FIREWALL" if quarantine else "ТИХИЙ ДВОР") + "  /  Анимация v5"
+	status.text = ("КАРАНТИН FIREWALL" if quarantine else "ТИХИЙ ДВОР") + "  /  Анимация v13"
+	if moose.sprinting:
+		status.text += "  ·  БЕГ"
+	if moose.crouch > 0.5:
+		status.text += "  ·  ПРИСЕД"
+	if moose.strike >= 0:
+		var name_text := (
+			"ПИНОК"
+			if moose.combat.kind == "kick"
+			else ("ЛЕВАЯ" if moose.combat.side == "near" else "ПРАВАЯ")
+		)
+		status.text += "  ·  " + ("В ВОЗДУХЕ: " if moose.combat.in_air else "") + name_text
+		if moose.combat.kind == "kick":
+			status.text += " " + str(moose.combat.kick_step + 1)
+	_update_attack_trail()
 	queue_redraw()
+
+
+func _update_attack_trail() -> void:
+	if _trail_serial != moose.combat.serial or not moose.combat.is_active():
+		_trail.clear()
+		_trail_serial = moose.combat.serial
+		return
+	var tip: String = moose.combat.side + ("_foot" if moose.combat.kind == "kick" else "_hand")
+	var bone: Bone2D = moose.bones[tip]
+	_trail.append(bone.to_global(Vector2(0, 17)))
+	if _trail.size() > 7:
+		_trail.pop_front()
 
 
 func _draw() -> void:
@@ -191,18 +270,9 @@ func _draw() -> void:
 		var y := 200 + fmod(index * 63.8 + sin(clock + index) * 18, 350.0)
 		var glow := Color(1, 0.73, 0.3, (0.2 + sin(clock * 2 + index) * 0.1) * (1 - blend))
 		draw_circle(Vector2(x, y), 2, glow)
-	if moose.strike > float(motion.attack_extension) and moose.strike < float(motion.attack_hold):
-		var center: Vector2 = moose.bones.near_hand.global_position
-		draw_arc(
-			center,
-			24,
-			-1.5 if moose.facing > 0 else 1.65,
-			1.45 if moose.facing > 0 else 4.6,
-			18,
-			Color(1, 0.85, 0.58, 0.55),
-			3,
-			true
-		)
+	for index in range(1, _trail.size()):
+		var strength := float(index) / _trail.size()
+		draw_line(_trail[index - 1], _trail[index], Color(1, 0.86, 0.63, strength * 0.45), 2, true)
 
 
 func _sync_metrics() -> void:
@@ -213,11 +283,28 @@ func _sync_metrics() -> void:
 		"x": moose.position.x,
 		"lift": lift,
 		"punches": punches,
+		"kicks": kicks,
 		"bones": moose.skeleton.get_bone_count(),
 		"jumps": jumps,
 		"landings": landings,
 		"mesh_vertices": moose.mesh.polygon.size(),
-		"revision": 5,
+		"revision": 13,
+		"sprinting": moose.sprinting,
+		"finishing_step": moose.finishing_step,
+		"stop_planned": _stride_stop.planned_distance,
+		"stop_travelled": _stride_stop.travelled,
+		"speed": speed,
+		"gait": moose.gait,
+		"backpedalling": speed * moose.facing < -8,
+		"facing": moose.facing,
+		"kick_step": moose.combat.kick_step + 1,
+		"attack": moose.combat.kind if moose.strike >= 0 else "idle",
+		"attack_side": moose.combat.side,
+		"attack_counts": moose.combat.counts,
+		"attack_history": moose.combat.history,
+		"combo": moose.combat.chain_length,
+		"sleeve_vertices": moose.sleeve.polygon.size(),
+		"crouching": moose.crouch > 0.5,
 		"trouser_meshes": moose.leg_meshes.size(),
 		"closeup": closeup,
 		"camera_glance": moose.camera_glance,

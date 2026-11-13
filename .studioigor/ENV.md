@@ -30,6 +30,6 @@ EDITOR: powershell -NoProfile -File tools/run.ps1 editor
 
 ## Pitfalls
 - Native Windows checker: .tools/python/Scripts/python.exe tools/envcheck_windows.py. Upstream checker is macOS/Claude-specific; local pipeline check adapted without changing skill files.
-- Initial web_setup gym is preserved as a setup smoke test. Main scene is rig_lab v4: 15 bones, skinned torso and continuous pant legs, near dorsal fist, forward gaze with idle glances, run/jump/punch preview. Z toggles a 1.8x inspection camera. No enemy combat yet.
-- Capture uses a real renderer in a hidden, non-headless process. Current native capture: .studioigor/captures/lookdev-v4 (52 frames / zero errors). V3 idle gaze evidence remains in gaze-v3. Capture overhead and fixed delta make its FPS unsuitable as a browser performance benchmark. Native capture window is unfocusable; the harness preserves scripted key-to-action mapping and disconnects live key events inside that disposable capture process.
+- Main scene is attack_gym v13: 15 bones, continuous pants/near sleeve; J hands, K alternating three-kick series, S/Down crouch and low attacks, Shift sprint, airborne attacks/ankle poses, backward steps and planned stride stops. Z 1.8x closeup. Original gyms remain runnable. Enemy combat remains later work.
+- Capture uses a hidden real renderer: latest high-kick-v13/inputs/high_kick_review.json (94 frames, zero errors), broader combos-v12 (100 frames, zero errors) and combat-v9 cover crouch/air/sprint/backpedal/stops. FPS is not a browser benchmark. Native window is unfocusable; disposable process disconnects live keys while retaining scripted inputs.
 - Local web server is terminal session 30173. It is bound to 127.0.0.1; there is no public deployment.

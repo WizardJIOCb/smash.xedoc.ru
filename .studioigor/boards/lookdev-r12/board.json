@@ -1,0 +1,69 @@
+{
+  "title": "Лось — бой и движение v12",
+  "subtitle": "Кадры настоящего рендера Godot. Играть: http://127.0.0.1:8770/index.html",
+  "question": "Оцени движение в игре, затем ответь в чате: подходит ли направление и что поправить?",
+  "mode": "none",
+  "options": [
+    {
+      "id": "rig",
+      "title": "Лось в живописном дворе",
+      "text": "A/D — ходьба, Shift — бег, S/↓ — присед. J — чередование рук, K — три разных пинка. Руки и ноги работают в приседе и в прыжке; шаг назад во время серии, завершение шага при остановке. Ближний рукав цельный, обе полосы проходят через локоть. Врагов и расчёта урона пока нет.",
+      "media": [
+        {
+          "src": "../../captures/combos-v12/frame_001.png",
+          "caption": "Стойка: ближняя нога сзади, дальняя спереди.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/combos-v12/frame_005.png",
+          "caption": "Первый пинок: ближняя рука отводится для баланса.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/combos-v12/frame_011.png",
+          "caption": "Другая нога — другой замах рук.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/combos-v12/frame_016.png",
+          "caption": "Высокий пинок: перенос таза и ранний наклон корпуса.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/combos-v12/frame_035.png",
+          "caption": "Следующий цикл: высокий пинок дальней ногой.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/combos-v12/frame_050.png",
+          "caption": "Движение в приседе.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/combos-v12/frame_065.png",
+          "caption": "Низкий пинок в приседе.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/combos-v12/frame_079.png",
+          "caption": "В полёте задняя стопа повёрнута носком вниз.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/combos-v12/frame_090.png",
+          "caption": "Отдельная поза удара рукой в воздухе.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        }
+      ]
+    }
+  ]
+}

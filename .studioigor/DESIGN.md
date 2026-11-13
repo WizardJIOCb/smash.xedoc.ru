@@ -47,7 +47,21 @@ Do not propose rejected ideas again. Do not implement unapproved ones. -->
 what · why (pillar) · controls · rules · parameters (in data files) ·
 acceptance criteria · "feel" (targets) · research: research/mech-M01.md -->
 
+### M01 — attack animation playtest v13
+- J alternates near/far punches; K cycles front, low and high kicks while alternating legs across cycles. Arms counterbalance the kicking leg. All attacks have air and crouch variants. No enemy damage simulation yet.
+- One-slot input buffer 0.28s; normal punch chain opens at 0.265s, cross at 0.29s; idle 0.6s resets to first hand. Timings in `data/attacks.json`.
+- Ground attacks reduce movement speed; air momentum retained. Opposite arm counterbalances; landing accelerates aerial recovery.
+- Near sleeve mesh keeps both stripes continuous through elbow. Guard feet: near behind (-19), far in front (+19), mirrored with facing; walk cycle retained.
+- S/Down holds crouch; A/D moves low. Shift selects run (300 vs walk155), crouch88. Backpedal reverses foot swing while facing is held through a series.
+- Releasing direction plans the remaining distance to a guard-compatible footfall, brakes into it and settles the feet; renewed input, attack or takeoff interrupts the stop.
+- High kick transfers hips toward support, leans torso during chamber, raises the thigh and counterbalances with the opposite arm. Parameters in `attacks.json/kick_body`.
+- Airborne ankle angles differ from grounded shoes; rear toe drops 0.65rad, independent of which leg attacks. Tune `rig_motion.json/air_front_toe` and `air_rear_toe`.
+- Acceptance: J×4 alternates hands; J/K chain; Space→J and Space→K differ; no autonomous strikes after taps stop. Scene `scenes/gyms/attack_gym.tscn`, status playtest. Phase5 art approval remains open.
+- Research: `research/mech-M01-attacks.md`.
+
 ## Changelog
+
 | date | what | why |
 |---|---|---|
 | 2026-11-13 | Черновик первого фрагмента из принятой концепции | «да давай дальше» после показа концепции; цифры — рабочие оценки |
+| 2026-11-13 | Серии рук/ног, присед, Shift, остановка по шагу и обратный ход | Прямые запросы пользователя в тесте анимаций; ждёт оценки |

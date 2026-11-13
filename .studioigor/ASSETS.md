@@ -44,3 +44,7 @@ V4 replaces the pelvis/thigh/shin picture stack with continuous pant-leg skins. 
 - Compact dorsal near fist: wrist-to-knuckle mounting axis, length 23 instead of 18. Near elbow pivots inset for cloth overlap; original upper sleeve atlas fragments excluded by sprite region.
 - Far cuff extends 3 units and draws over its own shoe. Near leg/shoe unchanged.
 - Canonical `slice_moose.py` runs v3 → v4 → v5 preparation; original sources preserved.
+
+## V6 — continuous near sleeve
+- Original image_gen source `art/characters/los/sleeve-v6.png`, exact prompt `sleeve-v6-prompt.md`; export `tools/prepare_rig_v6.py`, final stage of canonical slicing.
+- One 175-vertex native Polygon2D weighted to near arm and forearm replaces separate sleeve sprites; both stripes remain connected through elbow and straight extension. Far unstriped sleeves retained.

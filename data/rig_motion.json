@@ -1,5 +1,6 @@
 {
-  "run_speed": 235.0,
+  "walk_speed": 155.0,
+  "run_speed": 300.0,
   "acceleration": 1150.0,
   "braking": 1650.0,
   "gravity": 1500.0,
@@ -7,14 +8,19 @@
   "jump_preparation": 0.067,
   "jump_buffer": 0.12,
   "stride_half": 30.0,
+  "sprint_stride_half": 40.0,
   "stance_ratio": 0.55,
   "foot_clearance": 23.0,
+  "guard_near_foot": -19.0,
+  "guard_far_foot": 19.0,
+  "crouch_height": 26.0,
+  "crouch_speed": 88.0,
+  "crouch_stride_half": 18.0,
+  "crouch_foot_clearance": 8.0,
+  "air_front_toe": 0.15,
+  "air_rear_toe": 0.65,
   "body_stiffness": 135.0,
   "body_damping": 19.0,
   "head_stiffness": 155.0,
-  "head_damping": 16.0,
-  "attack_windup": 0.11,
-  "attack_extension": 0.17,
-  "attack_hold": 0.22,
-  "attack_duration": 0.46
+  "head_damping": 16.0
 }

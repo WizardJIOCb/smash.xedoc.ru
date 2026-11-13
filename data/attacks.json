@@ -1,0 +1,26 @@
+{
+  "buffer": 0.28,
+  "reset_after": 0.6,
+  "blend_in": 0.065,
+  "kick_body": {
+    "front_shift": 6.0,
+    "low_shift": 8.0,
+    "high_shift": 22.0,
+    "high_chamber_shift": 15.0,
+    "high_lean": 0.95,
+    "high_knee_lift": 2.0,
+    "high_thigh": -2.48,
+    "high_toe": -0.72,
+    "high_spring": 300.0,
+    "high_damping": 29.0
+  },
+  "punch": {"windup":0.085,"extension":0.135,"hold":0.18,"duration":0.36,"chain":0.265},
+  "cross": {"windup":0.10,"extension":0.16,"hold":0.205,"duration":0.39,"chain":0.29},
+  "kick": {"windup":0.17,"extension":0.245,"hold":0.31,"duration":0.59,"chain":0.47},
+  "kick2": {"windup":0.11,"extension":0.19,"hold":0.25,"duration":0.46,"chain":0.35},
+  "kick3": {"windup":0.19,"extension":0.29,"hold":0.36,"duration":0.68,"chain":0.56},
+  "air_punch": {"windup":0.07,"extension":0.12,"hold":0.17,"duration":0.34,"chain":0.26},
+  "air_kick": {"windup":0.12,"extension":0.20,"hold":0.29,"duration":0.53,"chain":0.29},
+  "crouch_punch": {"windup":0.075,"extension":0.13,"hold":0.185,"duration":0.37,"chain":0.27},
+  "crouch_kick": {"windup":0.14,"extension":0.22,"hold":0.29,"duration":0.55,"chain":0.44}
+}

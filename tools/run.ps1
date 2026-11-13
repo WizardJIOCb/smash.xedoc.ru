@@ -19,8 +19,8 @@ try {
         'capture' {
             $captureProcess = Start-Process -FilePath $godotExecutable -ArgumentList '--path', '.',
                 '--resolution', '1280x720', '--fixed-fps', '60', '--script', 'res://tools/capture.gd',
-                '--', '--out', '.studioigor/captures/lookdev-v5', '--duration', '8', '--every', '0.15',
-                '--inputs', 'tools/inputs/rig_v3.json' `
+                '--', '--out', '.studioigor/captures/high-kick-v13', '--duration', '4', '--every', '0.04',
+                '--inputs', 'tools/inputs/high_kick_review.json' `
                 -WorkingDirectory $taskRoot -WindowStyle Hidden -PassThru `
                 -RedirectStandardOutput '.tools/capture-output.log' -RedirectStandardError '.tools/capture-error.log'
             $captureProcess.WaitForExit()
