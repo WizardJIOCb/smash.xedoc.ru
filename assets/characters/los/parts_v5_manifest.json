@@ -1,0 +1,54 @@
+{
+  "pant_leg_inner": {
+    "source": "art/characters/los/pant-leg-inner-v5.png",
+    "crop": [
+      81,
+      1,
+      646,
+      2169
+    ],
+    "size": [
+      200,
+      768
+    ]
+  },
+  "upper_arm_inner": {
+    "source": "art/characters/los/upper-arm-inner-v5.png",
+    "crop": [
+      33,
+      60,
+      977,
+      1284
+    ],
+    "size": [
+      512,
+      664
+    ]
+  },
+  "forearm_inner": {
+    "source": "art/characters/los/forearm-inner-v5.png",
+    "crop": [
+      4,
+      6,
+      1288,
+      969
+    ],
+    "size": [
+      512,
+      384
+    ]
+  },
+  "fist_back": {
+    "source": "art/characters/los/fist-back-v5.png",
+    "crop": [
+      51,
+      33,
+      1348,
+      1098
+    ],
+    "size": [
+      512,
+      420
+    ]
+  }
+}

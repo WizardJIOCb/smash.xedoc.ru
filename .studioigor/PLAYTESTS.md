@@ -31,3 +31,8 @@ One session — one section. The user's feedback — verbatim. The first questio
 - is it fun? … · feedback (verbatim): …
 - conclusions → actions: …
 -->
+# PT-04 — 2026-11-13 — rig v5 surfaces and joints
+- User: far inner arm/leg should have no stripes; near fist looks small/inverted. Follow-ups: far trouser cuff lost behind shoe; near elbow opens a transparent gap.
+- Actions: separate inner cloth textures, compact dorsal fist remounted and enlarged, near elbow cloth overlap, far cuff over its own shoe and extended 3 units.
+- Validation: 6/6 tests; native capture 52 frames, error_count=0; actual Web revision5 with movement and two punches in opposite directions. Browser screenshot `captures/browser-v5.png`, review board `boards/lookdev-r5`.
+- User visual acceptance remains open.

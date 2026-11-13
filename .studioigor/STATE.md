@@ -2,10 +2,10 @@
 
 PROJECT: Лось: район закрыт
 PHASE: 5 — Assets and look-dev
-UPDATED: 2026-11-13 22:42
+UPDATED: 2026-11-13 22:54
 
 ## Now
-Пользователь смотрит http://127.0.0.1:8770/index.html, Z крупный план. Доска http://127.0.0.1:8766/boards/lookdev-r4/index.html. Источники и промпты art/characters/los/parts-v4-prompts.md; canonical slice_moose.py запускает prepare_rig_v3 затем v4. Арт ещё ждёт оценки пользователя, phase5 gate не закрывать.
+Web v5: http://127.0.0.1:8770/index.html, Z крупный план. Доска http://127.0.0.1:8766/boards/lookdev-r5/index.html. Дальние внутренние поверхности без полос, новый крупнее тыльный кулак, нахлёст ближнего локтя, дальняя манжета поверх обуви. Источники и промпты art/characters/los/parts-v5-prompts.md; canonical slice_moose.py запускает prepare_rig_v3 затем v4 затем v5. Тесты6/6, native52/error_count0, реальные клавиши в Web revision5 проверены. Арт ещё ждёт оценки пользователя, phase5 gate не закрывать.
 
 ## Open questions
 - none

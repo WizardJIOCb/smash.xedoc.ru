@@ -4,7 +4,8 @@ extends Polygon2D
 
 func setup(rig: Skeleton2D, bones: Dictionary, side: String, depth: int) -> void:
 	name = side + "_trousers"
-	texture = load("res://assets/characters/los/pant_leg.png")
+	var art := "pant_leg" if side == "near" else "pant_leg_inner"
+	texture = load("res://assets/characters/los/%s.png" % art)
 	z_index = depth
 	z_as_relative = false
 	modulate = Color.WHITE if side == "near" else Color(0.78, 0.83, 0.85)
@@ -18,7 +19,8 @@ func setup(rig: Skeleton2D, bones: Dictionary, side: String, depth: int) -> void
 	var thigh_weights := PackedFloat32Array()
 	var shin_weights := PackedFloat32Array()
 	var faces: Array[PackedInt32Array] = []
-	var size := Vector2(34, 87)
+	# The far cuff reaches below the ankle joint, covering the top of its shoe.
+	var size := Vector2(34, 87 if side == "near" else 90)
 	var origin: Vector2 = bones.hips.position + thigh.position + Vector2(-17, -10)
 	for row in range(19):
 		var v := row / 18.0
@@ -28,8 +30,7 @@ func setup(rig: Skeleton2D, bones: Dictionary, side: String, depth: int) -> void
 		for col in range(7):
 			var u := col / 6.0
 			points.append(origin + Vector2(u, v) * size)
-			# The far leg shows the opposite seam of the same cloth.
-			texcoords.append(Vector2(u if side == "near" else 1.0 - u, v) * texture.get_size())
+			texcoords.append(Vector2(u, v) * texture.get_size())
 			hip_weights.append(waist)
 			shin_weights.append(lower)
 			thigh_weights.append(1.0 - waist - lower)

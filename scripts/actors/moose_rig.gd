@@ -81,24 +81,26 @@ func _ready() -> void:
 		_bone(side + "_thigh", bones.hips, Vector2(-8 if near_side else 8, 5), 38)
 		_bone(side + "_shin", bones[side + "_thigh"], Vector2(0, 38), 38)
 		_bone(side + "_foot", bones[side + "_shin"], Vector2(0, 38), 20)
-		_part("shoe", bones[side + "_foot"], Vector2(48, 27), Vector2(0.3, 0.4), depth + 1, shade)
+		# Far cuff lies over its own shoe; the near shoe retains its original overlap.
+		var shoe_depth := depth + 1 if near_side else depth - 1
+		_part("shoe", bones[side + "_foot"], Vector2(48, 27), Vector2(0.3, 0.4), shoe_depth, shade)
 		_bone(side + "_arm", bones.body, Vector2(-19 if near_side else 18, -54), 31)
 		_bone(side + "_fore", bones[side + "_arm"], Vector2(0, 31), 30)
 		_bone(side + "_hand", bones[side + "_fore"], Vector2(0, 30), 16)
 		_segment(
-			"upper_arm",
+			"upper_arm" if near_side else "upper_arm_inner",
 			bones[side + "_arm"],
-			Vector2(0.61, 0.16),
-			Vector2(0.43, 0.9),
+			Vector2(0.61, 0.16) if near_side else Vector2(0.64, 0.14),
+			Vector2(0.43, 0.82) if near_side else Vector2(0.32, 0.89),
 			31,
 			arm_depth,
 			shade
 		)
 		_segment(
-			"forearm",
+			"forearm" if near_side else "forearm_inner",
 			bones[side + "_fore"],
-			Vector2(0.22, 0.18),
-			Vector2(0.86, 0.68),
+			Vector2(0.22, 0.26) if near_side else Vector2(0.22, 0.22),
+			Vector2(0.86, 0.68) if near_side else Vector2(0.87, 0.70),
 			30,
 			arm_depth + 1,
 			shade
@@ -107,9 +109,9 @@ func _ready() -> void:
 			_segment(
 				"fist_back",
 				bones.near_hand,
-				Vector2(0.15, 0.8),
-				Vector2(0.78, 0.27),
-				18,
+				Vector2(0.09, 0.53),
+				Vector2(0.88, 0.50),
+				23,
 				arm_depth + 2,
 				shade
 			)
@@ -178,6 +180,11 @@ func _segment(
 	sprite.scale = Vector2.ONE * factor
 	sprite.rotation = PI / 2.0 - axis.angle()
 	sprite.position = (-start * size * factor).rotated(sprite.rotation)
+	if id == "upper_arm":
+		# Exclude neighbouring atlas fragments without shifting the sleeve's pivots.
+		sprite.region_enabled = true
+		sprite.region_rect = Rect2(0, 20, 241, 308)
+		sprite.position += (Vector2(0, 20) * factor).rotated(sprite.rotation)
 	sprite.z_index = depth
 	sprite.z_as_relative = false
 	sprite.modulate = shade

@@ -38,3 +38,9 @@ Reference-board screenshots remain reference-only; none is used in the game buil
 V3 overrides: tools/prepare_rig_v3.py crops and fits generated neck, pelvis and torso; crops the largest connected alpha component of the old atlas fist to exclude a stray tuft; crops forward eyes from generated head art. Head source stays unchanged. Runtime eye shader blends only two small rectangles with feathered edges; original camera gaze returns for 750 ms after 4.5 s idle, subsequent intervals 8–12 s. Moving/jumping/attacking cancels the glance. Prompts: art/characters/los/parts-v3-prompts.md. Export and crop bounds: assets/characters/los/parts_v3_manifest.json.
 
 V4 replaces the pelvis/thigh/shin picture stack with continuous pant-leg skins. Upper rows blend hips to thigh, knee rows blend thigh to shin; stripes share one texture from waist to cuff. Far-leg UV shows the opposite seam. Near hip is now on the same side as near shoulder; relative near/far render priority is retained when mirroring. Near arm/fist are above head. Near fist uses fist_back.png; far fist retains fist.png. Neck bridge is an unpainted crop of head.png; fur inside collar was corrected to its brown palette. tools/prepare_rig_v4.py is the last step in canonical tools/slice_moose.py. Prompts and source paths: art/characters/los/parts-v4-prompts.md.
+# V5 — inner surfaces and joints
+- New original image_gen sources: `art/characters/los/*inner-v5.png`, `fist-back-v5.png`; exact prompts in `parts-v5-prompts.md`.
+- Separate unstriped far upper sleeve, forearm and pant leg; near striped surfaces preserved.
+- Compact dorsal near fist: wrist-to-knuckle mounting axis, length 23 instead of 18. Near elbow pivots inset for cloth overlap; original upper sleeve atlas fragments excluded by sprite region.
+- Far cuff extends 3 units and draws over its own shoe. Near leg/shoe unchanged.
+- Canonical `slice_moose.py` runs v3 → v4 → v5 preparation; original sources preserved.
