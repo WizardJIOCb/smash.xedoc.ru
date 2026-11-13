@@ -42,6 +42,6 @@ func _drive() -> void:
 			close_enemy = true
 	if close_enemy:
 		if not night_seen and night.charge >= 100:
-			_tap("world")
+			_tap("ultimate")
 		elif night.active() and night.cooldown <= 0:
 			_tap("super_strike")

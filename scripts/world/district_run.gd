@@ -41,6 +41,8 @@ var night_label: Label
 var night_bar: ColorRect
 var night_damage: int = 0
 var burst_hits: int = 0
+var world_night: bool = false
+var time_switches: int = 0
 var elapsed_run: float = 0.0
 var _finish_shown: bool = false
 var _tip_serial: int = -1
@@ -61,7 +63,8 @@ func _ready() -> void:
 		["restart", KEY_R],
 		["pause_run", KEY_ESCAPE],
 		["mute", KEY_M],
-		["super_strike", KEY_L]
+		["super_strike", KEY_L],
+		["ultimate", KEY_Q]
 	]:
 		if not InputMap.has_action(pair[0]):
 			InputMap.add_action(pair[0])
@@ -113,7 +116,7 @@ func _build_hud() -> void:
 	layer.add_child(backdrop)
 	health_label = _label(layer, Vector2(30, 17), 20, "ЛОСЬ / РАЙОН ЗАКРЫТ")
 	health_bar = _bar(layer, Vector2(30, 52), Vector2(220, 8), Color("e2b36e"))
-	night_label = _label(layer, Vector2(30, 67), 13, "T · БАГРОВАЯ НОЧЬ ГОТОВА")
+	night_label = _label(layer, Vector2(30, 67), 13, "Q · УЛЬТА ГОТОВА")
 	night_label.add_theme_color_override("font_color", Color("ff796e"))
 	night_bar = _bar(layer, Vector2(30, 92), Vector2(220, 5), Color("f04b53"))
 	objective = _label(layer, Vector2(300, 16), 23, "")
@@ -126,7 +129,7 @@ func _build_hud() -> void:
 		14,
 		(
 			"A/D — ход   Shift — бег   W/↑/Пробел — прыжок   S/↓ — присед"
-			+ "   J/K — бой   E — реле   T — ночь   L — импульс   Esc — меню"
+			+ "   J/K — бой   E — реле   T — день/ночь   Q — ульта   L — импульс   Esc — меню"
 		)
 	)
 	outcome = _label(layer, Vector2(290, 255), 30, "")
@@ -257,6 +260,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		audio.set_muted(not audio.muted)
 		front.muted = audio.muted
 	elif run_state == "playing":
+		if event.is_action_pressed("ultimate"):
+			_activate_ultimate()
 		if night.burst_time < 0:
 			super._unhandled_input(event)
 		if event.is_action_pressed("interact"):
@@ -317,17 +322,25 @@ func _physics_process(delta: float) -> void:
 
 
 func _world_pressed() -> void:
+	world_night = not world_night
+	time_switches += 1
+	_notice = ("НОЧЬ" if world_night else "ДЕНЬ") + " · T — сменить время · Q — ульта Лося"
+	_notice_left = 2
+	Metrics.record("world_night" if world_night else "world_day")
+
+
+func _activate_ultimate() -> void:
 	if night.activate():
-		_feedback(moose.position + Vector2(0, -220), "БАГРОВАЯ НОЧЬ", Color("ff685e"), "down")
+		_feedback(moose.position + Vector2(0, -220), "БАГРОВАЯ ЯРОСТЬ", Color("ff685e"), "down")
 		_shake = 5
-		_notice = "Багровая ночь: урон ×1,8 · L — рогатый импульс!"
+		_notice = "Ульта: урон ×1,8 · L — рогатый импульс!"
 		_notice_left = 3
 		Metrics.record("night_activated")
 	else:
 		_notice = (
-			"Ночь уже с тобой."
+			"Ульта уже активна."
 			if night.active()
-			else "Заряд ночи: %d%%. Попадай и побеждай." % night.charge
+			else "Заряд ульты: %d%%. Попадай и побеждай." % night.charge
 		)
 		_notice_left = 2
 
@@ -482,6 +495,8 @@ func _restart() -> void:
 
 
 func _start_new_run() -> void:
+	world_night = false
+	time_switches = 0
 	night.reset()
 	night_damage = 0
 	burst_hits = 0
@@ -548,7 +563,11 @@ func _feedback(at: Vector2, caption: String, color: Color, sound: String) -> voi
 func _process(delta: float) -> void:
 	super._process(delta)
 	if is_instance_valid(night_fx):
-		night_fx.update(delta, night.active())
+		night_fx.update(delta, world_night, night.active())
+		# Relay state still affects the warning wash, independently of time/power.
+		var warning_light := blend * lerpf(0.25, 1.0, night_fx.world_strength)
+		dark.modulate.a = warning_light
+		moose.modulate = Color.WHITE.lerp(Color(0.82, 0.74, 0.78), warning_light)
 		moose.power_pose = night.pose()
 		moose.power_scale = lerpf(1.0, float(night.tuning.size_multiplier), night_fx.strength)
 		moose.modulate = moose.modulate.lerp(Color(1.2, 0.68, 0.62), night_fx.strength * 0.35)
@@ -558,12 +577,12 @@ func _process(delta: float) -> void:
 	)
 	if night.active():
 		night_label.text = (
-			"НОЧЬ %.1fс · L %s"
+			"УЛЬТА %.1fс · L %s"
 			% [night.remaining, "ГОТОВ" if night.cooldown <= 0 else "%.1fс" % night.cooldown]
 		)
 	else:
 		night_label.text = (
-			"T · НОЧЬ ГОТОВА" if night.charge >= 100 else "НОЧЬ · ЗАРЯД %d%%" % night.charge
+			"Q · УЛЬТА ГОТОВА" if night.charge >= 100 else "Q · УЛЬТА %d%%" % night.charge
 		)
 	_notice_left = maxf(0, _notice_left - delta)
 	_shake = move_toward(_shake, 0, delta * 30)
@@ -658,7 +677,7 @@ func _sync_metrics() -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 19,
+			"revision": 20,
 			"room": room_index + 1,
 			"health": health,
 			"run_state": run_state,
@@ -677,6 +696,9 @@ func _sync_metrics() -> void:
 	Metrics.rig["seconds"] = elapsed_run
 	Metrics.rig.merge(
 		{
+			"world_night": world_night,
+			"time_switches": time_switches,
+			"world_night_strength": night_fx.world_strength if is_instance_valid(night_fx) else 0,
 			"night_active": night.active(),
 			"night_remaining": night.remaining,
 			"night_charge": night.charge,

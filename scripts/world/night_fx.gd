@@ -3,6 +3,7 @@ extends Node2D
 
 var hero: Node2D
 var strength: float = 0.0
+var world_strength: float = 0.0
 var time: float = 0.0
 var wave_age: float = 2.0
 var wave_at := Vector2.ZERO
@@ -36,11 +37,13 @@ func _ready() -> void:
 	layer.add_child(screen)
 
 
-func update(delta: float, enabled: bool) -> void:
+func update(delta: float, nighttime: bool, powered: bool) -> void:
 	time += delta
 	wave_age += delta
-	strength = move_toward(strength, float(enabled), delta * 3.5)
-	grade.set_shader_parameter("strength", strength)
+	strength = move_toward(strength, float(powered), delta * 3.5)
+	world_strength = move_toward(world_strength, float(nighttime), delta * 2.5)
+	grade.set_shader_parameter("strength", world_strength)
+	grade.set_shader_parameter("power_strength", strength)
 	var center := hero.get_global_transform_with_canvas() * Vector2(0, -115)
 	grade.set_shader_parameter("hero_center", center / Vector2(1280, 720))
 	back.queue_redraw()
