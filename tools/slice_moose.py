@@ -24,4 +24,16 @@ for index, name in enumerate(NAMES):
     manifest[name] = {'cell': cell, 'trim': bbox, 'size': part.size,
                       'alpha_extrema': part.getchannel('A').getextrema()}
     print(name, part.size)
+# User correction: the atlas torso included sleeves. Keep the approved local edit.
+torso_source = ROOT / 'art/characters/los/torso-v2.png'
+if torso_source.exists():
+    torso = Image.open(torso_source).convert('RGBA')
+    bounds = torso.getchannel('A').point(lambda a: 255 if a > 24 else 0).getbbox()
+    bounds = (max(0, bounds[0]-3), max(0, bounds[1]-3),
+              min(torso.width, bounds[2]+3), min(torso.height, bounds[3]+3))
+    torso = torso.crop(bounds)
+    torso.save(out / 'torso.png')
+    manifest['torso'] = {'source': 'art/characters/los/torso-v2.png',
+                         'trim': bounds, 'size': torso.size,
+                         'alpha_extrema': torso.getchannel('A').getextrema()}
 (out / 'source_manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')

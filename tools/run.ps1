@@ -19,7 +19,7 @@ try {
         'capture' {
             $captureProcess = Start-Process -FilePath $godotExecutable -ArgumentList '--path', '.',
                 '--resolution', '1280x720', '--fixed-fps', '60', '--script', 'res://tools/capture.gd',
-                '--', '--out', '.studioigor/captures/lookdev', '--duration', '7', '--every', '0.2',
+                '--', '--out', '.studioigor/captures/lookdev-v2', '--duration', '7', '--every', '0.15',
                 '--inputs', 'tools/inputs/rig.json' `
                 -WorkingDirectory $taskRoot -WindowStyle Hidden -PassThru `
                 -RedirectStandardOutput '.tools/capture-output.log' -RedirectStandardError '.tools/capture-error.log'

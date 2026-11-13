@@ -21,7 +21,7 @@
 | Sound / music | source to be evaluated with user | needs combat timing before audio pass | not prepared |
 
 ## Conventions
-1280x720 logical canvas, pixels, Y down. Painted RGBA PNG, linear filtering. Limb pivots defined by two source points and mounted on Bone2D; joint ends overlap. Atlas cells are cropped and trimmed by tools/slice_moose.py without repainting or alpha removal. Source manifest records crop bounds. Rig is rigid cutout attached to Skeleton2D; weighted mesh deformation is not yet implemented. No character collision or damage shapes in this look-dev scene.
+1280x720 logical canvas, pixels, Y down. Painted RGBA PNG, linear filtering. Limb pivots defined by two source points and mounted on Bone2D; joint ends overlap. Atlas cells are cropped and trimmed by tools/slice_moose.py without repainting or alpha removal. Source manifest records crop bounds, including the torso-v2 override. Torso v2 removes baked-in sleeves; independent arms remain. Torso uses a native 35-vertex / 48-triangle Polygon2D with normalized hips/chest weights. Other pieces are rigid cutout attached to Skeleton2D. No character collision or damage shapes in this look-dev scene.
 
 ## Requests to the user
 - none
@@ -31,4 +31,4 @@
 |---|---|---|---|---|---|
 | Original moose kit and clean courtyard states | built-in image_gen, accepted concept references | generated project art; no external pack | project | art/characters/los, art/environment, assets | no third-party attribution assigned |
 
-Reference-board screenshots remain reference-only; none is used in the game build. Engine/addon licenses remain in their installed source trees. Exact art prompts: art/characters/los/prompts-v1.md.
+Reference-board screenshots remain reference-only; none is used in the game build. Engine/addon licenses remain in their installed source trees. Exact art prompts: art/characters/los/prompts-v1.md and torso-v2-prompt.md.

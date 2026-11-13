@@ -1,0 +1,20 @@
+{
+  "run_speed": 235.0,
+  "acceleration": 1150.0,
+  "braking": 1650.0,
+  "gravity": 1500.0,
+  "jump_speed": 470.0,
+  "jump_preparation": 0.067,
+  "jump_buffer": 0.12,
+  "stride_half": 30.0,
+  "stance_ratio": 0.55,
+  "foot_clearance": 23.0,
+  "body_stiffness": 135.0,
+  "body_damping": 19.0,
+  "head_stiffness": 155.0,
+  "head_damping": 16.0,
+  "attack_windup": 0.11,
+  "attack_extension": 0.17,
+  "attack_hold": 0.22,
+  "attack_duration": 0.46
+}

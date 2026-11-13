@@ -1,24 +1,19 @@
 {
   "torso": {
-    "cell": [
-      0,
-      0,
-      512,
-      341
-    ],
+    "source": "art/characters/los/torso-v2.png",
     "trim": [
-      79,
-      8,
-      441,
-      341
+      294,
+      30,
+      1057,
+      1080
     ],
     "size": [
-      362,
-      333
+      763,
+      1050
     ],
     "alpha_extrema": [
       0,
-      254
+      255
     ]
   },
   "pelvis": {

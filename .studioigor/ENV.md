@@ -11,7 +11,7 @@ VERIFIED: yes
 | Godot portable standard | 4.7.2.stable.official.ed1daf0bf | GDScript, Compatibility, web export |
 | Web export templates | 4.7.2.stable | Official release archive, web targets only |
 | Godot AI addon/server | 4.4.1 | Authenticated live editor MCP |
-| GUT | 9.7.1 | Two pure motion invariants |
+| GUT | 9.7.1 | Motion bounds, rig IK and spring stability |
 | gdtoolkit | 4.5.0 | Format and lint in .tools/python |
 | git-lfs | 3.6.1 | Local binary source storage; nothing pushed |
 
@@ -30,6 +30,6 @@ EDITOR: powershell -NoProfile -File tools/run.ps1 editor
 
 ## Pitfalls
 - Native Windows checker: .tools/python/Scripts/python.exe tools/envcheck_windows.py. Upstream checker is macOS/Claude-specific; local pipeline check adapted without changing skill files.
-- Initial web_setup gym is preserved as a setup smoke test. Main scene is now rig_lab: a 15-bone cutout character, run/jump/punch preview, empty backgrounds and animated weather. No enemy combat yet.
-- Capture uses a real renderer in a hidden, non-headless process. Current native capture: .studioigor/captures/lookdev, scripted movement/jump/punch/quarantine/bones. Capture overhead and fixed delta make its FPS unsuitable as a browser performance benchmark.
+- Initial web_setup gym is preserved as a setup smoke test. Main scene is rig_lab v2: 15 bones, skinned torso, run/jump/punch preview, empty backgrounds and animated weather. Z toggles a 1.8x inspection camera. No enemy combat yet.
+- Capture uses a real renderer in a hidden, non-headless process. Current native captures: .studioigor/captures/lookdev-v2 and lookdev-v2-close. Close capture: 68 frames, zero engine errors, 1 jump/landing and 2 attack previews. Capture overhead and fixed delta make its FPS unsuitable as a browser performance benchmark.
 - Local web server is terminal session 30173. It is bound to 127.0.0.1; there is no public deployment.
