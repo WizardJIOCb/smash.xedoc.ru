@@ -1,0 +1,75 @@
+{
+  "title": "Лось — первый образ и мир",
+  "subtitle": "Предложение по твоим отметкам. Картинки ниже — концепты; игра и скелетная анимация ещё не собраны.",
+  "question": "Подходят Лось и мир? Отметь кадры и напиши правки, затем отправь отзыв. Можно ответить прямо в чат.",
+  "mode": "none",
+  "options": [
+    {
+      "id": "living-city",
+      "title": "Заросший город с тёплыми окнами",
+      "text": "Живописная глубина и мягкий свет; смешной тяжёлый Лось в спортивке. Преображение карантином видно на одной и той же локации.",
+      "palette": [
+        "#132630",
+        "#386264",
+        "#718068",
+        "#e2b36e",
+        "#e7d3ac",
+        "#e44a42"
+      ],
+      "media": [
+        {
+          "src": "../../../art/concepts/los-character-v1.png",
+          "caption": "Лось: силуэт, характер и три позы. Концепт, анимации и рига пока нет.",
+          "generated": true,
+          "credit": "Original concept · image_gen",
+          "source": "../../../art/concepts/prompts-v1.md"
+        },
+        {
+          "src": "../../../art/concepts/courtyard-alive-v1.png",
+          "caption": "Живой район: корни и провода, тёплые окна, глубина и читаемая линия боя. Сгенерированный концепт, не игровой кадр.",
+          "generated": true,
+          "credit": "Original concept · image_gen",
+          "source": "../../../art/concepts/prompts-v1.md"
+        },
+        {
+          "src": "../../../art/concepts/courtyard-quarantine-v1.png",
+          "caption": "Тот же район под карантином: гаснут окна, включаются красные лучи, меняются дождь, туман и дальний фон. Сгенерированный концепт.",
+          "generated": true,
+          "credit": "Original concept · image_gen",
+          "source": "../../../art/concepts/prompts-v1.md"
+        }
+      ]
+    },
+    {
+      "id": "anchors",
+      "title": "Твои отметки, на которые я опирался",
+      "text": "Лес и глубина, городской свет, объёмный мультяшный персонаж. Это референсы чужих работ; в игру они не попадут.",
+      "media": [
+        {
+          "src": "../../refs/forest-server/steam-9be07f14.jpg",
+          "caption": "Твоя отметка: нравится. Берём мягкие крупные формы, живописную глубину и холодную дымку между планами.",
+          "source": "https://store.steampowered.com/app/1057090/",
+          "credit": "Moon Studios GmbH",
+          "license": "© Moon Studios GmbH — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "../../refs/concrete-rain/steam-79c9bc53.jpg",
+          "caption": "Твоя отметка: нравится. Берём тёплые окна, провода, городской масштаб и свет в глубине улицы.",
+          "source": "https://store.steampowered.com/app/1330470/",
+          "credit": "TiGames",
+          "license": "© TiGames — moodboard only",
+          "generated": false
+        },
+        {
+          "src": "../../refs/paper-punk/steam-b608cfbe.jpg",
+          "caption": "Твоя отметка: нравится. Берём объёмные мультяшные формы, характер поз и разделение ближнего и дальнего планов.",
+          "source": "https://store.steampowered.com/app/242550/",
+          "credit": "Ubisoft Montpellier",
+          "license": "© Ubisoft Montpellier — moodboard only",
+          "generated": false
+        }
+      ]
+    }
+  ]
+}

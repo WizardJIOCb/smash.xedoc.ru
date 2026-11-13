@@ -1,0 +1,56 @@
+{
+  "title": "",
+  "text": "",
+  "palette": [],
+  "tags": [],
+  "items": [
+    {
+      "file": "gen-f1ba9b01.png",
+      "url": "",
+      "page": "",
+      "title": "los-character-v1",
+      "credit": "Original concepts, built-in image_gen",
+      "license": "generated for the project",
+      "api": "generated",
+      "query": "",
+      "generated": true,
+      "note": "Оригинальные концепты смешанного направления по отметкам R1. Это визуальные цели, ещё без игровой сборки и скелетной анимации.",
+      "w": 1536,
+      "h": 1024,
+      "sha1": "f1ba9b01ff9a7b6684156439c18fa9bef6f6b909",
+      "prompt": "Exact per-image prompts: art/concepts/prompts-v1.md"
+    },
+    {
+      "file": "gen-471f2f13.png",
+      "url": "",
+      "page": "",
+      "title": "courtyard-alive-v1",
+      "credit": "Original concepts, built-in image_gen",
+      "license": "generated for the project",
+      "api": "generated",
+      "query": "",
+      "generated": true,
+      "note": "Оригинальные концепты смешанного направления по отметкам R1. Это визуальные цели, ещё без игровой сборки и скелетной анимации.",
+      "w": 1672,
+      "h": 941,
+      "sha1": "471f2f137357a595b6be575af8940558f2c59c47",
+      "prompt": "Exact per-image prompts: art/concepts/prompts-v1.md"
+    },
+    {
+      "file": "gen-673aeffc.png",
+      "url": "",
+      "page": "",
+      "title": "courtyard-quarantine-v1",
+      "credit": "Original concepts, built-in image_gen",
+      "license": "generated for the project",
+      "api": "generated",
+      "query": "",
+      "generated": true,
+      "note": "Оригинальные концепты смешанного направления по отметкам R1. Это визуальные цели, ещё без игровой сборки и скелетной анимации.",
+      "w": 1672,
+      "h": 941,
+      "sha1": "673aeffc7a40d48fc95464fd176b639736a816ce",
+      "prompt": "Exact per-image prompts: art/concepts/prompts-v1.md"
+    }
+  ]
+}

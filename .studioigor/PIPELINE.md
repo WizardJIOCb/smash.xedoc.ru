@@ -26,13 +26,13 @@ files: CONCEPT.md
 ## Phase 2 — Style
 files: ART_BIBLE.md
 - [x] ≥3 directions with real references shown on the board — check: manual
-- [ ] user locked the style — check: user
-- [ ] art bible: hex palette, lighting, form, ≥3 signature techniques, "forbidden" — check: manual
+- [x] user locked the style — check: user
+- [x] art bible: hex palette, lighting, form, ≥3 signature techniques, "forbidden" — check: manual
 
 ## Phase 3 — Platform and engine
 files: TECH.md
 - [ ] stack research done — check: test -s .studioigor/research/stack.md
-- [ ] user chose the platforms — check: user
+- [x] user chose the platforms — check: user
 - [ ] user chose the engine; alternatives and reasons in TECH.md — check: user
 
 ## Phase 4 — Environment

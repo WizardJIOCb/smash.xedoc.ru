@@ -1,0 +1,60 @@
+{
+  "submissions": [
+    {
+      "board": "Лось: район закрыт — выбираем рисунок",
+      "selected": [],
+      "reactions": {
+        "..\\..\\refs\\concrete-rain\\steam-2cb5ede0.jpg": "dislike",
+        "..\\..\\refs\\concrete-rain\\steam-16fe30a5.jpg": "like",
+        "..\\..\\refs\\concrete-rain\\steam-79c9bc53.jpg": "like",
+        "..\\..\\refs\\concrete-rain\\steam-dbd52bd3.jpg": "like",
+        "..\\..\\refs\\concrete-rain\\wikimedia-09b5bc8e.jpg": "like",
+        "..\\..\\refs\\forest-server\\steam-5a8cb579.jpg": "like",
+        "..\\..\\refs\\forest-server\\steam-946c0259.jpg": "like",
+        "..\\..\\refs\\forest-server\\steam-94831838.jpg": "like",
+        "..\\..\\refs\\forest-server\\steam-9be07f14.jpg": "like",
+        "..\\..\\refs\\forest-server\\steam-79bf1e48.jpg": "like",
+        "..\\..\\refs\\forest-server\\steam-eedf48cb.jpg": "like",
+        "..\\..\\refs\\paper-punk\\steam-f0150cbf.jpg": "like",
+        "..\\..\\refs\\paper-punk\\steam-a68efe0e.jpg": "dislike",
+        "..\\..\\refs\\paper-punk\\steam-b608cfbe.jpg": "like",
+        "..\\..\\refs\\paper-punk\\steam-7df76cac.jpg": "like",
+        "..\\..\\refs\\paper-punk\\wikimedia-7d182ce6.jpg": "dislike",
+        "..\\..\\refs\\paper-punk\\steam-5e1ee551.jpg": "dislike",
+        "..\\..\\refs\\paper-punk\\steam-e8f643c4.jpg": "dislike",
+        "..\\..\\refs\\concrete-rain\\steam-677b6545.jpg": "dislike"
+      },
+      "comments": {},
+      "comment": "",
+      "ts": "2026-11-13T21:31:34"
+    }
+  ],
+  "latest": {
+    "board": "Лось: район закрыт — выбираем рисунок",
+    "selected": [],
+    "reactions": {
+      "..\\..\\refs\\concrete-rain\\steam-2cb5ede0.jpg": "dislike",
+      "..\\..\\refs\\concrete-rain\\steam-16fe30a5.jpg": "like",
+      "..\\..\\refs\\concrete-rain\\steam-79c9bc53.jpg": "like",
+      "..\\..\\refs\\concrete-rain\\steam-dbd52bd3.jpg": "like",
+      "..\\..\\refs\\concrete-rain\\wikimedia-09b5bc8e.jpg": "like",
+      "..\\..\\refs\\forest-server\\steam-5a8cb579.jpg": "like",
+      "..\\..\\refs\\forest-server\\steam-946c0259.jpg": "like",
+      "..\\..\\refs\\forest-server\\steam-94831838.jpg": "like",
+      "..\\..\\refs\\forest-server\\steam-9be07f14.jpg": "like",
+      "..\\..\\refs\\forest-server\\steam-79bf1e48.jpg": "like",
+      "..\\..\\refs\\forest-server\\steam-eedf48cb.jpg": "like",
+      "..\\..\\refs\\paper-punk\\steam-f0150cbf.jpg": "like",
+      "..\\..\\refs\\paper-punk\\steam-a68efe0e.jpg": "dislike",
+      "..\\..\\refs\\paper-punk\\steam-b608cfbe.jpg": "like",
+      "..\\..\\refs\\paper-punk\\steam-7df76cac.jpg": "like",
+      "..\\..\\refs\\paper-punk\\wikimedia-7d182ce6.jpg": "dislike",
+      "..\\..\\refs\\paper-punk\\steam-5e1ee551.jpg": "dislike",
+      "..\\..\\refs\\paper-punk\\steam-e8f643c4.jpg": "dislike",
+      "..\\..\\refs\\concrete-rain\\steam-677b6545.jpg": "dislike"
+    },
+    "comments": {},
+    "comment": "",
+    "ts": "2026-11-13T21:31:34"
+  }
+}
