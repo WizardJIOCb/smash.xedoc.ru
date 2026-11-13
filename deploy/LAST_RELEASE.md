@@ -1,51 +1,47 @@
-# Public release v22
+# Public release v24
 
 - Domain: https://smash.xedoc.ru/
 - Fresh load: https://smash.xedoc.ru/?cache=clear
-- Runtime source: 9298c0247cb840679ed5f4f929f68caee39b265a
-- Current: /var/www/smash.xedoc.ru/releases/v22-9298c0247cb8
-- Previous: /var/www/smash.xedoc.ru/releases/v22-1c4e5f3da423
-- Previous stable before this iteration: /var/www/smash.xedoc.ru/releases/v21-be8d1e30f05e
-- Archive SHA256: bcf729372ab13017a519726eee57665832689e2e714c3bb0831a78b5c459b5db
+- Runtime source: 01ad83f0c5ff2e33412f0a400b638b920d709d00
+- Current: /var/www/smash.xedoc.ru/releases/v24-01ad83f0c5ff
+- Previous/rollback: /var/www/smash.xedoc.ru/releases/v23-dad0678b2411
+- Archive SHA256: 7e3b12b59a445b72f9a6a397b1dcf652e731b0058536d09f6776bdde6b1a5434
 
 Changes:
-- Enemy soles use the same actor-floor+10px plane as Moose; anchored ankle IK,
-  forward knees in both facings, and a foot weight in each continuous painted leg.
-- Physical player/enemy deaths: native rigid bodies and pin joints, relative torsion
-  limits, captured pose/fall velocity, local impact impulse and mirrored mesh binding.
-  Antlers, shield and baton collide with terrain. Drone uses a rigid-body fall.
-  Bodies remain10s then fade2s; R restores bone rest transforms before normal animation.
-- Small hits9drops / lethal34, mist, ballistic gravity, swept terrain/ledge contact,
-  secondary splashes and 12-18s stains with4s fade; drones leak dark oil. Bounded counts.
-- Hold I for guard: incoming damage25% rounded up (boar18 becomes5), weaker knockback,
-  movement28%, no sprint or attacks. Raised arms, block feedback, updated help/HUD.
-- Previous fist tint, shoe layers, independent T day/night and Q ultimate, L impulse,
-  silent first load, browser cache and real shared leaderboard retained.
+- L holds guard; O ultimate impulse. T day/night and Q ultimate remain independent.
+- Compound torso/pelvis/head supports the silhouette, articulated native limbs keep
+  anatomical relative limits. Captured pose, inherited fall velocity and off-centre hit
+  torque produce different falls. Intentionally stiff core, not a simulated human spine.
+- Per-corpse collision layers prevent cross-corpse limb piles. Quiet bodies freeze and
+  detach solver joints after0.45s of low motion; pose stays until the normal12s fade.
+  Cached bindings/constraints, solver12 instead24. Three-corpse native resting-frame
+  p95=5.925ms versus16.69ms before; active bodies41 while falling,0 after settling.
+  Machine-specific native evidence, not a Web/mobile FPS guarantee.
+- THIRD room floor545->529; soles, enemy spawn, physical terrain and blood agree.
+- Irregular wet pools scatter -14..+7px in road depth (less on ledges), below bodies/shoes;
+  stationary drawing cached, fading redraw12Hz, airborne droplets remain full-rate.
+- Small unobtrusive top-right FPS, Settings toggle persists immediately in Web.
+- Mobile-only multitouch stick: analog walk, outer ring run, down crouch. Action buttons
+  use vector icons and small short captions; jump/punch/kick/guard/relay/day-night/ultimate/
+  impulse/menu/fullscreen/retry. Pause/focus loss releases held controls.
+- Sound starts muted. Content cache, accepted art and external shared records retained.
 
 Validation:
-- 26/26 GUT,296 assertions; formatting/lint and final Web export without SCRIPT ERROR/ERROR.
-- Native physics gallery: head impact, low trip and airborne Moose with inherited fall speed;
-  settled native joint errors below0.01px in the stable gallery. Head/weapon contact shapes.
-- defense-v22-final:62frames, zero errors/warnings;3blocked attacks ->85HP,
-  death at25.35s,15-body player ragdoll, R restart and upright hips confirmed.
-- route-v22-final:70frames, zero errors/warnings;5kills,3relays,100HP, actual upper
-  ledge landing at13.5667s. Last baton-only collision addition also passes the physics tests.
-- Public initial v22: revision22, scores online, sound muted.2blocked hits plus one
-  unblocked boar hit ->72HP. Real player death and ragdoll observed; R restores play.
-  Two lethal ultimate impulses ->1kill/1corpse,34droplets and36stains observed in Web.
-- No public score submitted. Scores kept outside releases; deployment never replaces them.
+-27/27 GUT,350 assertions; formatting/lint and final export without engine/script errors.
+- Native: route70frames,5kills/3relays/100HP, all ledges reachable; gate-ground4frames;
+  ragdoll32frames (head hit, trip, airborne Moose); defense43frames:3blocks ->85HP,
+  death25.35s, physical corpse observed, R restores upright rig/100HP. Zero capture errors.
+- Raw ScreenTouch native route:2alternating punches, air kick, crouch kick, jump,
+  T/Q/O and menu; concurrent stick/action fingers. Final icon capture16frames/zero errors.
+- Public revision24: scores online, muted, default FPS visible. Settings FPS off survives
+  immediate reload; restored on. Repeat load cache hit3/download0.
+- Public normal keys: L raises guard, Q then two O impulses ->1kill/1corpse,100HP,
+  172ground marks; after landing active physical parts0. No browser console errors.
+- Public mobile emulation915x412: auto touch=true, icons fit. Screenshot:
+  .studioigor/captures/public-v24/mobile-icons.png. Actual phone hardware not tested.
+  Temporary QA tab closed, device overrides cleared. No leaderboard result submitted.
+- Installer verified archive and all15manifest hashes, PHP/nginx syntax; services active.
+  External scores SHA identical before/after activation:
+  1b87882d5a8956a75270bd5aae85fef70e5599bcf38c6ac809814415754af85e.
 
-Art/feel approval remains with user. Final Firewall and full map remain future work.
-
-Final activation:15 manifest hashes verified, PHP syntax and nginx configuration passed;
-nginx/PHP active. Score store SHA after activation:
-7ff045dcdba210e3e586476c633888774b02e22ad2f68255803be233fc8669e7.
-It changed during the session with live play; no test result was submitted and the installer
-never writes the external score store. First v22 activation retained its exact baseline hash.
-
-Final public9298c02: refreshed package download with engine cache hit2/download1,
-then isolated repeat load hit3/download0. Normal keys Return/Shift+D/Q/L produced
-1kill/1corpse,100HP,172ground stains; final baton contact checked in rendered Web.
-No browser console errors. Proof: captures/public-v22/final-enemy-death.png
-(full viewport) and final-enemy-death-canvas.png (letterbox crop retaining all game HUD).
-Temporary QA tab closed; no result sent to the public leaderboard.
+User art/feel approval remains open. Final Firewall and full map remain future work.

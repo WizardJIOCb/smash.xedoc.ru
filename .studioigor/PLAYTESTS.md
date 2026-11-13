@@ -74,3 +74,9 @@ One session — one section. The user's feedback — verbatim. The first questio
   desktop has no overlay; small FPS and Settings page checked in local Web. Physical phone
   browser and final public activation remain to be checked/reported separately.
 - User feel/art approval stays open; final Firewall/full map remain future work.
+
+- Public v24 final: FPS off persists after reload (cache hit3/download0), then restored on;
+  L guard/Q+O twice ->1kill/100HP/172stains; settled corpse has0active physical parts.
+  Mobile915x412 emulation auto-enables controls and fits all icon buttons. Console errors0.
+  Screenshots public-v24/mobile-icons.png; physical phone still unverified. All15release
+  hashes passed, records SHA unchanged during activation, previous v23 retained. Git source01ad83f.
