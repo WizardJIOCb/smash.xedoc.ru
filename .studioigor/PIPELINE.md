@@ -41,7 +41,7 @@ files: ENV.md
 - [x] full setup installed: engine, CLI, plugin/skills, MCP, tests, linter, export — check: .tools\python\Scripts\python.exe tools/envcheck_windows.py
 - [x] editor MCP connected: authenticated stdio bridge and real scene_get_hierarchy succeeded — check: manual
 - [x] hello project: TEST and CAPTURE pass (studio.py verify) — check: python -c "import pathlib,sys; sys.exit(0 if 'VERIFIED: yes' in pathlib.Path('.studioigor/ENV.md').read_text(encoding='utf-8') else 1)"
-- [ ] user saw the project running on their machine — check: user
+- [x] user saw the project running on their machine — check: user
 
 ## Phase 5 — Assets and look-dev
 files: ASSETS.md
