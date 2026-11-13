@@ -1,0 +1,4 @@
+Built-in image_gen. Edit target fist_back.png; head.png is style reference.
+transparent_background=true.
+
+Use case: precise-object-edit. Edit target image 1 is the outer-view moose fist. Image 2 is character style reference only. Redraw ONLY the fist as a friendly cartoon moose's furry paw, matching his face's soft rounded painterly storybook style. Exactly FOUR digits total: THREE broad rounded curled fingers plus ONE small tucked thumb. Back/dorsal surface toward camera, wrist enters horizontally from LEFT, closed knuckles point RIGHT; preserve the silhouette size and wrist-to-knuckle axis. Make it soft, fluffy and chubby with gentle short fur tufts and simple rounded knuckles. Use warm brown like the face, matte fur, broad soft shading, low-contrast fur details. Remove all veins, tendons, sinews, sinewy ridges and sharp anatomical grooves. No human fingernails, no long claws. No sleeve, no extra arm, no background, no text. Genuine transparent alpha.

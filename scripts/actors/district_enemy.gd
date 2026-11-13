@@ -190,12 +190,14 @@ func _draw() -> void:
 			draw_line(center, to_local(aim), Color(0.9, 0.22, 0.17, 0.3), 1, true)
 	if kind == "whip" and state == "attack":
 		var points := PackedVector2Array()
+		var grip := to_local(rig.bones.near_hand.global_position)
+		var end := Vector2(facing * float(tuning.reach), -108)
 		for index in range(17):
 			var progress := index / 16.0
 			points.append(
-				Vector2(
-					facing * progress * float(tuning.reach),
-					-108 + sin(progress * PI * 2 + elapsed * 25) * 9
+				(
+					grip.lerp(end, progress)
+					+ Vector2(0, sin(progress * PI) * sin(progress * PI * 2 + elapsed * 25) * 9)
 				)
 			)
 		draw_polyline(points, Color("132630"), 5, true)
