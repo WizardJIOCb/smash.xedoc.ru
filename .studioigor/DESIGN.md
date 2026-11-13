@@ -76,7 +76,8 @@ acceptance criteria · "feel" (targets) · research: research/mech-M01.md -->
 - O is the ultimate impulse, Q the ultimate, T independent day/night. Third-room floor is529
   (raised16px); both species, collision terrain and blood use the same shared sole plane.
 - Resting corpses freeze and detach solver joints; retain final skeleton pose through fade.
-  Blood scatters in road depth and remains below actors. Native performance comparison in M03 research.
+  Blood scatters in road depth and remains below actors. Three instanced batches draw mist/drops/pools;
+  idle FX stop updating, room clear removes GPU instances. Blood-only comparison in M03 research.
 - Small top-right FPS; Settings toggle persists. Mobile-only stick plus icon action buttons,
   analog walk, outer-ring run/down crouch, independent fingers and release on pause/focus loss.
 
@@ -90,3 +91,4 @@ acceptance criteria · "feel" (targets) · research: research/mech-M01.md -->
 | 2026-11-14 | Исправлены плечи/локти врагов; второй уступ ниже20px; T время суток отдельно от Q ульты, L импульс; пушистая ближняя лапа приглушена до тона шерсти | Прямые замечания по публичной версии; проверены фактическое приземление, независимость режимов и новый тон |
 | 2026-11-14 | Общая опора ботинок; физические смерти с местом/направлением удара, инерцией и падением; кровь со следами; блок I | Прямой запрос: ragdoll игрока/врагов и защита с уменьшением урона |
 | 2026-11-14 | L блок/O импульс; жёсткий корпус ragdoll и сон после падения; земля третьей комнаты +16px; кровь с глубиной; FPS/настройки; мобильный стик и иконки | Прямые замечания по падениям, FPS, слою земли и сенсорному управлению |
+| 2026-11-14 | Кровь переведена с отдельных кругов на три MultiMesh-пакета; стопа поднимает носок при разгибании пинка обеими ногами | FPS падает при крови; носок в высоком ударе слишком прямой |

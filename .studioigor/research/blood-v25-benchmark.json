@@ -1,0 +1,271 @@
+{
+  "method": "native Compatibility, 1280x720, 240 fps cap, no capture or fixed-fps, blood only; same scene and seed, no parallel engine runs",
+  "before": {
+    "baseline": {
+      "draw_calls": {
+        "max": 1.0,
+        "mean": 1.0,
+        "p95": 1.0
+      },
+      "drops": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      },
+      "frame_ms": {
+        "max": 4.223,
+        "mean": 4.16597520661157,
+        "p95": 4.205
+      },
+      "stains": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      }
+    },
+    "droplets": {
+      "draw_calls": {
+        "max": 817.0,
+        "mean": 364.333333333333,
+        "p95": 817.0
+      },
+      "drops": {
+        "max": 68,
+        "mean": 28.0333333333333,
+        "p95": 62
+      },
+      "frame_ms": {
+        "max": 11.705,
+        "mean": 4.17141666666667,
+        "p95": 8.53
+      },
+      "stains": {
+        "max": 136,
+        "mean": 50.0333333333333,
+        "p95": 136
+      }
+    },
+    "fading_pools": {
+      "draw_calls": {
+        "max": 1321.0,
+        "mean": 1321.0,
+        "p95": 1321.0
+      },
+      "drops": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      },
+      "frame_ms": {
+        "max": 15.689,
+        "mean": 4.38653070175439,
+        "p95": 4.354
+      },
+      "stains": {
+        "max": 220,
+        "mean": 220.0,
+        "p95": 220
+      }
+    },
+    "hidden_pools": {
+      "draw_calls": {
+        "max": 817.0,
+        "mean": 4.4,
+        "p95": 1.0
+      },
+      "drops": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      },
+      "frame_ms": {
+        "max": 4.381,
+        "mean": 4.16605000000001,
+        "p95": 4.307
+      },
+      "stains": {
+        "max": 136,
+        "mean": 136.0,
+        "p95": 136
+      }
+    },
+    "maximum_pools": {
+      "draw_calls": {
+        "max": 1321.0,
+        "mean": 1321.0,
+        "p95": 1321.0
+      },
+      "drops": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      },
+      "frame_ms": {
+        "max": 4.571,
+        "mean": 4.16598055555556,
+        "p95": 4.364
+      },
+      "stains": {
+        "max": 220,
+        "mean": 220.0,
+        "p95": 220
+      }
+    },
+    "one_burst_pools": {
+      "draw_calls": {
+        "max": 817.0,
+        "mean": 817.0,
+        "p95": 817.0
+      },
+      "drops": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      },
+      "frame_ms": {
+        "max": 4.379,
+        "mean": 4.16601666666667,
+        "p95": 4.302
+      },
+      "stains": {
+        "max": 136,
+        "mean": 136.0,
+        "p95": 136
+      }
+    }
+  },
+  "after": {
+    "baseline": {
+      "draw_calls": {
+        "max": 1.0,
+        "mean": 1.0,
+        "p95": 1.0
+      },
+      "drops": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      },
+      "frame_ms": {
+        "max": 4.214,
+        "mean": 4.16598140495868,
+        "p95": 4.194
+      },
+      "stains": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      }
+    },
+    "droplets": {
+      "draw_calls": {
+        "max": 3.0,
+        "mean": 2.69722222222222,
+        "p95": 3.0
+      },
+      "drops": {
+        "max": 72,
+        "mean": 28.4222222222222,
+        "p95": 60
+      },
+      "frame_ms": {
+        "max": 4.551,
+        "mean": 4.16599444444445,
+        "p95": 4.448
+      },
+      "stains": {
+        "max": 136,
+        "mean": 48.5111111111111,
+        "p95": 136
+      }
+    },
+    "fading_pools": {
+      "draw_calls": {
+        "max": 2.0,
+        "mean": 2.0,
+        "p95": 2.0
+      },
+      "drops": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      },
+      "frame_ms": {
+        "max": 4.626,
+        "mean": 4.16599444444445,
+        "p95": 4.333
+      },
+      "stains": {
+        "max": 220,
+        "mean": 220.0,
+        "p95": 220
+      }
+    },
+    "hidden_pools": {
+      "draw_calls": {
+        "max": 2.0,
+        "mean": 1.00416666666667,
+        "p95": 1.0
+      },
+      "drops": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      },
+      "frame_ms": {
+        "max": 4.303,
+        "mean": 4.16598333333333,
+        "p95": 4.278
+      },
+      "stains": {
+        "max": 136,
+        "mean": 136.0,
+        "p95": 136
+      }
+    },
+    "maximum_pools": {
+      "draw_calls": {
+        "max": 2.0,
+        "mean": 2.0,
+        "p95": 2.0
+      },
+      "drops": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      },
+      "frame_ms": {
+        "max": 4.42,
+        "mean": 4.16600277777777,
+        "p95": 4.333
+      },
+      "stains": {
+        "max": 220,
+        "mean": 220.0,
+        "p95": 220
+      }
+    },
+    "one_burst_pools": {
+      "draw_calls": {
+        "max": 2.0,
+        "mean": 2.0,
+        "p95": 2.0
+      },
+      "drops": {
+        "max": 0,
+        "mean": 0.0,
+        "p95": 0
+      },
+      "frame_ms": {
+        "max": 4.295,
+        "mean": 4.16599444444445,
+        "p95": 4.276
+      },
+      "stains": {
+        "max": 136,
+        "mean": 136.0,
+        "p95": 136
+      }
+    }
+  }
+}

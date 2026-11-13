@@ -279,9 +279,7 @@ func _build_physics_surfaces(base_floor: float) -> void:
 		terrain.queue_free()
 	terrain = Node2D.new()
 	add_child(terrain)
-	blood.drops.clear()
-	blood.clouds.clear()
-	blood.stains.clear()
+	blood.clear()
 	blood.surfaces = [Rect2(-200, base_floor + 10, 1680, 24)]
 	for ledge: Rect2 in ledges:
 		blood.surfaces.append(Rect2(ledge.position + Vector2(0, 10), ledge.size))
@@ -796,7 +794,7 @@ func _sync_metrics() -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 24,
+			"revision": 25,
 			"room": room_index + 1,
 			"health": health,
 			"run_state": run_state,
@@ -816,6 +814,9 @@ func _sync_metrics() -> void:
 	Metrics.rig["blocking"] = moose.blocking
 	Metrics.rig["fps_visible"] = fps_counter.enabled if is_instance_valid(fps_counter) else true
 	Metrics.rig["fps"] = Engine.get_frames_per_second()
+	Metrics.rig["draw_calls"] = Performance.get_monitor(
+		Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME
+	)
 	Metrics.rig["touch_controls"] = (
 		touch_controls.enabled if is_instance_valid(touch_controls) else false
 	)

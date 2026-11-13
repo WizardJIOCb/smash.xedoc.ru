@@ -1,5 +1,7 @@
 extends Node2D
-## Bounded ballistic droplets, impact mist, surface splashes and fading wet stains.
+## Bounded ballistic particles and fading stains rendered in three instanced batches.
+
+const Batch = preload("res://scripts/world/blood_batch.gd")
 
 var drops: Array[Dictionary] = []
 var clouds: Array[Dictionary] = []
@@ -8,7 +10,9 @@ var surfaces: Array[Rect2] = []
 var paused: bool = false
 var emitted: int = 0
 var landed: int = 0
-var stain_layer: Node2D
+var stain_layer: Batch
+var drop_layer: Batch
+var mist_layer: Batch
 var rng := RandomNumberGenerator.new()
 var tuning: Dictionary = (
 	JSON.parse_string(FileAccess.get_file_as_string("res://data/physical_combat.json")).blood
@@ -19,14 +23,33 @@ var _air_visible: bool = false
 
 
 func _ready() -> void:
-	stain_layer = Node2D.new()
+	mist_layer = Batch.new()
+	mist_layer.setup("mist", int(tuning.mist_limit))
+	add_child(mist_layer)
+	drop_layer = Batch.new()
+	drop_layer.setup("drop", int(tuning.drop_limit))
+	add_child(drop_layer)
+	stain_layer = Batch.new()
+	stain_layer.setup("stain", int(tuning.stain_limit))
 	stain_layer.z_as_relative = false
 	stain_layer.z_index = 0
-	stain_layer.draw.connect(_draw_stains)
 	add_child(stain_layer)
+	set_physics_process(false)
+
+
+func clear() -> void:
+	drops.clear()
+	clouds.clear()
+	stains.clear()
+	for batch: Batch in [stain_layer, drop_layer, mist_layer]:
+		batch.multimesh.visible_instance_count = 0
+	_stains_dirty = false
+	_air_visible = false
+	set_physics_process(false)
 
 
 func spill(at: Vector2, direction: Vector2, lethal: bool, mechanical: bool = false) -> void:
+	set_physics_process(true)
 	var color := Color("8b1e29") if not mechanical else Color("273334")
 	var count := int(tuning.lethal_drops if lethal else tuning.hit_drops)
 	emitted += count
@@ -114,64 +137,58 @@ func _physics_process(delta: float) -> void:
 		drops.pop_front()
 	var air_visible := not drops.is_empty() or not clouds.is_empty()
 	if air_visible or _air_visible:
-		queue_redraw()
+		_render_air()
 	_air_visible = air_visible
 	_fade_redraw -= delta
 	if (
 		is_instance_valid(stain_layer)
 		and (_stains_dirty or previous_count != stains.size() or (fading and _fade_redraw <= 0))
 	):
-		stain_layer.queue_redraw()
+		_render_stains()
 		_stains_dirty = false
 		_fade_redraw = 1.0 / 12.0
+	if not air_visible and stains.is_empty():
+		set_physics_process(false)
 
 
 func _stain(at: Vector2, drop: Dictionary) -> Dictionary:
-	var radius: float = drop.r * rng.randf_range(1.6, 3.6)
-	var lobes: Array[Dictionary] = []
-	for index in range(4):
-		lobes.append(
-			{
-				"at": Vector2(rng.randf_range(-0.8, 0.8), rng.randf_range(-0.55, 0.55)) * radius,
-				"r": radius * rng.randf_range(0.3, 0.65)
-			}
-		)
 	return {
 		"at": at,
-		"r": radius,
+		"r": drop.r * rng.randf_range(1.6, 3.6),
 		"age": 0.0,
 		"life": rng.randf_range(float(tuning.stain_min_life), float(tuning.stain_max_life)),
 		"color": drop.color,
-		"lobes": lobes,
 		"angle": rng.randf_range(-0.15, 0.15),
-		"squash": rng.randf_range(0.38, 0.58)
+		"squash": rng.randf_range(0.38, 0.58),
+		"stretch": rng.randf_range(0.85, 1.25) * (-1.0 if rng.randf() < 0.5 else 1.0)
 	}
 
 
-func _draw_stains() -> void:
-	for item: Dictionary in stains:
+func _render_stains() -> void:
+	stain_layer.multimesh.visible_instance_count = stains.size()
+	for index in range(stains.size()):
+		var item: Dictionary = stains[index]
 		var color: Color = item.color
 		color.a = (
 			0.8 * (1.0 - smoothstep(item.life - float(tuning.stain_fade), item.life, item.age))
 		)
-		stain_layer.draw_set_transform(item.at, item.angle, Vector2(1, item.squash))
-		for lobe: Dictionary in item.lobes:
-			stain_layer.draw_circle(lobe.at, lobe.r, color)
-		stain_layer.draw_circle(Vector2.ZERO, item.r * 0.75, color)
-		var highlight := color.lightened(0.25)
-		highlight.a *= 0.2
-		stain_layer.draw_circle(Vector2(-item.r * 0.2, -item.r * 0.25), item.r * 0.3, highlight)
-	stain_layer.draw_set_transform(Vector2.ZERO)
+		stain_layer.put(
+			index, item.at, Vector2(item.stretch, item.squash) * item.r * 2.4, item.angle, color
+		)
 
 
-func _draw() -> void:
-	for item: Dictionary in clouds:
+func _render_air() -> void:
+	mist_layer.multimesh.visible_instance_count = clouds.size()
+	for index in range(clouds.size()):
+		var item: Dictionary = clouds[index]
 		var color: Color = item.color
-		color.a = 0.09 * pow(1 - item.age / 0.5, 2)
-		for ring in range(4):
-			draw_circle(item.at, item.r * (0.6 + item.age * 3) * (1.0 - ring * 0.17), color)
-	for item: Dictionary in drops:
+		color.a = 0.3 * pow(1 - item.age / 0.5, 2)
+		mist_layer.put(index, item.at, Vector2.ONE * item.r * (1.2 + item.age * 6), 0, color)
+	drop_layer.multimesh.visible_instance_count = drops.size()
+	for index in range(drops.size()):
+		var item: Dictionary = drops[index]
 		var color: Color = item.color
 		color.a = 0.95
-		draw_line(item.at, item.at - item.v.limit_length(220) * 0.015, color, item.r, true)
-		draw_circle(item.at, item.r * 0.7, color)
+		var velocity: Vector2 = item.v
+		var length := maxf(item.r * 2.0, velocity.limit_length(220).length() * 0.015 + item.r)
+		drop_layer.put(index, item.at, Vector2(length, item.r * 2.4), velocity.angle(), color)

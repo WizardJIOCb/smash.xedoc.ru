@@ -80,3 +80,16 @@ One session — one section. The user's feedback — verbatim. The first questio
   Mobile915x412 emulation auto-enables controls and fits all icon buttons. Console errors0.
   Screenshots public-v24/mobile-icons.png; physical phone still unverified. All15release
   hashes passed, records SHA unchanged during activation, previous v23 retained. Git source01ad83f.
+
+## PT-08 — 2026-11-14 — blood rendering and kick toes v25
+- User: FPS still drops immediately when blood appears; kick toes look rigid/straight on both legs.
+- Isolated benchmark finds136marks generate816calls,220marks1320. Three MultiMesh batches
+  replace individual primitives; ground marks now1call at either count, same9/34primary drops,
+  secondary splashes/depth/fade. Cached masks built on load. Empty effects stop physics;
+  clearing a room removes every GPU instance. Native burst-frame p95 8.530->4.448ms
+  under240FPS cap, not an uncapped or phone FPS claim. Numerical report in research.
+- Kick ankle dorsiflexion ramps during extension and eases out in recovery, for either active
+  side: high0.36rad extra, normal/air0.22, crouch0.12. Existing rear airborne foot retained.
+-27GUT/358assertions; blood28frame gallery/zeroerrors; six-kick visual review includes both
+  high-kick legs. Public activation and full route recorded after export below.
+- User art/feel gate stays open.

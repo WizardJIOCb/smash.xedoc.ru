@@ -69,8 +69,17 @@ func _kick(rig: Node2D) -> void:
 	thigh = lerpf(thigh, extension, shape.x)
 	shin = lerpf(shin, 0.20 if attack.low else 0.16, shape.x)
 	var toe := -0.14
+	var toe_lift := float(attack.tuning.kick_body.toe_lift)
 	if attack.kick_step == 2 and not attack.low and not attack.in_air:
 		toe = float(attack.tuning.kick_body.high_toe)
+		toe_lift = float(attack.tuning.kick_body.high_toe_lift)
+	elif attack.in_air:
+		toe_lift = float(attack.tuning.kick_body.air_toe_lift)
+	elif attack.low:
+		toe_lift = float(attack.tuning.kick_body.low_toe_lift)
+	# Dorsiflex the ankle as the leg extends: heel leads, toes lift toward the shin.
+	# The active side can be either leg; recovery blends back into its normal pose.
+	toe -= toe_lift * smoothstep(0.1, 1.0, shape.x)
 	_blend_bone(rig, side + "_thigh", thigh, weight)
 	_blend_bone(rig, side + "_shin", shin, weight)
 	_blend_bone(rig, side + "_foot", -thigh - shin + toe, weight)

@@ -74,6 +74,7 @@ func test_blood_lands_on_upper_surface_and_fades_with_bounded_particles() -> voi
 		blood._physics_process(0.025)
 	assert_gt(blood.landed, 34, "Droplets create secondary splashes")
 	assert_gt(blood.stains.size(), 0)
+	assert_eq(blood.stain_layer.multimesh.visible_instance_count, blood.stains.size())
 	var depth_min := INF
 	var depth_max := -INF
 	for stain: Dictionary in blood.stains:
@@ -84,10 +85,23 @@ func test_blood_lands_on_upper_surface_and_fades_with_bounded_particles() -> voi
 	for frame in range(760):
 		blood._physics_process(0.025)
 	assert_eq(blood.stains.size(), 0, "Rain washes all stains away after their lifetime")
+	assert_eq(
+		blood.stain_layer.multimesh.visible_instance_count,
+		0,
+		"Expired stains also leave the GPU batch"
+	)
+	assert_false(blood.is_physics_processing(), "Empty blood effects stop updating")
 	for burst in range(30):
 		blood.spill(Vector2.ZERO, Vector2.RIGHT, true)
 	assert_lte(blood.drops.size(), 240)
 	assert_lte(blood.clouds.size(), 48)
+	blood.clear()
+	for batch: Node2D in [blood.stain_layer, blood.drop_layer, blood.mist_layer]:
+		assert_eq(
+			batch.multimesh.visible_instance_count, 0, "Room changes remove all visible instances"
+		)
+	assert_eq(blood.drops.size(), 0)
+	assert_false(blood.is_physics_processing(), "A cleared effect stays idle until the next hit")
 
 
 func test_enemy_ragdolls_settle_without_stretched_joints_after_head_hit_and_trip() -> void:

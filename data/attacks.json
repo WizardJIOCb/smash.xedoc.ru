@@ -11,6 +11,10 @@
     "high_knee_lift": 2.0,
     "high_thigh": -2.48,
     "high_toe": -0.72,
+    "toe_lift": 0.22,
+    "high_toe_lift": 0.36,
+    "air_toe_lift": 0.22,
+    "low_toe_lift": 0.12,
     "high_spring": 300.0,
     "high_damping": 29.0
   },
