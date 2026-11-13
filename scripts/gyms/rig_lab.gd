@@ -20,6 +20,8 @@ var landings: int = 0
 var motion: Dictionary
 var camera: Camera2D
 var closeup: bool = false
+var floor_y: float = 555.0
+var movement_bounds := Vector2(90, 1170)
 
 var _jump_buffer: float = 0.0
 var _preparation_time: float = -1.0
@@ -49,6 +51,8 @@ func _ready() -> void:
 		["right", KEY_D],
 		["right", KEY_RIGHT],
 		["jump", KEY_SPACE],
+		["jump", KEY_W],
+		["jump", KEY_UP],
 		["strike", KEY_J],
 		["kick", KEY_K],
 		["crouch", KEY_S],
@@ -76,7 +80,7 @@ func _ready() -> void:
 	layer.add_child(status)
 	var controls := Label.new()
 	controls.text = (
-		"A/D — ход   Shift — бег   S/↓ — присед   Пробел — прыжок   J/K — руки/ноги"
+		"A/D — ход   Shift — бег   S/↓ — присед   W/↑/Пробел — прыжок   J/K — руки/ноги"
 		+ "   T — карантин   B — кости   Z — крупнее"
 	)
 	controls.position = Vector2(30, 668)
@@ -147,7 +151,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		speed = move_toward(speed, direction * target_speed * move_scale, delta * rate)
 		displacement = speed * delta
-	moose.position.x = clampf(previous_x + displacement, 90, 1170)
+	moose.position.x = clampf(previous_x + displacement, movement_bounds.x, movement_bounds.y)
 	speed = (moose.position.x - previous_x) / delta
 	moose.horizontal_speed = speed
 	moose.horizontal_acceleration = (speed - previous_speed) / delta
@@ -180,7 +184,7 @@ func _physics_process(delta: float) -> void:
 			vertical_speed = 0
 			landings += 1
 			Metrics.record("landed")
-	moose.position.y = 555 + lift
+	moose.position.y = floor_y + lift
 	moose.airborne = lift < -0.01
 	moose.vertical_speed = vertical_speed
 	moose.combat.advance(delta, moose.airborne, crouching)
@@ -237,7 +241,7 @@ func _update_attack_trail() -> void:
 func _draw() -> void:
 	if not is_instance_valid(moose):
 		return
-	var shadow := Vector2(moose.position.x, 569)
+	var shadow := Vector2(moose.position.x, floor_y + 14)
 	var shadow_scale := clampf(1.0 + lift / 250.0, 0.55, 1.0)
 	for ring in range(5):
 		draw_set_transform(shadow, 0, Vector2(1, 0.17))

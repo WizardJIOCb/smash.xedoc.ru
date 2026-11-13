@@ -11,7 +11,8 @@ config_version=5
 [application]
 
 config/name="Лось: район закрыт"
-run/main_scene="res://scenes/gyms/attack_gym.tscn"
+config/icon="res://assets/characters/los/head.png"
+run/main_scene="res://scenes/gyms/district_gym.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [autoload]

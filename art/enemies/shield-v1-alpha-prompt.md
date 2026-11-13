@@ -1,0 +1,3 @@
+Built-in image_gen background extraction from shield-v1.png. Runtime uses shield-v1-alpha.png; original atlas preserved.
+
+Background extraction ONLY of the supplied boar enemy parts atlas. Preserve every painted part, exact positions, dimensions, shapes, details and colors. Remove the entire white/off-white background between and around all 8 isolated parts and make it fully alpha TRANSPARENT. No white matte, no white backdrop, no shadows outside objects. Preserve the boar head, torso, two sleeves, two legs, riot shield and baton exactly. Do not assemble or rearrange, do not repaint, do not add anything. Output real transparent PNG.

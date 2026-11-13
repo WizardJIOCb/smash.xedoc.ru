@@ -96,6 +96,14 @@ func is_active() -> bool:
 	return elapsed >= float(timing.extension) and elapsed <= float(timing.hold)
 
 
+func interrupt() -> void:
+	elapsed = -1
+	_pending = ""
+	_buffer_left = 0
+	_idle = float(tuning.reset_after) + 1
+	chain_length = 0
+
+
 func _begin(action: String, airborne: bool, crouching: bool) -> void:
 	kind = action
 	in_air = airborne

@@ -1,0 +1,9 @@
+{
+  "player_health": 100,
+  "invulnerability": 0.85,
+  "punch_damage": 19,
+  "kick_damage": [29, 26, 41],
+  "shield": {"name": "ДОМОФОНЩИК", "health": 104, "speed": 42, "reach": 105, "windup": 0.85, "active": 0.23, "recovery": 1.1, "damage": 18},
+  "whip": {"name": "КАБЕЛЬЩИК", "health": 78, "speed": 64, "reach": 167, "windup": 0.78, "active": 0.18, "recovery": 1.05, "damage": 15},
+  "drone": {"name": "НАДЗОР", "health": 46, "speed": 55, "reach": 420, "windup": 1.0, "active": 0.14, "recovery": 1.6, "damage": 12}
+}
