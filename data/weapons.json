@@ -1,0 +1,14 @@
+{
+  "pickup_radius": 82.0,
+  "bullet_limit": 32,
+  "bullet_lifetime": 1.1,
+  "weapons": {
+    "fists": {"name":"Кулаки","damage":1.0,"reach":0.0,"mode":"melee"},
+    "knuckles": {"name":"Кастеты","damage":1.35,"reach":6.0,"mode":"melee"},
+    "bat": {"name":"Бита","damage":1.65,"reach":57.0,"mode":"melee"},
+    "shovel": {"name":"Лопата","damage":1.85,"reach":68.0,"mode":"melee"},
+    "hockey": {"name":"Клюшка","damage":1.5,"reach":83.0,"mode":"melee"},
+    "pistol": {"name":"Пистолет","mode":"ranged","capacity":7,"reserve":28,"damage":31,"cooldown":0.32,"reload":1.15,"speed":1500.0,"automatic":false},
+    "rifle": {"name":"Автомат","mode":"ranged","capacity":24,"reserve":72,"damage":17,"cooldown":0.12,"reload":1.7,"speed":1800.0,"automatic":true}
+  }
+}
