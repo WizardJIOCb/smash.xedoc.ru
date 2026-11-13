@@ -115,3 +115,6 @@ One session — one section. The user's feedback — verbatim. The first questio
 - Corpse input review36frames: normal inputs kill boar, wait for rest, crouch-kick actual
   moving physical shape; source metrics and screenshot reviewed before packaging.
 - Semi-rigid legs trade independent knee motion for reliable anatomy; user taste gate open.
+- Public v27: revision27, real-key4hits kill/1corpse; two crouch-kick corpse contacts, kills stay1.
+  Cache update2hits/1download, scores online, muted. No leaderboard submission.
+- Public death then R verified visually:100HP/upright/player_ragdoll=false; console errors0.
