@@ -5,7 +5,7 @@ extends Polygon2D
 func setup(rig: Skeleton2D, hips: Bone2D, chest: Bone2D) -> void:
 	name = "JacketSkin"
 	texture = load("res://assets/characters/los/torso.png")
-	z_index = 4
+	z_index = 10
 	z_as_relative = false
 	rig.add_child(self)
 	skeleton = get_path_to(rig)

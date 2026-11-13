@@ -5,6 +5,15 @@ extends Node2D
 const RigMath = preload("res://scripts/core/rig_math.gd")
 const TorsoSkin = preload("res://scripts/actors/torso_skin.gd")
 
+# Explicit silhouette order: legs, hips, far arm, neck, jacket, near arm, head.
+const DEPTH_FAR_LEG = 0
+const DEPTH_NEAR_LEG = 2
+const DEPTH_HIPS = 4
+const DEPTH_FAR_ARM = 5
+const DEPTH_NECK = 8
+const DEPTH_NEAR_ARM = 12
+const DEPTH_HEAD = 16
+
 var skeleton: Skeleton2D
 var debug_layer: Node2D
 var bones: Dictionary = {}
@@ -23,6 +32,9 @@ var motion: Dictionary
 var landing_time: float = 1.0
 var landing_strength: float = 0.0
 var mesh: Polygon2D
+var gaze_material: ShaderMaterial
+var camera_glance: bool = false
+var glance_count: int = 0
 
 var _travel_blend: float = 0.0
 var _air_blend: float = 0.0
@@ -34,6 +46,10 @@ var _previous_facing: float = 1.0
 var _foot_world: Dictionary = {}
 var _was_support: Dictionary = {}
 var _foot_local: Dictionary = {}
+var _idle_time: float = 0.0
+var _next_glance: float = 4.5
+var _glance_left: float = 0.0
+var _forward_gaze: float = 1.0
 
 
 func _ready() -> void:
@@ -43,14 +59,26 @@ func _ready() -> void:
 	add_child(skeleton)
 	_bone("hips", skeleton, Vector2(0, -80), 12)
 	_bone("body", bones.hips, Vector2(0, -9), 65)
-	_part("pelvis", bones.hips, Vector2(54, 32), Vector2(0.5, 0.23), 2)
+	_part("pelvis", bones.hips, Vector2(46, 25), Vector2(0.5, 0.23), DEPTH_HIPS)
+	var neck := _part("neck", bones.body, Vector2(27, 43), Vector2(0.5, 0.18), DEPTH_NECK)
+	neck.position += Vector2(12, -58)
 	_bone("head", bones.body, Vector2(13, -64), 25)
-	_part("head", bones.head, Vector2(141, 100), Vector2(0.48, 0.9), 8)
+	var head := _part("head", bones.head, Vector2(141, 100), Vector2(0.48, 0.9), DEPTH_HEAD)
+	gaze_material = ShaderMaterial.new()
+	gaze_material.shader = load("res://assets/shaders/moose_gaze.gdshader")
+	gaze_material.set_shader_parameter(
+		"near_eye", load("res://assets/characters/los/eye_near_forward.png")
+	)
+	gaze_material.set_shader_parameter(
+		"far_eye", load("res://assets/characters/los/eye_far_forward.png")
+	)
+	head.material = gaze_material
 	for side: String in ["far", "near"]:
 		var near_side := side == "near"
-		var depth := 6 if near_side else 0
+		var depth := DEPTH_NEAR_LEG if near_side else DEPTH_FAR_LEG
+		var arm_depth := DEPTH_NEAR_ARM if near_side else DEPTH_FAR_ARM
 		var shade := Color.WHITE if near_side else Color(0.65, 0.73, 0.77)
-		_bone(side + "_thigh", bones.hips, Vector2(9 if near_side else -14, 5), 38)
+		_bone(side + "_thigh", bones.hips, Vector2(7 if near_side else -9, 5), 38)
 		_bone(side + "_shin", bones[side + "_thigh"], Vector2(0, 38), 38)
 		_bone(side + "_foot", bones[side + "_shin"], Vector2(0, 38), 20)
 		_segment(
@@ -66,7 +94,7 @@ func _ready() -> void:
 			"shin", bones[side + "_shin"], Vector2(0.53, 0.1), Vector2(0.48, 0.91), 38, depth, shade
 		)
 		_part("shoe", bones[side + "_foot"], Vector2(48, 27), Vector2(0.3, 0.4), depth + 1, shade)
-		_bone(side + "_arm", bones.body, Vector2(23 if near_side else -24, -54), 31)
+		_bone(side + "_arm", bones.body, Vector2(-19 if near_side else 18, -54), 31)
 		_bone(side + "_fore", bones[side + "_arm"], Vector2(0, 31), 30)
 		_bone(side + "_hand", bones[side + "_fore"], Vector2(0, 30), 16)
 		_segment(
@@ -75,7 +103,7 @@ func _ready() -> void:
 			Vector2(0.61, 0.16),
 			Vector2(0.43, 0.9),
 			31,
-			depth + 1,
+			arm_depth,
 			shade
 		)
 		_segment(
@@ -84,10 +112,18 @@ func _ready() -> void:
 			Vector2(0.22, 0.18),
 			Vector2(0.86, 0.68),
 			30,
-			depth + 1,
+			arm_depth + 1,
 			shade
 		)
-		_part("fist", bones[side + "_hand"], Vector2(23, 28), Vector2(0.47, 0.2), depth + 2, shade)
+		_segment(
+			"fist",
+			bones[side + "_hand"],
+			Vector2(0.17, 0.73),
+			Vector2(0.8, 0.4),
+			18,
+			arm_depth + 2,
+			shade
+		)
 	for bone: Bone2D in bones.values():
 		bone.rest = bone.transform
 	mesh = TorsoSkin.new()
@@ -112,7 +148,7 @@ func _bone(id: String, parent: Node, at: Vector2, length: float) -> void:
 
 func _part(
 	id: String, parent: Node, size: Vector2, pivot: Vector2, depth: int, shade: Color = Color.WHITE
-) -> void:
+) -> Sprite2D:
 	var sprite := Sprite2D.new()
 	sprite.texture = load("res://assets/characters/los/%s.png" % id)
 	sprite.centered = false
@@ -122,6 +158,7 @@ func _part(
 	sprite.z_as_relative = false
 	sprite.modulate = shade
 	parent.add_child(sprite)
+	return sprite
 
 
 func _segment(
@@ -144,6 +181,7 @@ func _segment(
 
 func _process(delta: float) -> void:
 	clock += delta
+	_update_gaze(delta)
 	landing_time += delta
 	var displacement := position.x - _previous_x
 	_previous_x = position.x
@@ -182,18 +220,37 @@ func _process(delta: float) -> void:
 		var phase := gait + (PI if side == "far" else 0.0)
 		var swing := cos(phase) * 0.62 * _travel_blend
 		bones[side + "_arm"].rotation = 0.32 + swing - bones.body.rotation
-		bones[side + "_fore"].rotation = -1.15 - absf(swing) * 0.35 - _air_blend * 0.18
-		bones[side + "_hand"].rotation = -0.3
+		bones[side + "_fore"].rotation = -1.55 - absf(swing) * 0.25 - _air_blend * 0.18
+		bones[side + "_hand"].rotation = 0.0
 	if strike >= 0.0:
 		var recovery := smoothstep(float(motion.attack_hold), float(motion.attack_duration), strike)
 		var arm := lerpf(0.32, 0.82, attack.y)
-		var fore := lerpf(-1.15, -2.05, attack.y)
+		var fore := lerpf(-1.55, -2.05, attack.y)
 		arm = lerpf(arm, -1.49 - bones.body.rotation, attack.x)
 		fore = lerpf(fore, 0.035, attack.x)
 		bones.near_arm.rotation = lerpf(arm, bones.near_arm.rotation, recovery)
 		bones.near_fore.rotation = lerpf(fore, bones.near_fore.rotation, recovery)
-		bones.near_hand.rotation = -0.15
+		bones.near_hand.rotation = 0.0
 	debug_layer.queue_redraw()
+
+
+func _update_gaze(delta: float) -> void:
+	var active := absf(horizontal_speed) > 8 or airborne or strike >= 0 or preparation > 0
+	if active:
+		_idle_time = 0
+		_glance_left = 0
+	else:
+		_idle_time += delta
+		_glance_left = maxf(0, _glance_left - delta)
+		if _idle_time >= _next_glance:
+			_glance_left = 0.75
+			_idle_time = 0
+			glance_count += 1
+			_next_glance = 8.0 + fmod(glance_count * 2.3, 4.0)
+			Metrics.record("camera_glance")
+	camera_glance = _glance_left > 0
+	_forward_gaze = move_toward(_forward_gaze, 0.0 if camera_glance else 1.0, delta * 10)
+	gaze_material.set_shader_parameter("forward_gaze", _forward_gaze)
 
 
 func _attack_shape(delta: float) -> Vector2:

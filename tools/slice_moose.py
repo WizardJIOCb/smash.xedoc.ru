@@ -37,3 +37,7 @@ if torso_source.exists():
                          'trim': bounds, 'size': torso.size,
                          'alpha_extrema': torso.getchannel('A').getextrema()}
 (out / 'source_manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
+if (ROOT / 'art/characters/los/neck-v3.png').exists():
+    import subprocess
+    import sys
+    subprocess.run([sys.executable, str(ROOT / 'tools/prepare_rig_v3.py')], check=True)

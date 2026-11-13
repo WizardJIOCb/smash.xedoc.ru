@@ -76,6 +76,8 @@ var _logger: Object = null
 
 
 func _initialize() -> void:
+	# Automated captures must not take keyboard focus from the user's browser.
+	root.unfocusable = true
 	if DisplayServer.get_name() == "headless":
 		printerr("capture.gd: started with --headless — the dummy renderer produces no images. " +
 			"Remove --headless (a window is required), see references/environment.md.")

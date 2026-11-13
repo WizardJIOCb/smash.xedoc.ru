@@ -9,6 +9,7 @@
 | Moose cutout kit | character | accepted painted burgundy tracksuit | 9 unique PNG parts, 15 bones | original image_gen using accepted concept | first rig in browser |
 | Courtyard, alive and quarantine | environment | teal forest district / red lockdown | 2 backgrounds, 1672x941 | original image_gen edits | empty backgrounds in scene |
 | Rain, spores, punch arc | VFX | quiet warm particles / cold rain | 80 streaks, 18 spores | GDScript drawing | first pass |
+| v3 correction kit | character | same moose identity | neck, compact pelvis, fur-lined torso and two eye donor crops | original image_gen edits | review |
 
 ## Strategy by category
 | category | source (pack / Blender / procedural / generation / user) | why | status |
@@ -32,3 +33,5 @@
 | Original moose kit and clean courtyard states | built-in image_gen, accepted concept references | generated project art; no external pack | project | art/characters/los, art/environment, assets | no third-party attribution assigned |
 
 Reference-board screenshots remain reference-only; none is used in the game build. Engine/addon licenses remain in their installed source trees. Exact art prompts: art/characters/los/prompts-v1.md and torso-v2-prompt.md.
+
+V3 overrides: tools/prepare_rig_v3.py crops and fits generated neck, pelvis and torso; crops the largest connected alpha component of the old atlas fist to exclude a stray tuft; crops forward eyes from generated head art. Head source stays unchanged. Runtime eye shader blends only two small rectangles with feathered edges; original camera gaze returns for 750 ms after 4.5 s idle, subsequent intervals 8–12 s. Moving/jumping/attacking cancels the glance. Prompts: art/characters/los/parts-v3-prompts.md. Export and crop bounds: assets/characters/los/parts_v3_manifest.json.

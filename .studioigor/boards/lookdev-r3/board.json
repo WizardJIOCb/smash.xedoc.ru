@@ -1,0 +1,39 @@
+{
+  "title": "Лось — сборка персонажа v3",
+  "subtitle": "Кадры настоящего рендера Godot. Играть: http://127.0.0.1:8770/index.html",
+  "question": "Оцени движение в игре, затем ответь в чате: подходит ли направление и что поправить?",
+  "mode": "none",
+  "options": [
+    {
+      "id": "rig",
+      "title": "Лось в живописном дворе",
+      "text": "Исправлены плечи, слои, запястья, ворот, таз и направление взгляда. Форма головы сохранена; меняется только область глаз. Врагов и расчёта урона пока нет.",
+      "media": [
+        {
+          "src": "../../captures/lookdev-v3/frame_001.png",
+          "caption": "Ближняя рука поверх корпуса; ворот заполнен шерстью, таз компактнее.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/lookdev-v3/frame_011.png",
+          "caption": "Удар: кисть закреплена за запястье и продолжает направление манжеты.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/lookdev-v3/frame_030.png",
+          "caption": "Бег в обратную сторону: порядок рук и силуэт таза.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        },
+        {
+          "src": "../../captures/lookdev-v3/../gaze-v3/frame_009.png",
+          "caption": "Короткий взгляд в камеру во время стойки. При движении снова смотрит вперёд.",
+          "generated": false,
+          "credit": "Actual Godot render · original project art"
+        }
+      ]
+    }
+  ]
+}

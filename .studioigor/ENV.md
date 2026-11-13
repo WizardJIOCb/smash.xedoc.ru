@@ -30,6 +30,6 @@ EDITOR: powershell -NoProfile -File tools/run.ps1 editor
 
 ## Pitfalls
 - Native Windows checker: .tools/python/Scripts/python.exe tools/envcheck_windows.py. Upstream checker is macOS/Claude-specific; local pipeline check adapted without changing skill files.
-- Initial web_setup gym is preserved as a setup smoke test. Main scene is rig_lab v2: 15 bones, skinned torso, run/jump/punch preview, empty backgrounds and animated weather. Z toggles a 1.8x inspection camera. No enemy combat yet.
-- Capture uses a real renderer in a hidden, non-headless process. Current native captures: .studioigor/captures/lookdev-v2 and lookdev-v2-close. Close capture: 68 frames, zero engine errors, 1 jump/landing and 2 attack previews. Capture overhead and fixed delta make its FPS unsuitable as a browser performance benchmark.
+- Initial web_setup gym is preserved as a setup smoke test. Main scene is rig_lab v3: 15 bones, skinned fur-lined torso, corrected arm planes/wrists/hips, forward gaze with idle glances, run/jump/punch preview. Z toggles a 1.8x inspection camera. No enemy combat yet.
+- Capture uses a real renderer in a hidden, non-headless process. Current native captures: .studioigor/captures/lookdev-v3 (79 frames / zero errors) and gaze-v3 (12 frames / zero errors, isolated idle scene). Capture overhead and fixed delta make its FPS unsuitable as a browser performance benchmark. Native capture window is unfocusable; isolated pose review avoids mixing live play input with scripted observations.
 - Local web server is terminal session 30173. It is bound to 127.0.0.1; there is no public deployment.

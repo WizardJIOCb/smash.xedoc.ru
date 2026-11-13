@@ -1,0 +1,78 @@
+{
+  "neck": {
+    "source": "art\\characters\\los\\neck-v3.png",
+    "crop": [
+      147,
+      135,
+      898,
+      1322
+    ],
+    "size": [
+      324,
+      512
+    ]
+  },
+  "pelvis": {
+    "source": "art\\characters\\los\\pelvis-v3.png",
+    "crop": [
+      312,
+      172,
+      1147,
+      783
+    ],
+    "size": [
+      512,
+      375
+    ]
+  },
+  "torso": {
+    "source": "art\\characters\\los\\torso-v3.png",
+    "crop": [
+      289,
+      11,
+      1058,
+      1081
+    ],
+    "size": [
+      368,
+      512
+    ]
+  },
+  "fist": {
+    "source": "art/characters/los/atlas-v1.png",
+    "cell": [
+      1024,
+      341,
+      1536,
+      682
+    ],
+    "crop": [
+      126,
+      75,
+      359,
+      287
+    ],
+    "size": [
+      233,
+      212
+    ]
+  },
+  "eye_near_forward": {
+    "source": "art/characters/los/head-forward-v3.png",
+    "crop": [
+      835,
+      480,
+      976,
+      550
+    ]
+  },
+  "eye_far_forward": {
+    "source": "art/characters/los/head-forward-v3.png",
+    "crop": [
+      995,
+      479,
+      1072,
+      533
+    ]
+  }
+}
