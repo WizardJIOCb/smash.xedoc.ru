@@ -45,11 +45,11 @@ files: ENV.md
 
 ## Phase 5 — Assets and look-dev
 files: ASSETS.md
-- [ ] asset and pipeline research done — check: test -s .studioigor/research/assets.md
+- [x] asset and pipeline research done — check: python -c "import pathlib,sys; p=pathlib.Path('.studioigor/research/assets.md'); sys.exit(0 if p.is_file() and p.stat().st_size else 1)"
 - [ ] strategy by category agreed — check: user
-- [ ] look-dev scene built per the art bible and captured — check: ls .studioigor/captures/lookdev/*.png
+- [x] look-dev scene built per the art bible and captured — check: python -c "import pathlib,sys; sys.exit(0 if list(pathlib.Path('.studioigor/captures/lookdev').glob('frame_*.png')) else 1)"
 - [ ] user approved the look-dev: "this is how the game will look" — check: user
-- [ ] everything third-party is in the license registry — check: manual
+- [x] everything third-party is in the license registry — check: manual
 
 ## Phase 6 — Mechanics
 files:

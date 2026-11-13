@@ -6,14 +6,22 @@
 <!-- one line per asset card (references/assets.md): name · category · style · budget · source · status -->
 | asset | category | style | budget | source | status |
 |---|---|---|---|---|---|
+| Moose cutout kit | character | accepted painted burgundy tracksuit | 9 unique PNG parts, 15 bones | original image_gen using accepted concept | first rig in browser |
+| Courtyard, alive and quarantine | environment | teal forest district / red lockdown | 2 backgrounds, 1672x941 | original image_gen edits | empty backgrounds in scene |
+| Rain, spores, punch arc | VFX | quiet warm particles / cold rain | 80 streaks, 18 spores | GDScript drawing | first pass |
 
 ## Strategy by category
 | category | source (pack / Blender / procedural / generation / user) | why | status |
 |---|---|---|---|
-| <category> | <source> | <why> | plan |
+| Character | original image generation + native cutout rig | preserve accepted painted identity and animate joints | ready for user review |
+| Environment | original generation, actors removed by edit | evaluate character against accepted world | first backdrop; layered geometry later |
+| Props | original generation / procedural assembly | match environment palette | later |
+| VFX | engine code and shaders | responsive action feedback and world states | first pass |
+| UI | engine controls and typography | readable browser controls | temporary playtest labels |
+| Sound / music | source to be evaluated with user | needs combat timing before audio pass | not prepared |
 
 ## Conventions
-<units, up axis, pivot, naming, formats, textures, poly count, collisions, import>
+1280x720 logical canvas, pixels, Y down. Painted RGBA PNG, linear filtering. Limb pivots defined by two source points and mounted on Bone2D; joint ends overlap. Atlas cells are cropped and trimmed by tools/slice_moose.py without repainting or alpha removal. Source manifest records crop bounds. Rig is rigid cutout attached to Skeleton2D; weighted mesh deformation is not yet implemented. No character collision or damage shapes in this look-dev scene.
 
 ## Requests to the user
 - none
@@ -21,3 +29,6 @@
 ## License registry
 | asset / pack | source (URL) | license | author | path | attribution |
 |---|---|---|---|---|---|
+| Original moose kit and clean courtyard states | built-in image_gen, accepted concept references | generated project art; no external pack | project | art/characters/los, art/environment, assets | no third-party attribution assigned |
+
+Reference-board screenshots remain reference-only; none is used in the game build. Engine/addon licenses remain in their installed source trees. Exact art prompts: art/characters/los/prompts-v1.md.

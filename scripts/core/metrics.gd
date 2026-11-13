@@ -5,6 +5,9 @@ var events: Array[Dictionary] = []
 var probe_x: float = 640.0
 var probe_y: float = 490.0
 var quarantine: bool = false
+var stage: String = "web_setup_only"
+var skeletal_animation: bool = false
+var rig: Dictionary = {}
 
 
 func record(event: String) -> void:
@@ -17,6 +20,7 @@ func to_dict() -> Dictionary:
 		"events": events,
 		"probe": [probe_x, probe_y],
 		"quarantine": quarantine,
-		"stage": "web_setup_only",
-		"skeletal_animation": false,
+		"stage": stage,
+		"skeletal_animation": skeletal_animation,
+		"rig": rig,
 	}

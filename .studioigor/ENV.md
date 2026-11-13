@@ -30,6 +30,6 @@ EDITOR: powershell -NoProfile -File tools/run.ps1 editor
 
 ## Pitfalls
 - Native Windows checker: .tools/python/Scripts/python.exe tools/envcheck_windows.py. Upstream checker is macOS/Claude-specific; local pipeline check adapted without changing skill files.
-- Web scene is an environment smoke test: flattened concept images + a movable marker, no live moose skeleton/combat yet. Text in scene states this explicitly.
-- Capture uses a real renderer in a hidden, non-headless process. Native capture: .studioigor/captures/web-setup-native, zero engine errors; browser proof: .studioigor/captures/style/web-setup-quarantine.png.
+- Initial web_setup gym is preserved as a setup smoke test. Main scene is now rig_lab: a 15-bone cutout character, run/jump/punch preview, empty backgrounds and animated weather. No enemy combat yet.
+- Capture uses a real renderer in a hidden, non-headless process. Current native capture: .studioigor/captures/lookdev, scripted movement/jump/punch/quarantine/bones. Capture overhead and fixed delta make its FPS unsuitable as a browser performance benchmark.
 - Local web server is terminal session 30173. It is bound to 127.0.0.1; there is no public deployment.
