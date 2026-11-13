@@ -1,5 +1,5 @@
 extends "res://scripts/world/district_run.gd"
-## Capture-only observer. Scheduled controls exercise independent T/Q/L inputs.
+## Capture-only observer. Scheduled controls exercise independent T/Q/O inputs.
 
 var review_time: float = 0.0
 var snapshot_wait: float = 0.0

@@ -60,7 +60,7 @@ func _ready() -> void:
 		["jump", KEY_UP],
 		["strike", KEY_J],
 		["kick", KEY_K],
-		["block", KEY_I],
+		["block", KEY_L],
 		["crouch", KEY_S],
 		["crouch", KEY_DOWN],
 		["sprint", KEY_SHIFT],

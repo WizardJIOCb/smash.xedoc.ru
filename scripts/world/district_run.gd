@@ -69,7 +69,7 @@ func _ready() -> void:
 		["restart", KEY_R],
 		["pause_run", KEY_ESCAPE],
 		["mute", KEY_M],
-		["super_strike", KEY_L],
+		["super_strike", KEY_O],
 		["ultimate", KEY_Q]
 	]:
 		if not InputMap.has_action(pair[0]):
@@ -138,7 +138,7 @@ func _build_hud() -> void:
 		14,
 		(
 			"A/D — ход   Shift — бег   W/↑/Пробел — прыжок   S/↓ — присед"
-			+ "   J/K — бой   I — блок   E — реле   T — день/ночь   Q — ульта   L — импульс   Esc — меню"
+			+ "   J/K — бой   L — блок   E — реле   T — день/ночь   Q — ульта   O — импульс   Esc — меню"
 		)
 	)
 	outcome = _label(layer, Vector2(290, 255), 30, "")
@@ -387,7 +387,7 @@ func _activate_ultimate() -> void:
 	if night.activate():
 		_feedback(moose.position + Vector2(0, -220), "БАГРОВАЯ ЯРОСТЬ", Color("ff685e"), "down")
 		_shake = 5
-		_notice = "Ульта: урон ×1,8 · L — рогатый импульс!"
+		_notice = "Ульта: урон ×1,8 · O — рогатый импульс!"
 		_notice_left = 3
 		Metrics.record("night_activated")
 	else:
@@ -682,7 +682,7 @@ func _process(delta: float) -> void:
 	)
 	if night.active():
 		night_label.text = (
-			"УЛЬТА %.1fс · L %s"
+			"УЛЬТА %.1fс · O %s"
 			% [night.remaining, "ГОТОВ" if night.cooldown <= 0 else "%.1fс" % night.cooldown]
 		)
 	else:
@@ -713,7 +713,7 @@ func _process(delta: float) -> void:
 		message.text = (
 			"Охрана: "
 			+ str(_remaining())
-			+ "   ·   J/K — бой · I — блок   ·   "
+			+ "   ·   J/K — бой · L — блок   ·   "
 			+ str(rooms[room_index].hint)
 		)
 	if run_state == "lost":
@@ -782,7 +782,7 @@ func _sync_metrics() -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 22,
+			"revision": 23,
 			"room": room_index + 1,
 			"health": health,
 			"run_state": run_state,
