@@ -1,0 +1,425 @@
+extends Node2D
+## Composition module: owns pickups/ammunition/projectiles, never changes run state.
+## Caller resolves projectile_hit against its own damage, blood and score rules.
+
+signal projectile_hit(
+	target: Node2D, serial: int, amount: int, at: Vector2, axis: Vector2, kind: String
+)
+signal changed
+signal shot(id: String, at: Vector2)
+
+const HeldWeapon = preload("res://scripts/view/held_weapon.gd")
+const ORDER = ["fists", "knuckles", "bat", "shovel", "hockey", "pistol", "rifle"]
+
+var tuning: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/weapons.json"))
+var hero: Node2D
+var equipped: String = "fists"
+var inventory: Array[String] = ["fists"]
+var ammunition: Dictionary = {}
+var pickups: Array[Dictionary] = []
+var bullets: Array[Dictionary] = []
+var shots_fired: int = 0
+var bullet_hits: int = 0
+var reloads: int = 0
+var visual: Node2D
+
+var _reload_left: float = 0.0
+var _reload_weapon: String = ""
+var _cooldown: float = 0.0
+var _held: bool = false
+var _playing: bool = true
+var _serial: int = -1000000
+var _clock: float = 0.0
+
+
+func configure(actor: Node2D) -> void:
+	hero = actor
+	process_priority = 60
+	z_index = 24
+	visual = HeldWeapon.new()
+	add_child(visual)
+	hero.combat.started.connect(_swing_started)
+	reset()
+
+
+func reset(keep_inventory: bool = false) -> void:
+	bullets.clear()
+	clear_pickups()
+	_reload_left = 0
+	_reload_weapon = ""
+	_cooldown = 0
+	_held = false
+	if not keep_inventory:
+		inventory.assign(["fists"])
+		ammunition.clear()
+		equipped = "fists"
+		shots_fired = 0
+		bullet_hits = 0
+		reloads = 0
+	_refresh()
+
+
+func clear_pickups() -> void:
+	for item: Dictionary in pickups:
+		item.visual.queue_free()
+	pickups.clear()
+
+
+func spawn_pickups(items: Array) -> void:
+	clear_pickups()
+	for item: Dictionary in items:
+		var id := str(item.get("id", ""))
+		if not tuning.weapons.has(id) or id == "fists":
+			continue
+		var art := HeldWeapon.new()
+		art.equip(id)
+		art.position = Vector2(float(item.x), float(item.y) - 18)
+		art.rotation = -0.16
+		add_child(art)
+		pickups.append({"id": id, "at": art.position, "visual": art})
+	queue_redraw()
+
+
+func interact() -> bool:
+	if not is_instance_valid(hero) or hero.ragdoll_active or not _playing:
+		return false
+	var closest := -1
+	var distance := float(tuning.pickup_radius)
+	for index in range(pickups.size()):
+		var separation: float = hero.global_position.distance_to(to_global(pickups[index].at))
+		if separation < distance:
+			distance = separation
+			closest = index
+	if closest < 0:
+		return false
+	var item: Dictionary = pickups.pop_at(closest)
+	grant(item.id)
+	item.visual.queue_free()
+	return true
+
+
+func grant(id: String) -> void:
+	if not tuning.weapons.has(id):
+		return
+	var spec: Dictionary = tuning.weapons[id]
+	if id not in inventory:
+		inventory.append(id)
+		if spec.mode == "ranged":
+			ammunition[id] = {"loaded": int(spec.capacity), "reserve": int(spec.reserve)}
+	elif spec.mode == "ranged":
+		# A spare weapon gives one magazine; reserves always stay finite.
+		ammunition[id].reserve = mini(
+			int(ammunition[id].reserve) + int(spec.capacity), int(spec.reserve)
+		)
+	equipped = id
+	_cancel_reload()
+	_refresh()
+
+
+func cycle() -> void:
+	if not _playing or not is_instance_valid(hero) or hero.ragdoll_active:
+		return
+	var current: int = ORDER.find(equipped)
+	for offset in range(1, ORDER.size() + 1):
+		var candidate: String = ORDER[(current + offset) % ORDER.size()]
+		if candidate in inventory:
+			equipped = candidate
+			_cancel_reload()
+			_refresh()
+			return
+
+
+func reload() -> bool:
+	var spec: Dictionary = tuning.weapons[equipped]
+	if spec.mode != "ranged" or _reload_left > 0 or not _can_use():
+		return false
+	var ammo: Dictionary = ammunition[equipped]
+	if int(ammo.loaded) >= int(spec.capacity) or int(ammo.reserve) <= 0:
+		return false
+	_reload_weapon = equipped
+	_reload_left = float(spec.reload)
+	changed.emit()
+	return true
+
+
+func before_attack(kind: String) -> bool:
+	if kind != "punch" or tuning.weapons[equipped].mode != "ranged":
+		return true
+	_fire()
+	return false
+
+
+func trigger(held: bool) -> void:
+	_held = held
+
+
+func is_ranged() -> bool:
+	return tuning.weapons[equipped].mode == "ranged"
+
+
+func melee_damage(base: int, kind: String) -> int:
+	if kind != "punch" or is_ranged():
+		return base
+	return roundi(base * float(tuning.weapons[equipped].damage))
+
+
+func melee_tip(original: Vector2, kind: String) -> Vector2:
+	if kind != "punch" or is_ranged() or equipped == "fists":
+		return original
+	_update_visual()
+	return visual.to_global(Vector2(float(tuning.weapons[equipped].reach), 0))
+
+
+func melee_area(base: Rect2, kind: String, tip: Vector2) -> Rect2:
+	if kind != "punch" or is_ranged() or equipped == "fists":
+		return base
+	return base.expand(melee_tip(tip, kind)).grow(4)
+
+
+func attack_serial(serial: int) -> int:
+	return serial
+
+
+func advance(delta: float, enemies: Array, playing: bool) -> void:
+	_playing = playing
+	visual.visible = is_instance_valid(hero) and hero.visible and not hero.ragdoll_active
+	if not playing:
+		_held = false
+		return
+	_clock += delta
+	_cooldown = maxf(0, _cooldown - delta)
+	visual.flash = maxf(0, visual.flash - delta)
+	if _reload_left > 0:
+		_reload_left = maxf(0, _reload_left - delta)
+		if _reload_left == 0:
+			_complete_reload()
+	if _held and is_ranged() and bool(tuning.weapons[equipped].automatic):
+		_fire()
+	_advance_bullets(delta, enemies)
+	for item: Dictionary in pickups:
+		item.visual.position.y = item.at.y + sin(_clock * 2.8 + item.at.x) * 3
+	visual.queue_redraw()
+	queue_redraw()
+
+
+func stats() -> Dictionary:
+	var state := {
+		"id": equipped,
+		"name": tuning.weapons[equipped].name,
+		"inventory": inventory.duplicate(),
+		"ranged": is_ranged(),
+		"loaded": 0,
+		"reserve": 0,
+		"capacity": 0,
+		"reload": _reload_left,
+		"reload_progress": 0.0,
+		"shots": shots_fired,
+		"bullet_hits": bullet_hits,
+		"bullets": bullets.size()
+	}
+	if is_ranged():
+		state.loaded = ammunition[equipped].loaded
+		state.reserve = ammunition[equipped].reserve
+		state.capacity = tuning.weapons[equipped].capacity
+		if _reload_left > 0:
+			state.reload_progress = 1.0 - _reload_left / float(tuning.weapons[equipped].reload)
+	return state
+
+
+func _process(_delta: float) -> void:
+	_update_visual()
+
+
+func _update_visual() -> void:
+	if not is_instance_valid(hero) or not is_instance_valid(visual):
+		return
+	var hand: Bone2D = hero.bones.near_hand
+	visual.global_position = hand.to_global(Vector2(0, 7))
+	var facing: float = hero.facing
+	var angle := -0.8
+	if is_ranged():
+		angle = -visual.flash * 1.7
+		if _reload_left > 0:
+			angle = 0.65
+	else:
+		var envelope: Vector2 = hero.combat.envelope()
+		if hero.combat.kind == "punch" and hero.combat.elapsed >= 0:
+			angle = lerpf(-0.8, 0.08, envelope.x) - envelope.y * 0.6
+	visual.rotation = angle * facing
+	visual.scale = Vector2(facing, 1) * hero.global_scale.abs() * hero.power_scale
+
+
+func _swing_started(kind: String, _side: String, _air: bool, _low: bool) -> void:
+	if kind == "punch" and equipped not in ["fists", "knuckles"] and not is_ranged():
+		# The prop stays in its actual hand, including every buffered follow-up.
+		hero.combat.side = "near"
+
+
+func _can_use() -> bool:
+	return _playing and is_instance_valid(hero) and not hero.ragdoll_active and not hero.blocking
+
+
+func _fire() -> bool:
+	if not _can_use() or _cooldown > 0 or _reload_left > 0 or not is_ranged():
+		return false
+	var ammo: Dictionary = ammunition[equipped]
+	if int(ammo.loaded) <= 0 or bullets.size() >= int(tuning.bullet_limit):
+		return false
+	var spec: Dictionary = tuning.weapons[equipped]
+	ammo.loaded -= 1
+	_cooldown = float(spec.cooldown)
+	_serial -= 1
+	shots_fired += 1
+	_update_visual()
+	var at := visual.to_global(Vector2(74 if equipped == "rifle" else 39, -3))
+	bullets.append(
+		{
+			"at": at,
+			"previous": at,
+			"velocity": Vector2(hero.facing * float(spec.speed), 0),
+			"life": float(tuning.bullet_lifetime),
+			"serial": _serial,
+			"damage": int(spec.damage)
+		}
+	)
+	visual.flash = 0.065
+	shot.emit(equipped, at)
+	changed.emit()
+	return true
+
+
+func _advance_bullets(delta: float, enemies: Array) -> void:
+	for index in range(bullets.size() - 1, -1, -1):
+		var bullet: Dictionary = bullets[index]
+		var start: Vector2 = bullet.at
+		var finish: Vector2 = start + bullet.velocity * delta
+		var nearest := 1.01
+		var victim: Node2D
+		for enemy: Node2D in enemies:
+			if not is_instance_valid(enemy):
+				continue
+			var hit := -1.0
+			if enemy.dead:
+				if not is_instance_valid(enemy.corpse):
+					continue
+				var at: Vector2 = enemy.corpse.contact(
+					Rect2(start, Vector2.ZERO).expand(finish).grow(2), finish
+				)
+				if at != Vector2.INF:
+					hit = clampf(
+						(
+							(at - start).dot(finish - start)
+							/ maxf(0.01, start.distance_squared_to(finish))
+						),
+						0,
+						1
+					)
+			else:
+				hit = _segment_rect(start, finish, enemy.hurtbox().grow(2))
+			if hit >= 0 and hit < nearest:
+				nearest = hit
+				victim = enemy
+		var obstruction := get_world_2d().direct_space_state.intersect_ray(
+			PhysicsRayQueryParameters2D.create(start, finish, 8)
+		)
+		if not obstruction.is_empty():
+			var wall_fraction: float = (
+				start.distance_to(obstruction.position) / maxf(0.01, start.distance_to(finish))
+			)
+			if wall_fraction <= nearest:
+				bullets.remove_at(index)
+				continue
+		if is_instance_valid(victim):
+			bullet_hits += 1
+			projectile_hit.emit(
+				victim,
+				int(bullet.serial),
+				int(bullet.damage),
+				start.lerp(finish, nearest),
+				bullet.velocity.normalized(),
+				"bullet"
+			)
+			bullets.remove_at(index)
+			continue
+		bullet.previous = start
+		bullet.at = finish
+		bullet.life -= delta
+		if float(bullet.life) <= 0:
+			bullets.remove_at(index)
+
+
+static func _segment_rect(start: Vector2, finish: Vector2, rect: Rect2) -> float:
+	var direction := finish - start
+	var enter := 0.0
+	var exit := 1.0
+	for axis in range(2):
+		if absf(direction[axis]) < 0.001:
+			if start[axis] < rect.position[axis] or start[axis] > rect.end[axis]:
+				return -1
+			continue
+		var near_t: float = (rect.position[axis] - start[axis]) / direction[axis]
+		var far_t: float = (rect.end[axis] - start[axis]) / direction[axis]
+		enter = maxf(enter, minf(near_t, far_t))
+		exit = minf(exit, maxf(near_t, far_t))
+		if enter > exit:
+			return -1
+	return enter
+
+
+func _complete_reload() -> void:
+	if _reload_weapon != equipped or not ammunition.has(equipped):
+		return
+	var ammo: Dictionary = ammunition[equipped]
+	var transfer := mini(
+		int(tuning.weapons[equipped].capacity) - int(ammo.loaded), int(ammo.reserve)
+	)
+	ammo.loaded += transfer
+	ammo.reserve -= transfer
+	reloads += 1
+	_reload_weapon = ""
+	changed.emit()
+
+
+func _cancel_reload() -> void:
+	_reload_left = 0
+	_reload_weapon = ""
+	_held = false
+
+
+func _refresh() -> void:
+	if is_instance_valid(visual):
+		visual.equip(equipped)
+	changed.emit()
+	queue_redraw()
+
+
+func _draw() -> void:
+	for bullet: Dictionary in bullets:
+		var at: Vector2 = to_local(bullet.at)
+		var tail: Vector2 = to_local(bullet.at - bullet.velocity.normalized() * 30)
+		draw_line(tail, at, Color(1, 0.69, 0.29, 0.8), 2, true)
+		draw_circle(at, 2, Color("ffe7b0"))
+	var font := ThemeDB.fallback_font
+	for item: Dictionary in pickups:
+		var at: Vector2 = item.at
+		draw_ellipse_shadow(at + Vector2(18, 18))
+		var nearby := (
+			is_instance_valid(hero)
+			and hero.global_position.distance_to(to_global(at)) < float(tuning.pickup_radius)
+		)
+		var text := ("E · " if nearby else "") + str(tuning.weapons[item.id].name)
+		draw_string(
+			font,
+			at + Vector2(-12, -28),
+			text,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			15,
+			Color("ead09b") if nearby else Color("a6b6a6")
+		)
+
+
+func draw_ellipse_shadow(at: Vector2) -> void:
+	draw_set_transform(at, 0, Vector2(1, 0.2))
+	draw_circle(Vector2.ZERO, 32, Color(0.03, 0.05, 0.04, 0.32))
+	draw_set_transform(Vector2.ZERO)
