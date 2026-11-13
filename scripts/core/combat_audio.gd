@@ -28,7 +28,9 @@ func _ready() -> void:
 		"warn": [240, 0.12, 0.03],
 		"hurt": [68, 0.24, 0.6],
 		"relay": [620, 0.65, 0.03],
-		"swing": [140, 0.1, 0.35]
+		"swing": [140, 0.1, 0.35],
+		"pistol": [155, 0.13, 0.88],
+		"rifle": [110, 0.09, 0.93]
 	}
 	for id: String in settings:
 		var setting: Array = settings[id]

@@ -76,7 +76,9 @@ func spawn_pickups(items: Array) -> void:
 		art.position = Vector2(float(item.x), float(item.y) - 18)
 		art.rotation = -0.16
 		add_child(art)
-		pickups.append({"id": id, "at": art.position, "visual": art})
+		pickups.append(
+			{"id": id, "at": art.position, "visual": art, "reserve": int(item.get("reserve", -1))}
+		)
 	queue_redraw()
 
 
@@ -93,24 +95,29 @@ func interact() -> bool:
 	if closest < 0:
 		return false
 	var item: Dictionary = pickups.pop_at(closest)
-	grant(item.id)
+	grant(item.id, int(item.reserve))
 	item.visual.queue_free()
 	return true
 
 
-func grant(id: String) -> void:
+func grant(id: String, reserve: int = -1) -> void:
 	if not tuning.weapons.has(id):
 		return
 	var spec: Dictionary = tuning.weapons[id]
 	if id not in inventory:
 		inventory.append(id)
 		if spec.mode == "ranged":
-			ammunition[id] = {"loaded": int(spec.capacity), "reserve": int(spec.reserve)}
+			ammunition[id] = {
+				"loaded": int(spec.capacity),
+				"reserve": int(spec.reserve) if reserve < 0 else reserve
+			}
 	elif spec.mode == "ranged":
 		# A spare weapon gives one magazine; reserves always stay finite.
 		ammunition[id].reserve = mini(
-			int(ammunition[id].reserve) + int(spec.capacity), int(spec.reserve)
+			int(ammunition[id].reserve) + (int(spec.capacity) if reserve < 0 else reserve),
+			maxi(int(spec.reserve), reserve)
 		)
+	hero.combat.interrupt()
 	equipped = id
 	_cancel_reload()
 	_refresh()
@@ -123,6 +130,7 @@ func cycle() -> void:
 	for offset in range(1, ORDER.size() + 1):
 		var candidate: String = ORDER[(current + offset) % ORDER.size()]
 		if candidate in inventory:
+			hero.combat.interrupt()
 			equipped = candidate
 			_cancel_reload()
 			_refresh()
@@ -173,7 +181,12 @@ func melee_tip(original: Vector2, kind: String) -> Vector2:
 func melee_area(base: Rect2, kind: String, tip: Vector2) -> Rect2:
 	if kind != "punch" or is_ranged() or equipped == "fists":
 		return base
-	return base.expand(melee_tip(tip, kind)).grow(4)
+	return (
+		base
+		. expand(melee_tip(tip, kind))
+		. expand(hero.bones.near_hand.to_global(Vector2(0, 7)))
+		. grow(4)
+	)
 
 
 func attack_serial(serial: int) -> int:
@@ -246,7 +259,7 @@ func _update_visual() -> void:
 		if hero.combat.kind == "punch" and hero.combat.elapsed >= 0:
 			angle = lerpf(-0.8, 0.08, envelope.x) - envelope.y * 0.6
 	visual.rotation = angle * facing
-	visual.scale = Vector2(facing, 1) * hero.global_scale.abs() * hero.power_scale
+	visual.scale = Vector2(facing, 1) * hero.global_scale.abs()
 
 
 func _swing_started(kind: String, _side: String, _air: bool, _low: bool) -> void:
@@ -271,7 +284,7 @@ func _fire() -> bool:
 	_serial -= 1
 	shots_fired += 1
 	_update_visual()
-	var at := visual.to_global(Vector2(74 if equipped == "rifle" else 39, -3))
+	var at := visual.to_global(visual.muzzle())
 	bullets.append(
 		{
 			"at": at,
@@ -423,3 +436,20 @@ func draw_ellipse_shadow(at: Vector2) -> void:
 	draw_set_transform(at, 0, Vector2(1, 0.2))
 	draw_circle(Vector2.ZERO, 32, Color(0.03, 0.05, 0.04, 0.32))
 	draw_set_transform(Vector2.ZERO)
+
+
+func snapshot() -> Dictionary:
+	return {
+		"inventory": inventory.duplicate(),
+		"ammunition": ammunition.duplicate(true),
+		"equipped": equipped
+	}
+
+
+func restore(state: Dictionary) -> void:
+	reset(true)
+	hero.combat.interrupt()
+	inventory.assign(state.get("inventory", ["fists"]))
+	ammunition = state.get("ammunition", {}).duplicate(true)
+	equipped = str(state.get("equipped", "fists"))
+	_refresh()

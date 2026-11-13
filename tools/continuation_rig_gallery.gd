@@ -27,7 +27,7 @@ func _show_stage(value: int) -> void:
 	for direction: float in [-1.0, 1.0]:
 		var rig := Rig.new()
 		rig.kind = KINDS[stage]
-		rig.art_profile = "whip"
+		rig.art_profile = ""
 		rig.body_scale = 1.35 if stage >= 4 else 1.0
 		var socket := Node2D.new()
 		socket.position = Vector2(390 if direction < 0 else 890, 560)
@@ -35,7 +35,7 @@ func _show_stage(value: int) -> void:
 		rig.facing = direction
 		socket.add_child(rig)
 		actors.append(socket)
-	label.text = "%s · FACING −1 / +1 · EXPLICIT PROTOTYPE DONOR ART" % KINDS[stage]
+	label.text = "%s · FACING −1 / +1 · ORIGINAL CAMPAIGN ART" % KINDS[stage]
 	queue_redraw()
 
 

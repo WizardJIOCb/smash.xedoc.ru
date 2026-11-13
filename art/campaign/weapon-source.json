@@ -1,0 +1,5 @@
+{
+  "source": "art/campaign/sources/weapons.png",
+  "prompt": "ONE finished painterly game weapon sprite sheet, 3columns x2rows, six equal separated cells on a truly transparent background, 1536x1024 canvas. No labels/no lines/no shadows. Soft tactile hand-painted worn materials, fairytale industrial post-apocalyptic animal beat-em-up matching a furry cartoon moose, rich warm rust wood/burnished metal highlights, not photorealistic and not flat vector. Every weapon completely isolated in its own cell with generous margin, horizontal pointed to RIGHT, hand grip at left-quarter. TOP LEFT worn wooden baseball bat with taped handle; TOP MIDDLE long wooden-handled shovel with broad scuffed steel spade on RIGHT; TOP RIGHT long taped ice hockey stick blade onRIGHT; BOTTOM LEFT small brass knuckles with four round holes; BOTTOM MIDDLE compact seven-shot semiautomatic pistol pointedRIGHT black worn steel gripbelowleft; BOTTOM RIGHT wood-stock compact assault rifle pointedRIGHT with straight box magazine downward left-center. All six have readable side-on orthographic silhouettes and detailed painted shading. Exact grid no overlap.",
+  "tool": "built-in image_gen"
+}

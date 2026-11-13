@@ -4,6 +4,7 @@ extends Node
 signal changed
 signal submitted(online: bool)
 
+var chapter: int = 1
 var rows: Array = []
 var local_rows: Array = []
 var online: bool = false
@@ -20,7 +21,9 @@ func _ready() -> void:
 		if stored is Dictionary:
 			local_rows = stored.get("scores", [])
 			player_name = str(stored.get("name", ""))
-	rows = local_rows.duplicate()
+	rows = local_rows.filter(
+		func(row: Dictionary) -> bool: return int(row.get("chapter", 1)) == chapter
+	)
 	if OS.has_feature("web"):
 		var origin: String = str(JavaScriptBridge.eval("window.location.origin", true))
 		if origin.begins_with("https://"):
@@ -30,7 +33,9 @@ func _ready() -> void:
 func refresh() -> void:
 	if endpoint.is_empty():
 		online = false
-		rows = local_rows.duplicate()
+		rows = local_rows.filter(
+			func(row: Dictionary) -> bool: return int(row.get("chapter", 1)) == chapter
+		)
 		changed.emit()
 		return
 	_request("list", {}, HTTPClient.METHOD_GET)
@@ -39,7 +44,7 @@ func refresh() -> void:
 func begin() -> void:
 	token = ""
 	if not endpoint.is_empty():
-		_request("start", {"op": "start"})
+		_request("start", {"op": "start", "chapter": chapter})
 
 
 func finish(name_text: String, stats: Dictionary) -> void:
@@ -53,12 +58,25 @@ func finish(name_text: String, stats: Dictionary) -> void:
 	row["score"] = calculate(stats)
 	local_rows.append(row)
 	local_rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.score > b.score)
-	local_rows = local_rows.slice(0, 10)
+	var kept: Array = []
+	for group in [1, 2, 3]:
+		kept.append_array(
+			(
+				local_rows
+				. filter(
+					func(item: Dictionary) -> bool: return int(item.get("chapter", 1)) == group
+				)
+				. slice(0, 10)
+			)
+		)
+	local_rows = kept
 	var file := FileAccess.open("user://records.json", FileAccess.WRITE)
 	if file != null:
 		file.store_string(JSON.stringify({"scores": local_rows, "name": player_name}))
 	if endpoint.is_empty() or token.is_empty():
-		rows = local_rows.duplicate()
+		rows = local_rows.filter(
+			func(row: Dictionary) -> bool: return int(row.get("chapter", 1)) == chapter
+		)
 		online = false
 		submitted.emit(false)
 		changed.emit()
@@ -87,7 +105,7 @@ func _request(operation: String, payload: Dictionary, method: int = HTTPClient.M
 	add_child(request)
 	request.request_completed.connect(_response.bind(operation, request))
 	var error := request.request(
-		endpoint,
+		endpoint + ("?chapter=" + str(chapter) if method == HTTPClient.METHOD_GET else ""),
 		["Content-Type: application/json"],
 		method,
 		"" if method == HTTPClient.METHOD_GET else JSON.stringify(payload)

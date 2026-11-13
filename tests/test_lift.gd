@@ -25,3 +25,19 @@ func test_lift_carries_grounded_feet_exactly_but_releases_jump_and_respects_paus
 		assert_almost_eq(feet.y, 340.0, 0.01, "No accumulated ride drift at either rate")
 		assert_false(platform.moving)
 		assert_true(platform.activate(feet), "The same platform can return downstairs")
+
+
+func test_lift_can_be_called_back_after_a_passenger_falls_off() -> void:
+	var platform := Lift.new()
+	add_child_autofree(platform)
+	assert_true(platform.activate(Vector2(700, 555)))
+	for frame in range(300):
+		platform.advance(1.0 / 60)
+	assert_true(platform.upper)
+	assert_true(
+		platform.activate(Vector2(700, 555)), "Call the empty platform from the bottom landing"
+	)
+	for frame in range(300):
+		platform.advance(1.0 / 60)
+	assert_almost_eq(platform.surface().position.y, 555.0, 0.01)
+	assert_true(platform.board(Vector2(700, 555)))

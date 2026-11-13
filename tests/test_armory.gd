@@ -111,3 +111,20 @@ func test_melee_weapon_bonus_applies_only_to_hands_and_pickups_need_proximity() 
 	armory.hero.combat.request("punch", false)
 	assert_eq(armory.hero.combat.side, "near")
 	assert_eq(armory.pickups.size(), 0)
+
+
+func test_equipment_change_cancels_swing_and_long_weapon_includes_shaft() -> void:
+	var armory = make_armory()
+	armory.hero.combat.request("punch", false)
+	armory.grant("hockey")
+	assert_eq(armory.hero.combat.elapsed, -1.0, "A new weapon cannot inherit active frames")
+	armory.hero.combat.request("punch", false)
+	armory.hero.combat.elapsed = 0.25
+	var hand: Vector2 = armory.hero.bones.near_hand.to_global(Vector2(0, 7))
+	var tip: Vector2 = armory.melee_tip(hand, "punch")
+	var area: Rect2 = armory.melee_area(Rect2(tip - Vector2.ONE, Vector2.ONE * 2), "punch", tip)
+	assert_true(
+		area.grow(1).has_point(hand), "A close target can touch the shaft, not just the tip"
+	)
+	armory.cycle()
+	assert_eq(armory.hero.combat.elapsed, -1.0)

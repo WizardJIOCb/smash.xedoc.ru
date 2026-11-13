@@ -90,9 +90,17 @@ func carry_delta(feet: Vector2, airborne: bool = false) -> float:
 
 
 func activate(feet: Vector2) -> bool:
-	if moving or not board(feet):
+	if moving:
 		return false
-	_target = float(tuning.bottom) if upper else float(tuning.top)
+	var near_shaft := absf(feet.x - float(tuning.x)) <= float(tuning.width) * 0.6
+	var at_bottom := absf(feet.y - float(tuning.bottom)) <= float(tuning.boarding_tolerance)
+	var at_top := absf(feet.y - float(tuning.top)) <= float(tuning.boarding_tolerance)
+	if board(feet):
+		_target = float(tuning.bottom) if upper else float(tuning.top)
+	elif near_shaft and (at_bottom or at_top):
+		_target = float(tuning.bottom) if at_bottom else float(tuning.top)
+	else:
+		return false
 	moving = true
 	departed.emit(not upper)
 	queue_redraw()

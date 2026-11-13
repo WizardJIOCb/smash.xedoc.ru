@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+signal chapter_requested(index: int)
+signal next_requested
 signal start_requested
 signal resume_requested
 signal submit_requested(name_text: String)
@@ -10,6 +12,9 @@ signal fps_requested(enabled: bool)
 const Moose = preload("res://scripts/actors/moose_rig.gd")
 const FONT = preload("res://assets/fonts/Manrope-Semibold.tres")
 
+var chapters: Array = []
+var chapter_index: int = 0
+var completed_chapters: Array = []
 var root: Control
 var content: Control
 var portrait: Node2D
@@ -62,7 +67,9 @@ func _ready() -> void:
 	ambience.draw.connect(_draw_ambience)
 	root.add_child(ambience)
 	_label(root, Vector2(64, 32), "ЛОСЬ В ПРОДЕ  /  ИГРОВОЙ РАЙОН", 14, Color("e2b36e"))
-	_label(root, Vector2(64, 672), "SMASH.XEDOC.RU    ·    ПЕРВЫЙ МАРШРУТ", 14, Color("b3c4b6"))
+	_label(
+		root, Vector2(64, 672), "SMASH.XEDOC.RU    ·    3 ГЛАВЫ / 11 УРОВНЕЙ", 14, Color("b3c4b6")
+	)
 	content = Control.new()
 	root.add_child(content)
 	show_home(false)
@@ -79,13 +86,11 @@ func show_home(resumable: bool) -> void:
 		"Рога на месте. Двор под карантином.\nУ Firewall сейчас будут проблемы.",
 		20
 	)
-	_button("Продолжить" if can_resume else "Войти во двор", 374, _play, true)
-	_button("Рекорды района", 438, show_records)
-	_button("Как играть", 502, show_help)
-	_button("Настройки", 566, show_settings)
-	if can_resume:
-		var restart := _button("Начать заново", 614, func() -> void: start_requested.emit())
-		restart.add_theme_font_size_override("font_size", 16)
+	_button("Продолжить" if can_resume else "Войти во двор", 350, _play, true)
+	_button("Выбрать главу", 410, show_chapters)
+	_button("Рекорды", 470, show_records)
+	_button("Как играть", 530, show_help)
+	_button("Настройки", 590, show_settings)
 
 
 func _page(id: String) -> void:
@@ -118,7 +123,12 @@ func show_records(refresh: bool = true) -> void:
 	if refresh:
 		records_requested.emit()
 	_page("records")
-	_label(content, Vector2(64, 112), "Рекорды района", 48)
+	_label(
+		content,
+		Vector2(64, 112),
+		"Рекорды · " + (str(chapters[chapter_index].title) if not chapters.is_empty() else "Район"),
+		38
+	)
 	_label(
 		content,
 		Vector2(68, 184),
@@ -126,6 +136,17 @@ func show_records(refresh: bool = true) -> void:
 		18,
 		Color("e2b36e")
 	)
+	for index in range(chapters.size()):
+		var tab := Button.new()
+		tab.text = str(chapters[index].title)
+		tab.position = Vector2(64 + index * 250, 190)
+		tab.size = Vector2(238, 36)
+		tab.pressed.connect(
+			func() -> void:
+				chapter_index = index
+				records_requested.emit()
+		)
+		content.add_child(tab)
 	var table := Tree.new()
 	table.position = Vector2(64, 240)
 	table.size = Vector2(1152, 360)
@@ -180,8 +201,10 @@ func show_help() -> void:
 			+ "\nПод кабелем можно присесть.\nДрон запоминает, куда целился."
 			+ "\n\nУльта: урон ×1,8 и красная аура.\nO — импульс, перерыв 2 секунды."
 			+ "\nРаботает и днём, и ночью.\nЗаряд — за попадания и победы."
+			+ "\n\nE — оружие / лифт / реле\nTab — смена оружия · F — перезарядка"
+			+ "\nJ — оружие, удерживай для автомата"
 		),
-		24,
+		18,
 		Color("e2b36e")
 	)
 	_button("← Главное меню", 614, func() -> void: show_home(can_resume)).grab_focus()
@@ -189,13 +212,22 @@ func show_help() -> void:
 
 func show_finish(score: int, seconds: float, previous_name: String) -> void:
 	_page("finish")
-	_label(content, Vector2(64, 112), "Район снова дышит", 36)
+	_label(
+		content, Vector2(64, 112), "Город свободен" if chapter_index == 2 else "Глава пройдена", 36
+	)
 	_label(content, Vector2(64, 168), str(score), 72, Color("e2b36e"))
 	_label(
 		content,
 		Vector2(72, 264),
 		(
-			"Очков за %02d:%02d\nПять охранников. Три узла. Твои рога."
+			(
+				"Очков за %02d:%02d\n"
+				+ (
+					str(chapters[chapter_index].title)
+					if not chapters.is_empty()
+					else "Район закрыт"
+				)
+			)
 			% [int(seconds) / 60, int(seconds) % 60]
 		),
 		20
@@ -210,7 +242,14 @@ func show_finish(score: int, seconds: float, previous_name: String) -> void:
 	content.add_child(name_input)
 	submit_button = _button("Записать результат", 422, _submit, true)
 	score_status = _label(content, Vector2(72, 486), "", 16)
-	_button("Ещё раз", 526, func() -> void: start_requested.emit())
+	if chapter_index < 2:
+		_button(
+			"Дальше: " + str(chapters[chapter_index + 1].title),
+			526,
+			func() -> void: next_requested.emit()
+		)
+	else:
+		_button("Ещё раз", 526, func() -> void: start_requested.emit())
 	_button("Главное меню", 590, func() -> void: show_home(false))
 
 
@@ -335,3 +374,43 @@ func _draw_ambience() -> void:
 		)
 		var opacity := 0.18 + sin(clock * 1.2 + index) * 0.12
 		ambience.draw_circle(point, 1.3 + index % 3 * 0.4, Color(0.95, 0.71, 0.33, opacity))
+
+
+func show_chapters() -> void:
+	_page("chapters")
+	_label(content, Vector2(64, 64), "Город больше одного двора", 42)
+	_label(
+		content,
+		Vector2(68, 128),
+		"Начни с любой главы. Между уровнями — контрольные точки, в финале — босс.",
+		18
+	)
+	var images := ["courtyard-alive-clean.png", "depot-yard.webp", "tower-entry.webp"]
+	for index in range(chapters.size()):
+		var x := 64.0 + index * 386
+		var frame := ColorRect.new()
+		frame.color = Color("10272c")
+		frame.position = Vector2(x, 190)
+		frame.size = Vector2(350, 330)
+		content.add_child(frame)
+		var preview := TextureRect.new()
+		preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		preview.stretch_mode = TextureRect.STRETCH_SCALE
+		preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		preview.texture = load("res://assets/environment/" + images[index])
+		preview.position = Vector2(x, 190)
+		preview.size = Vector2(350, 197)
+		content.add_child(preview)
+		_label(content, Vector2(x + 16, 401), "%02d / %s" % [index + 1, chapters[index].title], 22)
+		_label(content, Vector2(x + 16, 440), str(chapters[index].subtitle), 13)
+		if index in completed_chapters:
+			_label(content, Vector2(x + 16, 473), "ПРОЙДЕНО", 14, Color("a4c7a1"))
+		var button := _button(
+			"Играть главу",
+			544,
+			func() -> void: chapter_requested.emit(index),
+			index == chapter_index
+		)
+		button.position.x = x
+		button.size.x = 350
+	_button("← Главное меню", 614, func() -> void: show_home(can_resume))

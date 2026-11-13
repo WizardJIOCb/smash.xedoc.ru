@@ -14,7 +14,20 @@ const BloodEffects = preload("res://scripts/world/blood_fx.gd")
 const Ragdoll = preload("res://scripts/actors/skeletal_ragdoll.gd")
 const FpsCounter = preload("res://scripts/ui/fps_counter.gd")
 const TouchControls = preload("res://scripts/ui/touch_controls.gd")
+const Armory = preload("res://scripts/systems/armory.gd")
+const Lift = preload("res://scripts/world/district_lift.gd")
+const Continuation = preload("res://scripts/world/continuation_fx.gd")
+const Route = preload("res://scripts/core/route_state.gd")
 
+var continuation := Continuation.new()
+var route := Route.new()
+var armory: Armory
+var carrier: Lift
+var weapon_label: Label
+var boss_label: Label
+var boss_bar: ColorRect
+var checkpoint_gear: Dictionary = {}
+var checkpoint_kills: int = 0
 var rooms: Array
 var encounter: Dictionary
 var room_index: int = 0
@@ -68,6 +81,14 @@ func _ready() -> void:
 	rooms = JSON.parse_string(FileAccess.get_file_as_string("res://data/district_rooms.json"))
 	encounter = JSON.parse_string(FileAccess.get_file_as_string("res://data/encounters.json"))
 	super._ready()
+	route.load_progress()
+	cleared.resize(rooms.size())
+	cleared.fill(false)
+	armory = Armory.new()
+	add_child(armory)
+	armory.configure(moose)
+	armory.projectile_hit.connect(continuation.weapon_contact.bind(self))
+	armory.shot.connect(func(id: String, _at: Vector2) -> void: audio.play(id))
 	movement_bounds = Vector2(28, 1252)
 	for pair: Array in [
 		["interact", KEY_E],
@@ -75,7 +96,9 @@ func _ready() -> void:
 		["pause_run", KEY_ESCAPE],
 		["mute", KEY_M],
 		["super_strike", KEY_O],
-		["ultimate", KEY_Q]
+		["ultimate", KEY_Q],
+		["cycle_weapon", KEY_TAB],
+		["reload_weapon", KEY_F]
 	]:
 		if not InputMap.has_action(pair[0]):
 			InputMap.add_action(pair[0])
@@ -111,9 +134,17 @@ func _ready() -> void:
 	add_child(fps_counter)
 	front.fps_enabled = fps_counter.enabled
 	add_child(front)
+	front.chapters = route.chapters
+	front.completed_chapters = route.completed
+	front.chapter_requested.connect(_select_chapter)
+	front.next_requested.connect(_continue_chapter)
 	front.start_requested.connect(_start_new_run)
 	front.resume_requested.connect(_resume_run)
-	front.records_requested.connect(scores.refresh)
+	front.records_requested.connect(
+		func() -> void:
+			scores.chapter = front.chapter_index + 1
+			scores.refresh()
+	)
 	front.submit_requested.connect(_submit_record)
 	front.mute_requested.connect(func() -> void: audio.set_muted(front.muted))
 	front.fps_requested.connect(fps_counter.set_enabled)
@@ -131,7 +162,7 @@ func _build_hud() -> void:
 	add_child(layer)
 	var backdrop := ColorRect.new()
 	backdrop.color = Color(0.025, 0.065, 0.08, 0.8)
-	backdrop.size = Vector2(1280, 107)
+	backdrop.size = Vector2(1280, 139)
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(backdrop)
 	health_label = _label(layer, Vector2(30, 17), 20, "ЛОСЬ / РАЙОН ЗАКРЫТ")
@@ -152,6 +183,9 @@ func _build_hud() -> void:
 			+ "   J/K — бой   L — блок   E — реле   T — день/ночь   Q — ульта   O — импульс   Esc — меню"
 		)
 	)
+	weapon_label = _label(layer, Vector2(300, 111), 14, "")
+	boss_label = _label(layer, Vector2(830, 104), 13, "")
+	boss_bar = _bar(layer, Vector2(830, 126), Vector2(410, 5), Color("e45848"))
 	outcome = _label(layer, Vector2(290, 255), 30, "")
 	outcome.add_theme_color_override("font_shadow_color", Color("132630"))
 	outcome.add_theme_constant_override("shadow_offset_x", 3)
@@ -185,6 +219,14 @@ func _label(parent: Node, at: Vector2, size: int, caption: String) -> Label:
 
 
 func _load_room(index: int, spawn_x: float) -> void:
+	checkpoint_kills = kills
+	route.enter()
+	if is_instance_valid(carrier):
+		remove_child(carrier)
+		carrier.queue_free()
+		carrier = null
+	if is_instance_valid(armory):
+		armory.reset(true)
 	if is_instance_valid(player_corpse):
 		player_corpse.set_process(false)
 		player_corpse.set_physics_process(false)
@@ -210,12 +252,12 @@ func _load_room(index: int, spawn_x: float) -> void:
 	var room: Dictionary = rooms[index]
 	for child: Node in get_children():
 		if child is TextureRect and child != dark:
-			child.texture = load("res://assets/environment/%s.png" % room.art)
+			child.texture = load(_room_art(room))
 	dark.material = null
 	if index == 0:
 		dark.texture = load("res://assets/environment/courtyard-quarantine-clean.png")
 	else:
-		dark.texture = load("res://assets/environment/%s.png" % room.art)
+		dark.texture = load(_room_art(room))
 		var material := ShaderMaterial.new()
 		material.shader = load("res://assets/shaders/quarantine_world.gdshader")
 		dark.material = material
@@ -246,6 +288,12 @@ func _load_room(index: int, spawn_x: float) -> void:
 		ledge.z_index = -1
 		scenery.add_child(ledge)
 	_build_physics_surfaces(float(room.floor))
+	if room.has("lift"):
+		carrier = Lift.new()
+		carrier.configure(room.lift)
+		add_child(carrier)
+	armory.spawn_pickups(room.get("weapons", []))
+	checkpoint_gear = armory.snapshot()
 	if not cleared[index]:
 		for entry: Array in room.enemies:
 			_spawn_enemy(entry)
@@ -325,8 +373,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif run_state == "playing":
 		if event.is_action_pressed("ultimate"):
 			_activate_ultimate()
+		if event.is_action_pressed("cycle_weapon"):
+			armory.cycle()
+			_tip_serial = -1
+		elif event.is_action_pressed("reload_weapon"):
+			armory.reload()
 		if night.burst_time < 0:
-			super._unhandled_input(event)
+			if not event.is_action_pressed("strike") or armory.before_attack("punch"):
+				super._unhandled_input(event)
 		if event.is_action_pressed("interact"):
 			_interact()
 		if event.is_action_pressed("super_strike") and not moose.blocking and night.try_burst():
@@ -339,8 +393,17 @@ func _physics_process(delta: float) -> void:
 		touch_controls.set_context("menu" if front.is_open() else run_state)
 		controls_hint.visible = not touch_controls.enabled
 	var simulation_paused := run_state in ["menu", "paused", "won"]
-	rain.paused = simulation_paused
-	rain.visible = not front.is_open()
+	rain.paused = simulation_paused or bool(rooms[room_index].get("indoor", false))
+	rain.visible = not front.is_open() and not bool(rooms[room_index].get("indoor", false))
+	armory.trigger(
+		(
+			Input.is_action_pressed("strike")
+			and night.burst_time < 0
+			and not Input.is_action_pressed("block")
+		)
+	)
+	armory.advance(delta, enemies, run_state == "playing")
+	continuation.advance_lift(self, delta, simulation_paused)
 	blood.paused = simulation_paused
 	if is_instance_valid(player_corpse):
 		player_corpse.paused = simulation_paused
@@ -350,6 +413,12 @@ func _physics_process(delta: float) -> void:
 		if Engine.get_physics_frames() % 6 == 0:
 			_sync_metrics()
 		return
+	var reinforcements := route.reinforcement(rooms[room_index], _remaining(), delta)
+	for entry: Array in reinforcements:
+		_spawn_enemy(entry)
+	if not reinforcements.is_empty():
+		_notice = "ПОДКРЕПЛЕНИЕ · ВОЛНА %d" % (route.wave + 1)
+		_notice_left = 3
 	elapsed_run += delta
 	if night.advance(delta):
 		_release_impulse()
@@ -364,7 +433,17 @@ func _physics_process(delta: float) -> void:
 		if moose.position.x >= ledge.position.x and moose.position.x <= ledge.end.x:
 			if moose.position.y <= ledge.position.y + 1.0:
 				surface = minf(surface, ledge.position.y)
+	if is_instance_valid(carrier):
+		var deck := carrier.surface()
+		if (
+			moose.position.x >= deck.position.x
+			and moose.position.x <= deck.end.x
+			and moose.position.y <= deck.position.y + 1
+		):
+			surface = minf(surface, deck.position.y)
 	floor_y = surface
+	if vertical_speed == 0 and absf(moose.position.y - surface) < 0.01:
+		moose.position.y = surface
 	lift = minf(0, moose.position.y - surface)
 	var before_x := moose.position.x
 	super._physics_process(delta)
@@ -383,9 +462,13 @@ func _physics_process(delta: float) -> void:
 	_resolve_attacks()
 	_move_projectiles(delta)
 	if _transition <= 0:
-		if moose.position.x > 1230 and cleared[room_index] and room_index < 2:
+		if (
+			moose.position.x > 1230
+			and cleared[room_index]
+			and room_index < int(route.current().end)
+		):
 			_load_room(room_index + 1, 110)
-		elif moose.position.x < 45 and room_index > 0:
+		elif moose.position.x < 45 and room_index > int(route.current().start):
 			_load_room(room_index - 1, 1160)
 	if moose.position.x > 1190 and not cleared[room_index]:
 		moose.position.x = 1190
@@ -458,18 +541,21 @@ func _release_impulse() -> void:
 
 func _resolve_attacks() -> void:
 	var attack = moose.combat
-	if not attack.is_active():
+	if not attack.is_active() or (attack.kind == "punch" and armory.is_ranged()):
 		_tip_serial = -1
 		return
 	var bone: Bone2D = moose.bones[attack.side + ("_foot" if attack.kind == "kick" else "_hand")]
-	var tip := bone.to_global(Vector2(0, 15))
+	var tip := armory.melee_tip(bone.to_global(Vector2(0, 15)), attack.kind)
 	if _tip_serial != attack.serial:
 		_previous_tip = tip
 		_tip_serial = attack.serial
 	var area := Rect2(_previous_tip, Vector2.ZERO).expand(tip).grow(
 		24 if attack.kind == "kick" else 19
 	)
-	var amount := Contact.damage(attack.kind, attack.kick_step, attack.in_air, encounter)
+	area = armory.melee_area(area, attack.kind, tip)
+	var amount := armory.melee_damage(
+		Contact.damage(attack.kind, attack.kick_step, attack.in_air, encounter), attack.kind
+	)
 	if night.active():
 		amount = roundi(amount * float(night.tuning.damage_multiplier))
 	for enemy: Enemy in enemies:
@@ -590,7 +676,7 @@ func _enemy_down() -> void:
 	kills += 1
 	night.gain(float(night.tuning.kill_charge))
 	Metrics.record("enemy_down")
-	if _remaining() == 0:
+	if _remaining() == 0 and route.waves_done(rooms[room_index]):
 		_notice = "Порядок навели. Теперь к реле справа — E."
 		_notice_left = 5
 
@@ -604,9 +690,16 @@ func _remaining() -> int:
 
 
 func _interact() -> void:
+	if armory.interact():
+		_tip_serial = -1
+		_notice = "Оружие: " + str(armory.stats().name) + " · J — атака · Tab — смена"
+		_notice_left = 4
+		return
+	if is_instance_valid(carrier) and carrier.activate(moose.position):
+		return
 	if cleared[room_index] or moose.position.distance_to(relay) > 110:
 		return
-	if _remaining() > 0:
+	if _remaining() > 0 or not route.waves_done(rooms[room_index]):
 		_notice = "Реле держит охрана. Сначала разберись с ней."
 		_notice_left = 3
 		return
@@ -617,7 +710,9 @@ func _interact() -> void:
 	_notice = "Вот. Другое дело. Проход справа открыт →"
 	_notice_left = 5
 	Metrics.record("relay_disabled_" + str(room_index + 1))
-	if room_index == 2:
+	if room_index == int(route.current().end):
+		route.finish()
+		front.completed_chapters = route.completed
 		night.cancel()
 		run_state = "won"
 		Metrics.completed = true
@@ -629,8 +724,10 @@ func _restart() -> void:
 		_start_new_run()
 		return
 	health = int(encounter.player_health)
+	kills = checkpoint_kills
 	night.reset()
 	run_state = "playing"
+	armory.restore(checkpoint_gear)
 	_load_room(room_index, 170)
 	Metrics.record("checkpoint_restart")
 
@@ -643,7 +740,8 @@ func _start_new_run() -> void:
 	night.reset()
 	night_damage = 0
 	burst_hits = 0
-	cleared = [false, false, false]
+	cleared.resize(rooms.size())
+	cleared.fill(false)
 	kills = 0
 	deaths = 0
 	hits_landed = 0
@@ -654,11 +752,16 @@ func _start_new_run() -> void:
 	Metrics.completed = false
 	run_state = "playing"
 	front.hide_menu()
-	_load_room(0, 170)
+	armory.reset(false)
+	_load_room(int(route.current().start), 170)
+	front.chapter_index = route.chapter
+	scores.chapter = route.chapter + 1
+	scores.refresh()
 	scores.begin()
 
 
 func _resume_run() -> void:
+	scores.chapter = route.chapter + 1
 	run_state = "playing"
 	front.hide_menu()
 	for enemy: Enemy in enemies:
@@ -671,11 +774,13 @@ func _run_stats() -> Dictionary:
 		"health": health,
 		"deaths": deaths,
 		"kills": kills,
-		"relays": cleared.count(true)
+		"relays": cleared.count(true),
+		"chapter": route.chapter + 1
 	}
 
 
 func _submit_record(name_text: String) -> void:
+	scores.chapter = route.chapter + 1
 	scores.finish(name_text, _run_stats())
 
 
@@ -734,12 +839,20 @@ func _process(delta: float) -> void:
 	health_bar.size.x = health * 2.2
 	health_label.text = "ЛОСЬ  /  " + str(health) + " HP"
 	objective.text = (
-		str(rooms[room_index].title) + "    ·    УЗЛЫ " + str(cleared.count(true)) + "/3"
+		str(rooms[room_index].title)
+		+ "    ·    УЗЛЫ "
+		+ str(cleared.count(true))
+		+ "/"
+		+ str(int(route.current().end) - int(route.current().start) + 1)
 	)
 	if _notice_left > 0:
 		message.text = _notice
 	elif cleared[room_index]:
-		message.text = "Карантин снят. Иди вправо →" if room_index < 2 else "Первый маршрут открыт."
+		message.text = (
+			"Карантин снят. Иди вправо →"
+			if room_index < int(route.current().end)
+			else "Глава пройдена."
+		)
 	elif _remaining() == 0:
 		message.text = (
 			"E — отключить реле"
@@ -753,19 +866,18 @@ func _process(delta: float) -> void:
 			+ "   ·   J/K — бой · L — блок   ·   "
 			+ str(rooms[room_index].hint)
 		)
+	continuation.sync_hud(self)
 	if run_state == "lost":
 		outcome.text = "РОГА ЦЕЛЫ. САМ — НЕ ОЧЕНЬ.\n\nR — с контрольной точки"
 	elif run_state == "won":
-		outcome.text = (
-			"ПЕРВЫЙ УЗЕЛ ПОГАШЕН\n\nРайон снова дышит."
-			+ "\nДальше — логово Firewall.\n\nR — пройти ещё раз"
-		)
+		outcome.text = "ГОРОД СВОБОДЕН" if route.chapter == 2 else "ГЛАВА ПРОЙДЕНА"
 	elif run_state == "paused":
 		outcome.text = "ПЕРЕКУР\n\nEsc — вернуться во двор"
 	else:
 		outcome.text = ""
 	if run_state == "won" and not _finish_shown:
 		_finish_shown = true
+		front.chapter_index = route.chapter
 		front.show_finish(Scores.calculate(_run_stats()), elapsed_run, scores.player_name)
 
 
@@ -773,7 +885,9 @@ func _draw() -> void:
 	super._draw()
 	if not is_instance_valid(effects):
 		return
-	var available := _remaining() == 0 and not cleared[room_index]
+	var available := (
+		_remaining() == 0 and route.waves_done(rooms[room_index]) and not cleared[room_index]
+	)
 	var color := Color("e2b36e") if available or cleared[room_index] else Color("e44a42")
 	# Painted intercom housing, with a live lens and a visibly powered cable.
 	draw_texture_rect(RELAY_TEXTURE, Rect2(relay - Vector2(23, 40), Vector2(46, 80)), false)
@@ -802,7 +916,7 @@ func _draw() -> void:
 			17,
 			color
 		)
-	if cleared[room_index] and room_index < 2:
+	if cleared[room_index] and room_index < int(route.current().end):
 		draw_string(
 			ThemeDB.fallback_font,
 			Vector2(1185, float(rooms[room_index].floor) - 90),
@@ -816,82 +930,24 @@ func _draw() -> void:
 
 func _sync_metrics() -> void:
 	super._sync_metrics()
-	Metrics.stage = "district_playtest"
-	Metrics.rig.merge(
-		{
-			"revision": 27,
-			"room": room_index + 1,
-			"health": health,
-			"run_state": run_state,
-			"enemies_alive": _remaining(),
-			"kills": kills,
-			"hits_landed": hits_landed,
-			"player_hits": player_hits,
-			"deaths": deaths,
-			"relays": cleared.count(true),
-			"feet_y": moose.position.y,
-			"floor_y": floor_y,
-			"jump_bindings": ["W", "Up", "Space"]
-		},
-		true
-	)
-	Metrics.rig["seconds"] = elapsed_run
-	Metrics.rig["blocking"] = moose.blocking
-	Metrics.rig["fps_visible"] = fps_counter.enabled if is_instance_valid(fps_counter) else true
-	Metrics.rig["fps"] = Engine.get_frames_per_second()
-	Metrics.rig["draw_calls"] = Performance.get_monitor(
-		Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME
-	)
-	Metrics.rig["touch_controls"] = (
-		touch_controls.enabled if is_instance_valid(touch_controls) else false
-	)
-	var active_bodies := 0
-	for enemy: Enemy in enemies:
-		if is_instance_valid(enemy.corpse) and not enemy.corpse.settled:
-			active_bodies += enemy.corpse.physical_bodies.size()
-	if is_instance_valid(player_corpse) and not player_corpse.settled:
-		active_bodies += player_corpse.physical_bodies.size()
-	Metrics.rig["ragdoll_active_bodies"] = active_bodies
-	Metrics.rig["blocked_hits"] = blocked_hits
-	Metrics.rig["player_ragdoll"] = moose.ragdoll_active
-	Metrics.rig["corpses"] = enemies.filter(func(enemy: Enemy) -> bool: return enemy.dead).size()
-	Metrics.rig["blood_drops"] = blood.drops.size() if is_instance_valid(blood) else 0
-	Metrics.rig["corpse_hits"] = corpse_hits
-	Metrics.rig["rain_impacts"] = rain.impacts
-	Metrics.rig["blood_stains"] = blood.stains.size() if is_instance_valid(blood) else 0
-	Metrics.rig["blood_landed"] = blood.landed if is_instance_valid(blood) else 0
-	Metrics.rig.merge(
-		{
-			"world_night": world_night,
-			"time_switches": time_switches,
-			"world_night_strength": night_fx.world_strength if is_instance_valid(night_fx) else 0,
-			"night_active": night.active(),
-			"night_remaining": night.remaining,
-			"night_charge": night.charge,
-			"night_casts": night.casts,
-			"night_bursts": night.bursts,
-			"night_damage": night_damage,
-			"burst_hits": burst_hits,
-			"power_scale": moose.power_scale,
-			"sound_muted": audio.muted if is_instance_valid(audio) else true,
-			"shoe_layers": 2,
-			"hand_digits": 4
-		},
-		true
-	)
-	Metrics.rig["score_online"] = scores.online if is_instance_valid(scores) else false
-	Metrics.rig["score_session_ready"] = (
-		not scores.token.is_empty() if is_instance_valid(scores) else false
-	)
-	Metrics.rig["menu"] = front.page if is_instance_valid(front) and front.is_open() else "closed"
-	if OS.has_feature("web"):
-		var state := Metrics.rig.duplicate()
-		state.merge({"ready": true, "stage": Metrics.stage, "completed": Metrics.completed}, true)
-		JavaScriptBridge.eval(
-			(
-				"document.body.setAttribute('data-game-metrics', "
-				+ JSON.stringify(JSON.stringify(state))
-				+ ");"
-			),
-			true
-		)
+	if is_instance_valid(armory):
+		continuation.sync_metrics(self)
+
+
+func _select_chapter(index: int) -> void:
+	if index < 0 or index >= route.chapters.size():
+		return
+	route.chapter = index
+	_start_new_run()
+
+
+func _room_art(room: Dictionary) -> String:
+	var base := "res://assets/environment/" + str(room.art)
+	return base + (".webp" if ResourceLoader.exists(base + ".webp") else ".png")
+
+
+func _continue_chapter() -> void:
+	var gear := armory.snapshot()
+	_select_chapter(route.chapter + 1)
+	armory.restore(gear)
+	checkpoint_gear = armory.snapshot()

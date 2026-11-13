@@ -3,27 +3,45 @@ extends Node2D
 
 var weapon_id: String = "fists"
 var flash: float = 0.0
+var painting: Texture2D
 
 
 func equip(id: String) -> void:
 	weapon_id = id
+	var path := "res://assets/weapons/" + id + ".png"
+	painting = load(path) if ResourceLoader.exists(path) else null
 	queue_redraw()
 
 
 func _draw() -> void:
-	match weapon_id:
-		"knuckles":
-			_knuckles()
-		"bat":
-			_bat()
-		"shovel":
-			_shovel()
-		"hockey":
-			_hockey()
-		"pistol", "rifle":
-			_gun(weapon_id == "rifle")
+	if painting != null:
+		var widths := {
+			"bat": 74.0,
+			"shovel": 96.0,
+			"hockey": 102.0,
+			"knuckles": 23.0,
+			"pistol": 52.0,
+			"rifle": 98.0
+		}
+		var width: float = widths[weapon_id]
+		var height := width * painting.get_height() / painting.get_width()
+		var grip := -22.0 if weapon_id == "rifle" else -10.0
+		draw_texture_rect(painting, Rect2(grip, -height / 2, width, height), false)
+	else:
+		match weapon_id:
+			"knuckles":
+				_knuckles()
+			"bat":
+				_bat()
+			"shovel":
+				_shovel()
+			"hockey":
+				_hockey()
+			"pistol", "rifle":
+				_gun(weapon_id == "rifle")
 	if flash > 0:
-		var muzzle := 74.0 if weapon_id == "rifle" else 39.0
+		var muzzle := muzzle().x
+		draw_set_transform(Vector2(0, self.muzzle().y + 3))
 		_poly(
 			[
 				Vector2(muzzle, -9),
@@ -173,3 +191,7 @@ func _gun(long_gun: bool) -> void:
 		for x in range(17, 33, 4):
 			draw_line(Vector2(x, -8), Vector2(x - 1, -3), Color("182326"), 1, true)
 	draw_circle(Vector2(5, -3), 1.4, Color("c5ac70"))
+
+
+func muzzle() -> Vector2:
+	return Vector2(74, -11) if weapon_id == "rifle" else Vector2(39, -11)

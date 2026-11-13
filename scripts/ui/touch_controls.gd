@@ -9,7 +9,9 @@ const BUTTONS = [
 	["kick", "НОГА", Vector2(1180, 622), 43.0],
 	["block", "БЛОК", Vector2(1069, 674), 37.0],
 	["jump", "ПРЫЖОК", Vector2(1190, 512), 43.0],
-	["interact", "РЕЛЕ", Vector2(959, 646), 35.0],
+	["interact", "ВЗЯТЬ", Vector2(959, 646), 35.0],
+	["cycle_weapon", "СМЕНА", Vector2(805, 625), 30.0],
+	["reload_weapon", "ПАТРОНЫ", Vector2(880, 625), 30.0],
 	["world", "ДЕНЬ/НОЧЬ", Vector2(880, 451), 35.0],
 	["ultimate", "УЛЬТА", Vector2(980, 451), 35.0],
 	["super_strike", "ИМПУЛЬС", Vector2(1080, 451), 35.0],
@@ -192,14 +194,26 @@ func _draw_controls() -> void:
 		canvas.draw_circle(at, radius, Color(0.025, 0.07, 0.08, 0.72 if active else 0.45))
 		accent.a = 0.95 if active else 0.6
 		canvas.draw_arc(at, radius, 0, TAU, 40, accent, 3 if active else 1.5, true)
-		var caption := action in ["strike", "kick", "jump", "block", "restart"]
+		var caption := (
+			action
+			in ["strike", "kick", "jump", "block", "restart", "cycle_weapon", "reload_weapon"]
+		)
 		_draw_icon(action, at - Vector2(0, 7 if caption else 0), accent)
 		if caption:
 			_caption(at + Vector2(0, 25), str(button[1]), 10)
 
 
 func _draw_icon(action: String, at: Vector2, color: Color) -> void:
-	if action == "strike":
+	if action in ["cycle_weapon", "reload_weapon"]:
+		canvas.draw_arc(at, 13, -PI * 0.7, PI * 0.9, 24, color, 2, true)
+		_stroke(at, [Vector2(-14, -3), Vector2(-10, -12), Vector2(-4, -10)], color)
+		if action == "reload_weapon":
+			_stroke(
+				at,
+				[Vector2(-3, -4), Vector2(4, -4), Vector2(4, 9), Vector2(-3, 9), Vector2(-3, -4)],
+				color
+			)
+	elif action == "strike":
 		_stroke(
 			at,
 			[

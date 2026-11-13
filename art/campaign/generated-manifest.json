@@ -1,0 +1,58 @@
+[
+  {
+    "id": "depot-yard",
+    "source": "art/campaign/sources/depot-yard.png"
+  },
+  {
+    "id": "depot-workshop",
+    "source": "art/campaign/sources/depot-workshop.png"
+  },
+  {
+    "id": "depot-lift",
+    "source": "art/campaign/sources/depot-lift.png"
+  },
+  {
+    "id": "depot-train",
+    "source": "art/campaign/sources/depot-train.png"
+  },
+  {
+    "id": "tower-entry",
+    "source": "art/campaign/sources/tower-entry.png"
+  },
+  {
+    "id": "tower-cooling",
+    "source": "art/campaign/sources/tower-cooling.png"
+  },
+  {
+    "id": "tower-shaft",
+    "source": "art/campaign/sources/tower-shaft.png"
+  },
+  {
+    "id": "tower-core",
+    "source": "art/campaign/sources/tower-core.png"
+  },
+  {
+    "id": "enemy-beaver",
+    "source": "art/campaign/sources/enemy-beaver.png"
+  },
+  {
+    "id": "enemy-hare",
+    "source": "art/campaign/sources/enemy-hare.png"
+  },
+  {
+    "id": "enemy-fox",
+    "source": "art/campaign/sources/enemy-fox.png"
+  },
+  {
+    "id": "enemy-lynx",
+    "source": "art/campaign/sources/enemy-lynx.png"
+  },
+  {
+    "id": "enemy-foreman",
+    "source": "art/campaign/sources/enemy-foreman.png"
+  },
+  {
+    "id": "enemy-firewall",
+    "source": "art/campaign/sources/enemy-firewall.png"
+  }
+]

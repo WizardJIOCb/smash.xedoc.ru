@@ -118,3 +118,17 @@ One session — one section. The user's feedback — verbatim. The first questio
 - Public v27: revision27, real-key4hits kill/1corpse; two crouch-kick corpse contacts, kills stay1.
   Cache update2hits/1download, scores online, muted. No leaderboard submission.
 - Public death then R verified visually:100HP/upright/player_ragdoll=false; console errors0.
+
+## PT-11 — 2026-11-14 — two continuation chapters v28
+- User explicitly approved depot4levels/tower4levels, then added ending bosses.
+- Native original first route35frames/0errors/completed5kills3relays100HP.
+- Each continuation46frames/0errors/completed: depot14kills4relays,Foreman phases1/2;
+  tower12kills4relays,Firewall phases1/2/3. Reviewed both full sheets and boss frames.
+- Module reviews found/fixed endpoint-only long weapons, swap-active-frame reach exploit,
+  double ult weapon scale, rifle during O, muzzle alignment, sheet-part contamination,
+  lift return-call softlock and chapter-preview TextureRect intrinsic sizing.
+-42GUT/589assertions, normal-input menu20frames selects tower/picks pistol/shoots7/reloads7,
+  reserve70->63. Real PHP API isolated tests pass all3chapter contracts,legacy preservation,
+  tokenchapter binding/replay and tables. No public record submitted.
+- Source art/prompts retained; runtime8WebP backdrops+6skeletal enemy sets+painted weapons.
+  Artist/feel gates remain open. Physical mobile hardware untested.

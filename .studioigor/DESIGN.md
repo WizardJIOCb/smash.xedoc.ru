@@ -103,3 +103,10 @@ Ragdoll legs preserve a natural captured bend; independently hinged hips and art
 Decorative antler tips no longer hold up the body. Settled bodies wake on melee/impulse hits,
 receive small capped knockback, then return to idle. No extra kills/charge from corpses.
 Knockback preserves facing; damage grace/blinking removed; R detaches corpse before bone reset.
+
+## Campaign expansion v28 — approved 2026-11-14
+Chapter2 Ржавое депо: freightyard/workshop/cargo lift/train,14guards including2phase Foreman.
+Chapter3 Башня Firewall: entrance/cooling/liftshaft/core,12guards including3phase Firewall.
+Eight unique original backgrounds; beaver/hare/fox/lynx; bat/shovel/hockey/knuckles/pistol7/rifle24.
+Room checkpoints, E moving lifts/call back, reinforcements, finite ammo/F reload/Tab cycle;
+chapter picker, carry gear via Next, separate chapter records; old first route preserved.

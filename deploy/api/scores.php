@@ -58,9 +58,12 @@ $now = microtime(true);
 $state['runs'] = array_filter($state['runs'], fn(array $run): bool => $now - $run['started'] < 3600);
 $operation = $method === 'GET' ? 'list' : ($input['op'] ?? '');
 $response = [];
+$chapter = filter_var($input['chapter'] ?? $_GET['chapter'] ?? 1, FILTER_VALIDATE_INT);
+if (!in_array($chapter, [1, 2, 3], true)) { respond(422, ['error' => 'chapter']); }
+$chapterRows = function() use (&$state, $chapter): array { return array_values(array_filter($state['scores'], fn(array $row): bool => ($row['chapter'] ?? 1) === $chapter)); };
 
 if ($operation === 'list') {
-    $response = ['scores' => array_slice($state['scores'], 0, 10)];
+    $response = ['scores' => array_slice($chapterRows(), 0, 10)];
 } elseif ($operation === 'start') {
     // A one-use run token and a short rate limit curb accidental replay/spam.
     // Client gameplay is not an authoritative anti-cheat system.
@@ -71,7 +74,7 @@ if ($operation === 'list') {
         respond(429, ['error' => 'rate_limit']);
     }
     $token = bin2hex(random_bytes(24));
-    $state['runs'][hash('sha256', $token)] = ['started' => $now, 'ip' => $ip];
+    $state['runs'][hash('sha256', $token)] = ['started' => $now, 'ip' => $ip, 'chapter' => $chapter];
     $response = ['token' => $token];
 } elseif ($operation === 'finish') {
     $token = $input['token'] ?? null;
@@ -87,7 +90,9 @@ if ($operation === 'list') {
     $health = $input['health'] ?? null;
     $deaths = $input['deaths'] ?? null;
     if (!is_string($name) || !is_numeric($seconds) || !is_int($health) || !is_int($deaths)
-        || ($input['kills'] ?? null) !== 5 || ($input['relays'] ?? null) !== 3
+        || ($state['runs'][$key]['chapter'] ?? 1) !== $chapter
+        || ($input['kills'] ?? null) !== [1 => 5, 2 => 14, 3 => 12][$chapter]
+        || ($input['relays'] ?? null) !== ($chapter === 1 ? 3 : 4)
         || $health < 0 || $health > 100 || $deaths < 0 || $deaths > 100
         || (float)$seconds < 5 || (float)$seconds > 3600
         || $now - $state['runs'][$key]['started'] + 3 < (float)$seconds) {
@@ -98,12 +103,17 @@ if ($operation === 'list') {
     $seconds = round((float)$seconds, 2);
     $score = max(0, 5000 + $health * 10 + max(0, 3000 - (int)floor($seconds * 10)) - $deaths * 200);
     $row = ['name' => $name, 'score' => $score, 'seconds' => $seconds,
-        'health' => $health, 'date' => gmdate('Y-m-d')];
+        'health' => $health, 'date' => gmdate('Y-m-d'), 'chapter' => $chapter];
     $state['scores'][] = $row;
     usort($state['scores'], fn(array $a, array $b): int => ($b['score'] <=> $a['score']) ?: ($a['seconds'] <=> $b['seconds']));
-    $state['scores'] = array_slice($state['scores'], 0, 50);
+    $kept = [];
+    foreach ([1, 2, 3] as $group) {
+        $kept = array_merge($kept, array_slice(array_values(array_filter($state['scores'],
+            fn(array $row): bool => ($row['chapter'] ?? 1) === $group)), 0, 50));
+    }
+    $state['scores'] = $kept;
     $state['runs'][$key]['used'] = true;
-    $response = ['saved' => true, 'scores' => array_slice($state['scores'], 0, 10)];
+    $response = ['saved' => true, 'scores' => array_slice($chapterRows(), 0, 10)];
 } else {
     respond(400, ['error' => 'operation']);
 }

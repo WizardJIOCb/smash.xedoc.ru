@@ -41,7 +41,13 @@ func load_progress() -> void:
 	if saved.load("user://chapters.cfg") == OK:
 		completed = saved.get_value("campaign", "completed", [])
 	if OS.has_feature("web"):
-		var raw = JavaScriptBridge.eval("(() => {try {return localStorage.getItem('smash-chapters-v1');}catch(_){return null;}})()", true)
+		var raw = (
+			JavaScriptBridge
+			. eval(
+				"(() => {try {return localStorage.getItem('smash-chapters-v1');}catch(_){return null;}})()",
+				true
+			)
+		)
 		if raw is String:
 			var parsed = JSON.parse_string(raw)
 			if parsed is Array:
@@ -55,4 +61,10 @@ func finish() -> void:
 	saved.set_value("campaign", "completed", completed)
 	saved.save("user://chapters.cfg")
 	if OS.has_feature("web"):
-		JavaScriptBridge.eval("try{localStorage.setItem('smash-chapters-v1',%s);}catch(_){}" % JSON.stringify(JSON.stringify(completed)), true)
+		JavaScriptBridge.eval(
+			(
+				"try{localStorage.setItem('smash-chapters-v1',%s);}catch(_){}"
+				% JSON.stringify(JSON.stringify(completed))
+			),
+			true
+		)
