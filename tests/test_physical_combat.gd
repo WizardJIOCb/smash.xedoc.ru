@@ -21,6 +21,14 @@ func test_enemy_planted_soles_match_moose_in_both_directions() -> void:
 		for side: String in ["near", "far"]:
 			var enemy_sole: float = enemy.bones[side + "_foot"].global_position.y + 1
 			assert_almost_eq(enemy_sole, sole, 1.0, "Boots share the painted ground plane")
+			var hip: Vector2 = enemy.bones[side + "_leg"].global_position
+			var knee: Vector2 = enemy.bones[side + "_shin"].global_position
+			var ankle: Vector2 = enemy.bones[side + "_foot"].global_position
+			assert_gt(
+				(knee.x - (hip.x + ankle.x) * 0.5) * direction,
+				0.0,
+				"Knees bend forward in either facing"
+			)
 
 
 func test_mirrored_ragdoll_keeps_skeleton_attached_and_hits_ground() -> void:

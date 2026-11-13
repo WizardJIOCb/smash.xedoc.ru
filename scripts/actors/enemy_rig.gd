@@ -189,9 +189,10 @@ func _pose_ground_leg(side: String, cycle: float, walk: float) -> void:
 	var distance := clampf(target.length(), 2.01, 69.98)
 	var thigh := (
 		atan2(-target.x, target.y)
-		- acos(clampf((distance * distance + 36 * 36 - 34 * 34) / (72 * distance), -1, 1))
+		+ acos(clampf((distance * distance + 36 * 36 - 34 * 34) / (72 * distance), -1, 1))
 	)
-	var knee := PI - acos(clampf((36 * 36 + 34 * 34 - distance * distance) / (2 * 36 * 34), -1, 1))
+	# Enemy paintings face left: knees bend toward the muzzle, opposite the Moose.
+	var knee := -PI + acos(clampf((36 * 36 + 34 * 34 - distance * distance) / (2 * 36 * 34), -1, 1))
 	var angles := Vector2(thigh, knee)
 	bones[side + "_leg"].rotation = angles.x
 	bones[side + "_shin"].rotation = angles.y
