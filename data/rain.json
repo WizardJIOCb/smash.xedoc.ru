@@ -1,0 +1,15 @@
+{
+  "count": 80,
+  "fall_min": 310.0,
+  "fall_max": 415.0,
+  "drift": -34.0,
+  "streak": 14.0,
+  "ground_depth_min": -28.0,
+  "ground_depth_max": -5.0,
+  "ledge_depth_min": -12.0,
+  "ledge_depth_max": -7.0,
+  "splash_life": 0.42,
+  "splash_gravity": 450.0,
+  "splash_speed": 56.0,
+  "ripple_width": 22.0
+}

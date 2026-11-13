@@ -285,6 +285,7 @@ func _build_physics_surfaces(base_floor: float) -> void:
 		blood.surfaces.append(Rect2(ledge.position + Vector2(0, 10), ledge.size))
 	# Sort high platforms first for swept droplet impacts.
 	blood.surfaces.sort_custom(func(a: Rect2, b: Rect2) -> bool: return a.position.y < b.position.y)
+	rain.configure(blood.surfaces)
 	for surface: Rect2 in blood.surfaces:
 		var body := StaticBody2D.new()
 		body.collision_layer = Ragdoll.TERRAIN_LAYER
@@ -335,6 +336,8 @@ func _physics_process(delta: float) -> void:
 		touch_controls.set_context("menu" if front.is_open() else run_state)
 		controls_hint.visible = not touch_controls.enabled
 	var simulation_paused := run_state in ["menu", "paused", "won"]
+	rain.paused = simulation_paused
+	rain.visible = not front.is_open()
 	blood.paused = simulation_paused
 	if is_instance_valid(player_corpse):
 		player_corpse.paused = simulation_paused
@@ -794,7 +797,7 @@ func _sync_metrics() -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 25,
+			"revision": 26,
 			"room": room_index + 1,
 			"health": health,
 			"run_state": run_state,
@@ -831,6 +834,7 @@ func _sync_metrics() -> void:
 	Metrics.rig["player_ragdoll"] = moose.ragdoll_active
 	Metrics.rig["corpses"] = enemies.filter(func(enemy: Enemy) -> bool: return enemy.dead).size()
 	Metrics.rig["blood_drops"] = blood.drops.size() if is_instance_valid(blood) else 0
+	Metrics.rig["rain_impacts"] = rain.impacts
 	Metrics.rig["blood_stains"] = blood.stains.size() if is_instance_valid(blood) else 0
 	Metrics.rig["blood_landed"] = blood.landed if is_instance_valid(blood) else 0
 	Metrics.rig.merge(

@@ -35,6 +35,8 @@ static func _make_texture(kind: String) -> Texture2D:
 			var brightness := 1.0
 			if kind == "mist":
 				alpha = pow(maxf(0, 1.0 - q.length()), 2.0)
+			elif kind == "rain_ring":
+				alpha = 1.0 - smoothstep(0.04, 0.15, absf(q.length() - 0.77))
 			elif kind == "drop":
 				var head := 0.48 - q.distance_to(Vector2(0.25, 0))
 				var tail := minf(minf(q.x + 0.95, 0.25 - q.x), (q.x + 0.95) * 0.35 - absf(q.y))

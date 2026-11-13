@@ -48,3 +48,8 @@ V4 replaces the pelvis/thigh/shin picture stack with continuous pant-leg skins. 
 ## V6 — continuous near sleeve
 - Original image_gen source `art/characters/los/sleeve-v6.png`, exact prompt `sleeve-v6-prompt.md`; export `tools/prepare_rig_v6.py`, final stage of canonical slicing.
 - One 175-vertex native Polygon2D weighted to near arm and forearm replaces separate sleeve sprites; both stripes remain connected through elbow and straight extension. Far unstriped sleeves retained.
+
+## Title/menu v26
+Original generated paved courtyard: art/branding/menu-ground-v1.png and exact prompt
+menu-ground-v1-prompt.md, built-in image_gen, no external pack or attribution assigned.
+Loading portrait rendered from the existing rig; canonical conversion tools/prepare_branding.py.

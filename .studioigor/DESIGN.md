@@ -92,3 +92,8 @@ acceptance criteria · "feel" (targets) · research: research/mech-M01.md -->
 | 2026-11-14 | Общая опора ботинок; физические смерти с местом/направлением удара, инерцией и падением; кровь со следами; блок I | Прямой запрос: ragdoll игрока/врагов и защита с уменьшением урона |
 | 2026-11-14 | L блок/O импульс; жёсткий корпус ragdoll и сон после падения; земля третьей комнаты +16px; кровь с глубиной; FPS/настройки; мобильный стик и иконки | Прямые замечания по падениям, FPS, слою земли и сенсорному управлению |
 | 2026-11-14 | Кровь переведена с отдельных кругов на три MultiMesh-пакета; стопа поднимает носок при разгибании пинка обеими ногами | FPS падает при крови; носок в высоком ударе слишком прямой |
+
+## Weather and title v26
+Dedicated wet title courtyard, live foot shadows; branded Web splash and real byte progress.
+Rain terminates on highest intersected road/ledge with shallow random depth,4tiny droplets
+and spreading rings in2batches. Landing spray stores the current floor_y+8 instead of565.

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#131209">
+  <title>Лось: район закрыт</title>
+  $GODOT_HEAD_INCLUDE
+  <style>__SMASH_LOADING_CSS__</style>
+</head>
+<body>
+  <canvas id="canvas" tabindex="0" aria-label="Лось: район закрыт">Для игры нужен браузер с поддержкой WebGL 2.</canvas>
+  <main id="loading-screen" aria-label="Загрузка игры">
+    <div class="world" aria-hidden="true"></div>
+    <div class="veil" aria-hidden="true"></div>
+    <div class="hero" aria-hidden="true"><div class="shadow"></div><img src="loading-moose.webp" alt=""></div>
+    <div class="brand">ЛОСЬ В ПРОДЕ / ИГРОВОЙ РАЙОН</div>
+    <section class="loading-copy">
+      <h1>ЛОСЬ<span>РАЙОН ЗАКРЫТ</span></h1>
+      <p class="tagline">Рога на месте.<br>Двор ждёт своего героя.</p>
+      <div class="loading-details"><span id="loading-phase" role="status">Открываем проход во двор…</span><span id="loading-percent">0%</span></div>
+      <div id="loading-progress" role="progressbar" aria-label="Загрузка игры" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="loading-fill"></div></div>
+      <p id="loading-hint">Первая загрузка чуть дольше. Двор сохранится на устройстве.</p>
+      <button id="retry" hidden>Попробовать ещё раз</button>
+    </section>
+    <div class="footer">SMASH.XEDOC.RU <span>ПЕРВЫЙ МАРШРУТ</span></div>
+    <noscript>Включи JavaScript в браузере, чтобы войти во двор.</noscript>
+  </main>
+  <script>__SMASH_LOADING_UI__</script>
+  <script src="$GODOT_URL"></script>
+  <script>
+    (async () => {
+      await window.smashCacheReady;
+      await window.smashLoadEngine();
+      if (!Engine.isWebGLAvailable(2)) throw new Error('Для игры нужен WebGL 2. Попробуй обновить браузер или включить аппаратное ускорение.');
+      const engine = new Engine($GODOT_CONFIG);
+      await engine.startGame({canvas: document.getElementById('canvas')});
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      window.smashLoading.ready();
+      window.smashPruneCache();
+    })().catch(error => { console.error(error); window.smashLoading.error(error); });
+  </script>
+</body>
+</html>

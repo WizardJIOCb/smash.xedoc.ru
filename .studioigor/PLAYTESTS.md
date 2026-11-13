@@ -93,3 +93,11 @@ One session — one section. The user's feedback — verbatim. The first questio
 -27GUT/358assertions; blood28frame gallery/zeroerrors; six-kick visual review includes both
   high-kick legs. Public activation and full route recorded after export below.
 - User art/feel gate stays open.
+
+## PT-09 — 2026-11-14 — grounded menu, loading and rain v26
+- Original generated courtyard with broad paving and live foot contact shadows. Source/prompt retained.
+- Branded loader uses actual rig portrait; real byte0-90%, engine startup100%. Local repeat hit3/download0,
+  cache=clear download3. Desktop/portrait inspected; physical phone untested. Default Godot splash disabled.
+- Rain2pooled batches: uppermost road/ledge, random depth, ballistic droplets and fading rings.
+- Landing spray floor_y+8:48nativeframes/0errors, room3 and upper ledge415/spray423.
+- Full route70frames/0errors,5kills/3relays;27GUT/358assertions pass. User taste gates remain open.

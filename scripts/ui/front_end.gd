@@ -13,6 +13,8 @@ const FONT = preload("res://assets/fonts/Manrope-Semibold.tres")
 var root: Control
 var content: Control
 var portrait: Node2D
+var contact_shadow: Node2D
+var menu_hero: Node2D
 var ambience: Control
 var home_title: Label
 var page: String = "home"
@@ -36,9 +38,9 @@ func _ready() -> void:
 	root.theme.default_font_size = 20
 	add_child(root)
 	var background := TextureRect.new()
-	background.texture = load("res://assets/environment/courtyard-alive-clean.png")
+	background.texture = load("res://assets/environment/menu-ground-v1.webp")
 	background.size = Vector2(1280, 720)
-	background.modulate = Color(0.66, 0.76, 0.74)
+	background.modulate = Color(0.86, 0.91, 0.89)
 	background.z_index = -50
 	root.add_child(background)
 	var shade := ColorRect.new()
@@ -46,12 +48,15 @@ func _ready() -> void:
 	shade.size = Vector2(640, 720)
 	shade.z_index = -49
 	root.add_child(shade)
+	contact_shadow = Node2D.new()
+	contact_shadow.draw.connect(_draw_contact_shadow)
+	root.add_child(contact_shadow)
 	portrait = Node2D.new()
 	portrait.position = Vector2(940, 657)
 	portrait.scale = Vector2.ONE * 2.25
 	root.add_child(portrait)
-	var hero := Moose.new()
-	portrait.add_child(hero)
+	menu_hero = Moose.new()
+	portrait.add_child(menu_hero)
 	ambience = Control.new()
 	ambience.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ambience.draw.connect(_draw_ambience)
@@ -90,6 +95,7 @@ func _page(id: String) -> void:
 		child.queue_free()
 	root.show()
 	portrait.visible = id == "home" or id == "finish"
+	contact_shadow.visible = portrait.visible
 	root.modulate.a = 0
 	(
 		create_tween()
@@ -307,7 +313,18 @@ func _process(delta: float) -> void:
 	clock += delta
 	if is_open():
 		ambience.queue_redraw()
-		portrait.position.y = 657 + sin(clock * 0.6) * 2
+		contact_shadow.queue_redraw()
+
+
+func _draw_contact_shadow() -> void:
+	for side: String in ["far", "near"]:
+		var foot: Bone2D = menu_hero.bones[side + "_foot"]
+		var at := foot.global_position + Vector2(12, 35)
+		for ring in range(3):
+			var extent := Vector2(53 - ring * 10, 8 - ring * 2)
+			contact_shadow.draw_set_transform(at, 0, extent)
+			contact_shadow.draw_circle(Vector2.ZERO, 1, Color(0.015, 0.025, 0.025, 0.14))
+	contact_shadow.draw_set_transform(Vector2.ZERO)
 
 
 func _draw_ambience() -> void:

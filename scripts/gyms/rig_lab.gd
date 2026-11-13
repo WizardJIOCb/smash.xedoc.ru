@@ -3,8 +3,10 @@ extends Node2D
 
 const Moose = preload("res://scripts/actors/moose_rig.gd")
 const StrideStop = preload("res://scripts/core/stride_stop.gd")
+const Rain = preload("res://scripts/world/rain_fx.gd")
 
 var moose: Moose
+var rain: Rain
 var dark: TextureRect
 var status: Label
 var speed: float = 0.0
@@ -32,6 +34,7 @@ var _jump_buffer: float = 0.0
 var _preparation_time: float = -1.0
 var _dust_time: float = 1.0
 var _dust_x: float = 0.0
+var _dust_y: float = 0.0
 var _trail: Array[Vector2] = []
 var _trail_serial: int = -1
 var _stride_stop := StrideStop.new()
@@ -46,6 +49,8 @@ func _ready() -> void:
 	_background("res://assets/environment/courtyard-alive-clean.png")
 	dark = _background("res://assets/environment/courtyard-quarantine-clean.png")
 	dark.modulate.a = 0
+	rain = Rain.new()
+	add_child(rain)
 	moose = Moose.new()
 	moose.position = Vector2(420, 555)
 	add_child(moose)
@@ -199,6 +204,7 @@ func _physics_process(delta: float) -> void:
 			moose.land(vertical_speed)
 			_dust_time = 0
 			_dust_x = moose.position.x
+			_dust_y = floor_y + 8
 			lift = 0
 			vertical_speed = 0
 			landings += 1
@@ -278,20 +284,12 @@ func _draw() -> void:
 		for index in range(12):
 			var progress := _dust_time / 0.32
 			var spread := (index - 5.5) * (4.0 + progress * 6.0)
-			var drop := Vector2(_dust_x + spread, 565 - sin(progress * PI) * (5 + index % 3 * 3))
+			var drop := Vector2(
+				_dust_x + spread, _dust_y - sin(progress * PI) * (5 + index % 3 * 3)
+			)
 			draw_circle(
 				drop, (1.0 - progress) * 2.0, Color(0.72, 0.85, 0.78, (1.0 - progress) * 0.5)
 			)
-	for index in range(80):
-		var x := fmod(index * 173.7 - clock * 34, 1340.0) - 30
-		var y := fmod(index * 97.3 + clock * (310 + index % 4 * 35), 730.0)
-		draw_line(
-			Vector2(x, y),
-			Vector2(x - 3, y + 13),
-			Color(0.64, 0.85, 0.9, 0.08 + blend * 0.12),
-			1,
-			true
-		)
 	for index in range(18):
 		var x := fmod(index * 211.3 + clock * 8, 1280.0)
 		var y := 200 + fmod(index * 63.8 + sin(clock + index) * 18, 350.0)
