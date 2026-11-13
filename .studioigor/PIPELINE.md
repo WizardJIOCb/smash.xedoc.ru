@@ -31,7 +31,7 @@ files: ART_BIBLE.md
 
 ## Phase 3 — Platform and engine
 files: TECH.md
-- [ ] stack research done — check: test -s .studioigor/research/stack.md
+- [x] stack research done — check: python -c "import pathlib,sys; p=pathlib.Path('.studioigor/research/stack.md'); sys.exit(0 if p.is_file() and p.stat().st_size else 1)"
 - [x] user chose the platforms — check: user
 - [ ] user chose the engine; alternatives and reasons in TECH.md — check: user
 

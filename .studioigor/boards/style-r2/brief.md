@@ -1,6 +1,6 @@
 # Visual brief — 2026-11-13
 
-Status: proposed blend from R1 reactions; final style gate remains open.
+Status: locked 2026-11-13. User accepted the three original v1 concepts: «Берём героя и мир (рекомендую)». Rigging and runtime visual verification remain ahead.
 
 - Evidence: 13 likes, 6 dislikes, no selected direction and no comments. All six forest-server images liked; F.I.S.T. 3/3 and courtyard liked; Rayman 2/2 liked. Both Mark of the Ninja images, constructivist poster, two saturated Guacamelee compositions disliked.
 - Inference: painterly depth, soft atmospheric light, tactile materials and expressive rounded characters appeal more than flat graphic silhouettes or a poster aesthetic. This is a hypothesis to show in actual original concepts.
