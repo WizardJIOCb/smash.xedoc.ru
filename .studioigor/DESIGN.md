@@ -97,3 +97,9 @@ acceptance criteria · "feel" (targets) · research: research/mech-M01.md -->
 Dedicated wet title courtyard, live foot shadows; branded Web splash and real byte progress.
 Rain terminates on highest intersected road/ledge with shallow random depth,4tiny droplets
 and spreading rings in2batches. Landing spray stores the current floor_y+8 instead of565.
+
+## Corpse reactions v27
+Ragdoll legs preserve a natural captured bend; independently hinged hips and articulated arms.
+Decorative antler tips no longer hold up the body. Settled bodies wake on melee/impulse hits,
+receive small capped knockback, then return to idle. No extra kills/charge from corpses.
+Knockback preserves facing; damage grace/blinking removed; R detaches corpse before bone reset.

@@ -92,6 +92,15 @@ func receive_hit(
 	return true
 
 
+func receive_corpse_hit(serial: int, at: Vector2, direction: Vector2, kind_hit: String) -> bool:
+	if not dead or not is_instance_valid(corpse) or not _contact.accept(serial):
+		return false
+	if not corpse.react(at, direction, kind_hit):
+		return false
+	wounded.emit(at, direction, false, kind == "drone")
+	return true
+
+
 func _physics_process(delta: float) -> void:
 	if is_instance_valid(corpse):
 		corpse.paused = paused

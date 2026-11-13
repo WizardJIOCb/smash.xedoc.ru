@@ -4,6 +4,30 @@ const Moose = preload("res://scripts/actors/moose_rig.gd")
 const EnemyRig = preload("res://scripts/actors/enemy_rig.gd")
 const Ragdoll = preload("res://scripts/actors/skeletal_ragdoll.gd")
 const Blood = preload("res://scripts/world/blood_fx.gd")
+const Enemy = preload("res://scripts/actors/district_enemy.gd")
+
+
+func test_corpse_hits_deduplicate_without_repeating_kill_or_damage() -> void:
+	var enemy := Enemy.new()
+	enemy.kind = "whip"
+	enemy.tuning = (
+		JSON.parse_string(FileAccess.get_file_as_string("res://data/encounters.json")).whip
+	)
+	add_child_autofree(enemy)
+	await get_tree().process_frame
+	watch_signals(enemy)
+	assert_true(enemy.receive_hit(1, "kick", 500, Vector2(-100, 0)))
+	var at: Vector2 = enemy.corpse.bodies.hips.position
+	assert_false(
+		enemy.receive_corpse_hit(1, at, Vector2.RIGHT, "kick"), "Fatal swing cannot hit twice"
+	)
+	assert_true(enemy.receive_corpse_hit(2, at, Vector2.RIGHT, "punch"))
+	assert_false(enemy.receive_corpse_hit(2, at, Vector2.RIGHT, "punch"))
+	assert_true(enemy.receive_corpse_hit(3, at, Vector2.LEFT, "kick"))
+	assert_signal_emit_count(enemy, "defeated", 1)
+	assert_eq(enemy.hits_received, 1)
+	assert_eq(enemy.health, 0)
+	assert_eq(enemy.corpse.hits, 2)
 
 
 func test_enemy_planted_soles_match_moose_in_both_directions() -> void:
@@ -52,8 +76,8 @@ func test_mirrored_ragdoll_keeps_skeleton_attached_and_hits_ground() -> void:
 	rig.add_child(corpse)
 	corpse.start(rig, rig.position + Vector2(0, -130), Vector2(-180, -80), Vector2(50, 250))
 	assert_eq(corpse.bodies.size(), 15)
-	assert_eq(corpse.physical_bodies.size(), 13)
-	assert_eq(corpse.joints.size(), 12)
+	assert_eq(corpse.physical_bodies.size(), 9)
+	assert_eq(corpse.joints.size(), 8)
 	for frame in range(150):
 		await get_tree().physics_frame
 	assert_gt(corpse.bodies.hips.position.y, 480.0, "Inherited fall reaches the ground")
@@ -61,6 +85,11 @@ func test_mirrored_ragdoll_keeps_skeleton_attached_and_hits_ground() -> void:
 	assert_lt(corpse.joint_error(), 5.0, "Limbs stay attached after impact")
 	for body: RigidBody2D in corpse.bodies.values():
 		assert_true(body.position.is_finite())
+	for side: String in ["far", "near"]:
+		assert_between(rig.bones[side + "_shin"].rotation, 0.11, 1.11, "Knee cannot fold backwards")
+		assert_between(
+			rig.bones[side + "_foot"].rotation, -0.31, 0.41, "Ankle keeps a natural bend"
+		)
 
 
 func test_blood_lands_on_upper_surface_and_fades_with_bounded_particles() -> void:
@@ -170,3 +199,18 @@ func test_enemy_ragdolls_settle_without_stretched_joints_after_head_hit_and_trip
 		assert_true(corpse.settled, "A resting corpse stops simulating before its visual fade")
 		for body: RigidBody2D in corpse.physical_bodies:
 			assert_true(body.freeze, "Settled limbs consume no active solver work")
+		var count := corpse.physical_bodies.size()
+		var at: Vector2 = corpse.bodies.hips.position
+		assert_ne(corpse.contact(Rect2(at - Vector2(20, 20), Vector2(40, 40)), at), Vector2.INF)
+		assert_true(corpse.react(at, Vector2.RIGHT, "kick"))
+		assert_false(corpse.settled, "A hit wakes a resting corpse")
+		assert_lt(corpse.bodies.hips.linear_velocity.y, -100.0, "Kick tosses the body up")
+		assert_true(corpse.react(at, Vector2.LEFT, "punch"), "An airborne body can be hit again")
+		assert_eq(corpse.physical_bodies.size(), count, "Wake reuses the physical skeleton")
+	for frame in range(240):
+		await get_tree().physics_frame
+	for corpse: Ragdoll in corpses:
+		assert_true(corpse.settled, "A tossed body returns to idle physics")
+		assert_lt(corpse.joint_error(), 3.0, "Reattached joints survive a second landing")
+		corpse.age = corpse.lifetime
+		assert_false(corpse.react(corpse.bodies.hips.position, Vector2.RIGHT, "kick"))

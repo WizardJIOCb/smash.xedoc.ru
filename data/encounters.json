@@ -1,6 +1,5 @@
 {
   "player_health": 100,
-  "invulnerability": 0.85,
   "punch_damage": 19,
   "kick_damage": [29, 26, 41],
   "shield": {"name": "ДОМОФОНЩИК", "health": 104, "speed": 42, "reach": 105, "windup": 0.85, "active": 0.23, "recovery": 1.1, "damage": 18},

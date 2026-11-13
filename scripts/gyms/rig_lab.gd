@@ -180,7 +180,13 @@ func _physics_process(delta: float) -> void:
 	moose.horizontal_speed = speed
 	moose.horizontal_acceleration = (speed - previous_speed) / delta
 	moose.travel = absf(speed) / float(motion.run_speed)
-	if absf(speed) > 20 and moose.combat.chain_length == 0 and not moose.blocking:
+	if (
+		direction != 0
+		and signf(speed) == signf(direction)
+		and absf(speed) > 20
+		and moose.combat.chain_length == 0
+		and not moose.blocking
+	):
 		moose.facing = signf(speed)
 	_jump_buffer = maxf(0, _jump_buffer - delta)
 	if Input.is_action_just_pressed("jump"):

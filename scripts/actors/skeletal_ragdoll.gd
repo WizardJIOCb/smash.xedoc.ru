@@ -15,6 +15,8 @@ var physical_bodies: Array[RigidBody2D] = []
 var skin_bindings: Array[Dictionary] = []
 var constraints: Array[Dictionary] = []
 var impact_centers: Dictionary = {}
+var hit_shapes: Array[CollisionShape2D] = []
+var hits: int = 0
 var self_layer: int = 0
 var settled: bool = false
 var still_time: float = 0.0
@@ -36,6 +38,7 @@ func start(painted_rig: Node2D, hit: Vector2, impulse: Vector2, velocity: Vector
 	top_level = true
 	global_transform = Transform2D.IDENTITY
 	process_priority = 50
+	_relax_legs()
 	var bones: Dictionary = rig.bones
 	if bones.size() <= 2:
 		_segment("body", Vector2(-35, -17), Vector2(35, 17), 14, 5)
@@ -52,9 +55,8 @@ func start(painted_rig: Node2D, hit: Vector2, impulse: Vector2, velocity: Vector
 			3
 		)
 		if is_moose:
-			# Antlers are part of the head silhouette and must also rest on the ground.
-			_extra_shape("head", Vector2(-44, -65), 17)
-			_extra_shape("head", Vector2(40, -67), 15)
+			# Rounded brow contact; broad decorative tips must not prop up the torso.
+			_extra_shape("head", Vector2(0, -49), float(tuning.antler_root_radius))
 			_extra_shape("head", Vector2(48, -26), 19)
 		for side: String in ["far", "near"]:
 			var thigh := side + ("_thigh" if bones.has(side + "_thigh") else "_leg")
@@ -77,6 +79,9 @@ func start(painted_rig: Node2D, hit: Vector2, impulse: Vector2, velocity: Vector
 			_segment("shield", Vector2(-20, -27), Vector2(-20, 30), 15, 2.5)
 			_segment("baton", Vector2(-39, 0), Vector2(-3, 0), 4, 0.5)
 		_weld_core()
+		for side: String in ["far", "near"]:
+			var thigh := side + ("_thigh" if is_moose else "_leg")
+			_weld_leg(thigh, side + "_shin", side + "_foot")
 		# Insertion order is parent before child, required when copying transforms.
 		for id: String in bodies:
 			var parent: Node = bones[id].get_parent()
@@ -87,6 +92,10 @@ func start(painted_rig: Node2D, hit: Vector2, impulse: Vector2, velocity: Vector
 			):
 				_joint(str(parent.name), id, bones[id].global_position)
 		_setup_self_contacts()
+	for body: RigidBody2D in physical_bodies:
+		for child: Node in body.get_children():
+			if child is CollisionShape2D:
+				hit_shapes.append(child)
 	var nearest_distance := INF
 	for body: RigidBody2D in physical_bodies:
 		body.linear_velocity = (
@@ -124,6 +133,39 @@ func _extra_shape(id: String, at: Vector2, radius: float) -> void:
 	shape.shape = circle
 	shape.position = body.to_local(bone.to_global(at))
 	body.add_child(shape)
+
+
+func _relax_legs() -> void:
+	if not rig.bones.has("near_shin"):
+		return
+	var bend := 1.0 if rig.bones.has("near_thigh") else -1.0
+	for side: String in ["far", "near"]:
+		var knee: Bone2D = rig.bones[side + "_shin"]
+		var ankle: Bone2D = rig.bones[side + "_foot"]
+		knee.rotation = (
+			clampf(knee.rotation * bend, tuning.death_knee_min, tuning.death_knee_max) * bend
+		)
+		ankle.rotation = (
+			clampf(ankle.rotation * bend, tuning.death_ankle_min, tuning.death_ankle_max) * bend
+		)
+
+
+func _weld_leg(thigh: String, shin: String, foot: String) -> void:
+	# A semi-rigid leg keeps its captured anatomical bend through a heavy fall.
+	# Each leg still swings independently at the hip; arms remain articulated.
+	var upper: RigidBody2D = bodies[thigh]
+	for id: String in [shin, foot]:
+		var lower: RigidBody2D = bodies[id]
+		upper.mass += lower.mass
+		for child: Node in lower.get_children():
+			if child is CollisionShape2D:
+				child.reparent(upper, true)
+		physical_bodies.erase(lower)
+		remove_child(lower)
+		lower.free()
+		bodies[id] = upper
+		bindings[id] = upper.global_transform.affine_inverse() * rig.bones[id].global_transform
+	upper.set_meta("inertia_estimate", upper.mass * 450.0)
 
 
 func _limb(id: String, child_id: String, radius: float, mass_value: float) -> void:
@@ -200,6 +242,7 @@ func _joint(parent_id: String, child_id: String, anchor: Vector2) -> void:
 	var ib: float = b.get_meta("inertia_estimate")
 	constraints.append(
 		{
+			"joint": joint,
 			"a": a,
 			"b": b,
 			"capture": captured,
@@ -235,6 +278,7 @@ func _anatomy_profile(id: String) -> Dictionary:
 	var spring := 0.0
 	var stiffness := float(tuning.torsion_stiffness)
 	var damping := float(tuning.torsion_damping)
+	var cap := float(tuning.torsion_cap)
 	if id == "body" or id == "head":
 		var limit := float(tuning.spine_limit if id == "body" else tuning.neck_limit)
 		bounds = Vector2(-limit, limit)
@@ -246,6 +290,9 @@ func _anatomy_profile(id: String) -> Dictionary:
 		if not moose:
 			bounds = Vector2(-bounds.y, -bounds.x)
 		spring = float(tuning.hip_spring)
+		stiffness = float(tuning.hip_stiffness)
+		damping = float(tuning.hip_damping)
+		cap = float(tuning.hip_torsion_cap)
 	elif "shin" in id:
 		bounds = Vector2(-0.04, float(tuning.knee_flexion))
 		if not moose:
@@ -257,7 +304,9 @@ func _anatomy_profile(id: String) -> Dictionary:
 			bounds = Vector2(0.04 - rest, 2.3 - rest)
 	elif "foot" in id or "hand" in id:
 		bounds = Vector2(-0.5, 0.5)
-	return {"bounds": bounds, "spring": spring, "stiffness": stiffness, "damping": damping}
+	return {
+		"bounds": bounds, "spring": spring, "stiffness": stiffness, "damping": damping, "cap": cap
+	}
 
 
 func _setup_self_contacts() -> void:
@@ -287,6 +336,69 @@ func _exit_tree() -> void:
 	leased_layers &= ~self_layer
 
 
+func contact(area: Rect2, tip: Vector2) -> Vector2:
+	if age >= lifetime or not rig.visible:
+		return Vector2.INF
+	var nearest := Vector2.INF
+	var distance := INF
+	for shape: CollisionShape2D in hit_shapes:
+		var box: Rect2 = shape.global_transform * shape.shape.get_rect()
+		if not area.intersects(box):
+			continue
+		var point := Vector2(
+			clampf(tip.x, box.position.x, box.end.x), clampf(tip.y, box.position.y, box.end.y)
+		)
+		if point.distance_squared_to(tip) < distance:
+			nearest = point
+			distance = point.distance_squared_to(tip)
+	return nearest
+
+
+func react(at: Vector2, direction: Vector2, kind: String) -> bool:
+	if paused or age >= lifetime or not rig.visible:
+		return false
+	if settled:
+		for constraint: Dictionary in constraints:
+			var joint: PinJoint2D = constraint.joint
+			var a: RigidBody2D = constraint.a
+			var b: RigidBody2D = constraint.b
+			var anchor := (
+				(a.to_global(joint.get_meta("a")) + b.to_global(joint.get_meta("b"))) * 0.5
+			)
+			joint.position = anchor
+			joint.node_a = joint.get_path_to(a)
+			joint.node_b = joint.get_path_to(b)
+			joint.set_meta("a", a.to_local(anchor))
+			joint.set_meta("b", b.to_local(anchor))
+	settled = false
+	still_time = 0
+	pose_dirty = true
+	lifetime = maxf(lifetime, age + float(tuning.hit_life))
+	hits += 1
+	var power := float(tuning.hit_kick_push if kind != "punch" else tuning.hit_punch_push)
+	var lift := float(tuning.hit_kick_lift if kind != "punch" else tuning.hit_punch_lift)
+	var kick := Vector2(signf(direction.x) * power, -lift)
+	var nearest: RigidBody2D
+	var distance := INF
+	for body: RigidBody2D in physical_bodies:
+		body.freeze = false
+		body.collision_layer = CORPSE_LAYER | self_layer
+		body.collision_mask = TERRAIN_LAYER | self_layer
+		body.linear_velocity = (body.linear_velocity + kick).limit_length(
+			float(tuning.hit_speed_cap)
+		)
+		if body.global_position.distance_squared_to(at) < distance:
+			nearest = body
+			distance = body.global_position.distance_squared_to(at)
+	if is_instance_valid(nearest):
+		nearest.apply_impulse(
+			kick * nearest.mass * 0.12, (at - nearest.global_position).limit_length(10)
+		)
+	set_physics_process(true)
+	set_process(true)
+	return true
+
+
 func _physics_process(delta: float) -> void:
 	for body: RigidBody2D in physical_bodies:
 		var should_freeze := paused or settled or age > lifetime
@@ -307,8 +419,8 @@ func _physics_process(delta: float) -> void:
 		var core: RigidBody2D = bodies.body
 		quiet = (
 			quiet
-			and core.linear_velocity.length_squared() < 144
-			and absf(core.angular_velocity) < 0.25
+			and core.linear_velocity.length_squared() < pow(float(tuning.settle_core_speed), 2)
+			and absf(core.angular_velocity) < float(tuning.settle_core_spin)
 		)
 		still_time = still_time + delta if quiet else 0.0
 		if still_time >= 0.45:
@@ -319,6 +431,8 @@ func _physics_process(delta: float) -> void:
 				joint.node_a = NodePath("")
 				joint.node_b = NodePath("")
 			for body: RigidBody2D in physical_bodies:
+				body.linear_velocity = Vector2.ZERO
+				body.angular_velocity = 0
 				body.freeze = true
 				body.collision_layer = 0
 				body.collision_mask = 0
@@ -354,8 +468,8 @@ func _constrain_angles() -> void:
 					(-excess * float(profile.stiffness) - angle * float(profile.spring)) * mirror
 					- (b.angular_velocity - a.angular_velocity) * float(profile.damping)
 				),
-				-float(tuning.torsion_cap),
-				float(tuning.torsion_cap)
+				-float(profile.cap),
+				float(profile.cap)
 			)
 			* effective
 		)
@@ -364,7 +478,7 @@ func _constrain_angles() -> void:
 
 
 func _process(_delta: float) -> void:
-	if not is_instance_valid(rig):
+	if not is_instance_valid(rig) or not rig.ragdoll_active:
 		return
 	if not settled or pose_dirty:
 		for binding: Dictionary in skin_bindings:

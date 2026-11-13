@@ -21,7 +21,6 @@ var room_index: int = 0
 var cleared: Array[bool] = [false, false, false]
 var enemies: Array[Enemy] = []
 var health: int = 100
-var invincible: float = 0.0
 var kills: int = 0
 var deaths: int = 0
 var hits_landed: int = 0
@@ -51,6 +50,7 @@ var blood: BloodEffects
 var terrain: Node2D
 var player_corpse: Ragdoll
 var blocked_hits: int = 0
+var corpse_hits: int = 0
 var fps_counter: FpsCounter
 var touch_controls: TouchControls
 var controls_hint: Label
@@ -186,6 +186,9 @@ func _label(parent: Node, at: Vector2, size: int, caption: String) -> Label:
 
 func _load_room(index: int, spawn_x: float) -> void:
 	if is_instance_valid(player_corpse):
+		player_corpse.set_process(false)
+		player_corpse.set_physics_process(false)
+		moose.remove_child(player_corpse)
 		player_corpse.queue_free()
 		player_corpse = null
 	moose.ragdoll_active = false
@@ -353,7 +356,6 @@ func _physics_process(delta: float) -> void:
 	move_power = float(night.tuning.move_multiplier) if night.active() else 1.0
 	combat_rate = float(night.tuning.attack_rate) if night.active() else 1.0
 	moose.power_pose = night.pose()
-	invincible = maxf(0, invincible - delta)
 	_transition = maxf(0, _transition - delta)
 	# One-way service ledges: choose the first top beneath the feet, then let the
 	# proven jump controller integrate and land relative to that surface.
@@ -421,6 +423,16 @@ func _release_impulse() -> void:
 	_feedback(at + Vector2(0, -80), "РОГАТЫЙ ИМПУЛЬС", Color("ff796e"), "down")
 	_shake = 9
 	for enemy: Enemy in enemies:
+		if enemy.dead and is_instance_valid(enemy.corpse):
+			var corpse_at := enemy.corpse.contact(
+				Rect2(at - Vector2.ONE * radius, Vector2.ONE * radius * 2), at
+			)
+			if corpse_at != Vector2.INF and at.distance_to(corpse_at) <= radius:
+				if enemy.receive_corpse_hit(
+					-1000 - night.bursts, corpse_at, at.direction_to(corpse_at), "super"
+				):
+					corpse_hits += 1
+			continue
 		var box := enemy.hurtbox()
 		var nearest := Vector2(
 			clampf(at.x, box.position.x, box.end.x), clampf(at.y, box.position.y, box.end.y)
@@ -461,6 +473,18 @@ func _resolve_attacks() -> void:
 	if night.active():
 		amount = roundi(amount * float(night.tuning.damage_multiplier))
 	for enemy: Enemy in enemies:
+		if enemy.dead and is_instance_valid(enemy.corpse):
+			var corpse_at := enemy.corpse.contact(area, tip)
+			if corpse_at != Vector2.INF:
+				var axis := (
+					(Vector2(moose.facing, -0.3) + (tip - _previous_tip).normalized() * 0.7)
+					. normalized()
+				)
+				if enemy.receive_corpse_hit(attack.serial, corpse_at, axis, attack.kind):
+					corpse_hits += 1
+					_shake = 2 if attack.kind == "kick" else 1
+					audio.play("hit")
+			continue
 		if not enemy.dead and area.intersects(enemy.hurtbox()):
 			var before := enemy.health
 			var box := enemy.hurtbox()
@@ -488,7 +512,7 @@ func _resolve_attacks() -> void:
 func _hurt_player(
 	amount: int, source: Vector2, high: bool = false, contact: Vector2 = Vector2.INF
 ) -> void:
-	if invincible > 0 or run_state != "playing":
+	if run_state != "playing":
 		return
 	if night.active():
 		amount = maxi(1, roundi(amount * float(night.tuning.incoming_multiplier)))
@@ -498,7 +522,6 @@ func _hurt_player(
 		blocked_hits += 1
 	health = maxi(0, health - amount)
 	player_hits += 1
-	invincible = float(encounter.invulnerability)
 	var inherited_velocity := Vector2(speed, vertical_speed)
 	speed = signf(moose.position.x - source.x) * (float(guard_tuning.knockback) if guarded else 190)
 	moose.combat.interrupt()
@@ -606,7 +629,6 @@ func _restart() -> void:
 		_start_new_run()
 		return
 	health = int(encounter.player_health)
-	invincible = 1.5
 	night.reset()
 	run_state = "playing"
 	_load_room(room_index, 170)
@@ -615,6 +637,7 @@ func _restart() -> void:
 
 func _start_new_run() -> void:
 	blocked_hits = 0
+	corpse_hits = 0
 	world_night = false
 	time_switches = 0
 	night.reset()
@@ -707,7 +730,6 @@ func _process(delta: float) -> void:
 	_notice_left = maxf(0, _notice_left - delta)
 	_shake = move_toward(_shake, 0, delta * 30)
 	camera.offset = Vector2(sin(clock * 123), cos(clock * 97)) * _shake
-	moose.modulate.a = 0.5 if invincible > 0 and health > 0 and fmod(clock, 0.12) < 0.06 else 1.0
 	effects.seal = move_toward(effects.seal, 0.0 if cleared[room_index] else 1.0, delta * 1.8)
 	health_bar.size.x = health * 2.2
 	health_label.text = "ЛОСЬ  /  " + str(health) + " HP"
@@ -797,7 +819,7 @@ func _sync_metrics() -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 26,
+			"revision": 27,
 			"room": room_index + 1,
 			"health": health,
 			"run_state": run_state,
@@ -834,6 +856,7 @@ func _sync_metrics() -> void:
 	Metrics.rig["player_ragdoll"] = moose.ragdoll_active
 	Metrics.rig["corpses"] = enemies.filter(func(enemy: Enemy) -> bool: return enemy.dead).size()
 	Metrics.rig["blood_drops"] = blood.drops.size() if is_instance_valid(blood) else 0
+	Metrics.rig["corpse_hits"] = corpse_hits
 	Metrics.rig["rain_impacts"] = rain.impacts
 	Metrics.rig["blood_stains"] = blood.stains.size() if is_instance_valid(blood) else 0
 	Metrics.rig["blood_landed"] = blood.landed if is_instance_valid(blood) else 0

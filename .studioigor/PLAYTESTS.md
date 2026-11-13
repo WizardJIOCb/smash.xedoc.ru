@@ -104,3 +104,14 @@ One session — one section. The user's feedback — verbatim. The first questio
 - Public v26: new menu and branded loading seen; cache update hit2/download1, clear link hit0/download3
   reaches100/ready. Real-key battle1kill/172marks/100HP, later180FPS/88calls (includes corpse,
   not isolated benchmark). Console errors0; external records unchanged during activation.
+
+## PT-10 — 2026-11-14 — ragdoll anatomy, wake and restart v27
+- User requests: less folding/backwards knees and feet; antlers no longer prop Moose up.
+  Keep facing after boar knockback; remove blink/grace; fix lying R revival; hit dead bodies.
+-29GUT/390assertions: successive same-frame damage, facing, deferred corpse/R reset,
+  mirrored natural knee/ankle bend, corpse hit dedup/no repeat kill, wake/air hit/resettle.
+- Native mirrored road/air anatomy32frames reviewed; defense42frames/0errors,3blocks85HP,
+  death and R restore upright hips/100HP. Full route35frames/0errors,5kills3relays/completed.
+- Corpse input review36frames: normal inputs kill boar, wait for rest, crouch-kick actual
+  moving physical shape; source metrics and screenshot reviewed before packaging.
+- Semi-rigid legs trade independent knee motion for reliable anatomy; user taste gate open.
