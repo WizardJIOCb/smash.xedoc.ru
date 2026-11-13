@@ -8,6 +8,8 @@ const Contact = preload("res://scripts/core/combat_contact.gd")
 const RELAY_TEXTURE = preload("res://assets/enemies/shield/weapon.png")
 const FrontEnd = preload("res://scripts/ui/front_end.gd")
 const Scores = preload("res://scripts/core/run_scores.gd")
+const NightPower = preload("res://scripts/core/night_power.gd")
+const NightEffects = preload("res://scripts/world/night_fx.gd")
 
 var rooms: Array
 var encounter: Dictionary
@@ -30,9 +32,15 @@ var objective: Label
 var message: Label
 var health_label: Label
 var outcome: Label
-var health_bar: ProgressBar
+var health_bar: ColorRect
 var front: FrontEnd
 var scores: Scores
+var night := NightPower.new()
+var night_fx: NightEffects
+var night_label: Label
+var night_bar: ColorRect
+var night_damage: int = 0
+var burst_hits: int = 0
 var elapsed_run: float = 0.0
 var _finish_shown: bool = false
 var _tip_serial: int = -1
@@ -49,7 +57,11 @@ func _ready() -> void:
 	super._ready()
 	movement_bounds = Vector2(28, 1252)
 	for pair: Array in [
-		["interact", KEY_E], ["restart", KEY_R], ["pause_run", KEY_ESCAPE], ["mute", KEY_M]
+		["interact", KEY_E],
+		["restart", KEY_R],
+		["pause_run", KEY_ESCAPE],
+		["mute", KEY_M],
+		["super_strike", KEY_L]
 	]:
 		if not InputMap.has_action(pair[0]):
 			InputMap.add_action(pair[0])
@@ -66,6 +78,9 @@ func _ready() -> void:
 	add_child(effects)
 	audio = Sound.new()
 	add_child(audio)
+	night_fx = NightEffects.new()
+	night_fx.hero = moose
+	add_child(night_fx)
 	_build_hud()
 	Metrics.completed = false
 	_load_room(0, 170)
@@ -74,12 +89,13 @@ func _ready() -> void:
 	scores.changed.connect(_records_changed)
 	scores.submitted.connect(_record_submitted)
 	front = FrontEnd.new()
+	front.muted = audio.muted
 	add_child(front)
 	front.start_requested.connect(_start_new_run)
 	front.resume_requested.connect(_resume_run)
 	front.records_requested.connect(scores.refresh)
 	front.submit_requested.connect(_submit_record)
-	front.mute_requested.connect(func() -> void: audio.muted = front.muted)
+	front.mute_requested.connect(func() -> void: audio.set_muted(front.muted))
 	run_state = "menu"
 	for enemy: Enemy in enemies:
 		enemy.paused = true
@@ -96,17 +112,10 @@ func _build_hud() -> void:
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(backdrop)
 	health_label = _label(layer, Vector2(30, 17), 20, "ЛОСЬ / РАЙОН ЗАКРЫТ")
-	health_bar = ProgressBar.new()
-	health_bar.position = Vector2(30, 52)
-	health_bar.size = Vector2(220, 8)
-	health_bar.show_percentage = false
-	var track := StyleBoxFlat.new()
-	track.bg_color = Color("263b40")
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color("e2b36e")
-	health_bar.add_theme_stylebox_override("background", track)
-	health_bar.add_theme_stylebox_override("fill", fill)
-	layer.add_child(health_bar)
+	health_bar = _bar(layer, Vector2(30, 52), Vector2(220, 8), Color("e2b36e"))
+	night_label = _label(layer, Vector2(30, 67), 13, "T · БАГРОВАЯ НОЧЬ ГОТОВА")
+	night_label.add_theme_color_override("font_color", Color("ff796e"))
+	night_bar = _bar(layer, Vector2(30, 92), Vector2(220, 5), Color("f04b53"))
 	objective = _label(layer, Vector2(300, 16), 23, "")
 	message = _label(layer, Vector2(300, 53), 17, "")
 	message.size = Vector2(940, 50)
@@ -114,16 +123,31 @@ func _build_hud() -> void:
 	_label(
 		layer,
 		Vector2(30, 668),
-		16,
+		14,
 		(
 			"A/D — ход   Shift — бег   W/↑/Пробел — прыжок   S/↓ — присед"
-			+ "   J/K — бой   E — реле   R — повтор   M — звук"
+			+ "   J/K — бой   E — реле   T — ночь   L — импульс   Esc — меню"
 		)
 	)
 	outcome = _label(layer, Vector2(290, 255), 30, "")
 	outcome.add_theme_color_override("font_shadow_color", Color("132630"))
 	outcome.add_theme_constant_override("shadow_offset_x", 3)
 	outcome.add_theme_constant_override("shadow_offset_y", 3)
+
+
+func _bar(parent: Node, at: Vector2, size: Vector2, color: Color) -> ColorRect:
+	var track := ColorRect.new()
+	track.position = at
+	track.size = size
+	track.color = Color("263b40")
+	track.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(track)
+	var fill := ColorRect.new()
+	fill.size = size
+	fill.color = color
+	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	track.add_child(fill)
+	return fill
 
 
 func _label(parent: Node, at: Vector2, size: int, caption: String) -> Label:
@@ -230,11 +254,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		for enemy: Enemy in enemies:
 			enemy.paused = true
 	elif event.is_action_pressed("mute"):
-		audio.muted = not audio.muted
+		audio.set_muted(not audio.muted)
+		front.muted = audio.muted
 	elif run_state == "playing":
-		super._unhandled_input(event)
+		if night.burst_time < 0:
+			super._unhandled_input(event)
 		if event.is_action_pressed("interact"):
 			_interact()
+		if event.is_action_pressed("super_strike") and night.try_burst():
+			moose.combat.interrupt()
+			Metrics.record("night_impulse_windup")
 
 
 func _physics_process(delta: float) -> void:
@@ -245,6 +274,11 @@ func _physics_process(delta: float) -> void:
 			_sync_metrics()
 		return
 	elapsed_run += delta
+	if night.advance(delta):
+		_release_impulse()
+	move_power = float(night.tuning.move_multiplier) if night.active() else 1.0
+	combat_rate = float(night.tuning.attack_rate) if night.active() else 1.0
+	moose.power_pose = night.pose()
 	invincible = maxf(0, invincible - delta)
 	_transition = maxf(0, _transition - delta)
 	# One-way service ledges: choose the first top beneath the feet, then let the
@@ -282,6 +316,45 @@ func _physics_process(delta: float) -> void:
 		speed = minf(speed, 0)
 
 
+func _world_pressed() -> void:
+	if night.activate():
+		_feedback(moose.position + Vector2(0, -220), "БАГРОВАЯ НОЧЬ", Color("ff685e"), "down")
+		_shake = 5
+		_notice = "Багровая ночь: урон ×1,8 · L — рогатый импульс!"
+		_notice_left = 3
+		Metrics.record("night_activated")
+	else:
+		_notice = (
+			"Ночь уже с тобой."
+			if night.active()
+			else "Заряд ночи: %d%%. Попадай и побеждай." % night.charge
+		)
+		_notice_left = 2
+
+
+func _release_impulse() -> void:
+	var at := moose.position + Vector2(0, -95)
+	var radius := float(night.tuning.burst_radius)
+	night_fx.impulse(at)
+	_feedback(at + Vector2(0, -80), "РОГАТЫЙ ИМПУЛЬС", Color("ff796e"), "down")
+	_shake = 9
+	for enemy: Enemy in enemies:
+		var box := enemy.hurtbox()
+		var nearest := Vector2(
+			clampf(at.x, box.position.x, box.end.x), clampf(at.y, box.position.y, box.end.y)
+		)
+		if not enemy.dead and at.distance_to(nearest) <= radius:
+			if enemy.receive_hit(
+				-1000 - night.bursts, "super", int(night.tuning.burst_damage), moose.position
+			):
+				burst_hits += 1
+				enemy.push *= 1.6
+	effects.projectiles = effects.projectiles.filter(
+		func(item: Dictionary) -> bool: return at.distance_to(item.at) > radius
+	)
+	Metrics.record("night_impulse")
+
+
 func _resolve_attacks() -> void:
 	var attack = moose.combat
 	if not attack.is_active():
@@ -296,17 +369,26 @@ func _resolve_attacks() -> void:
 		24 if attack.kind == "kick" else 19
 	)
 	var amount := Contact.damage(attack.kind, attack.kick_step, attack.in_air, encounter)
+	if night.active():
+		amount = roundi(amount * float(night.tuning.damage_multiplier))
 	for enemy: Enemy in enemies:
 		if not enemy.dead and area.intersects(enemy.hurtbox()):
+			var before := enemy.health
 			if enemy.receive_hit(attack.serial, attack.kind, amount, moose.position):
 				hits_landed += 1
 				_shake = 4 if attack.kind == "kick" else 2
+				if enemy.health < before:
+					night.gain(float(night.tuning.hit_charge))
+					if night.active():
+						night_damage += before - enemy.health
 	_previous_tip = tip
 
 
 func _hurt_player(amount: int, source: Vector2, _high: bool = false) -> void:
 	if invincible > 0 or run_state != "playing":
 		return
+	if night.active():
+		amount = maxi(1, roundi(amount * float(night.tuning.incoming_multiplier)))
 	health = maxi(0, health - amount)
 	player_hits += 1
 	invincible = float(encounter.invulnerability)
@@ -316,6 +398,7 @@ func _hurt_player(amount: int, source: Vector2, _high: bool = false) -> void:
 	_shake = 8
 	Metrics.record("player_hit")
 	if health <= 0:
+		night.cancel()
 		deaths += 1
 		run_state = "lost"
 		for enemy: Enemy in enemies:
@@ -350,6 +433,7 @@ func _move_projectiles(delta: float) -> void:
 
 func _enemy_down() -> void:
 	kills += 1
+	night.gain(float(night.tuning.kill_charge))
 	Metrics.record("enemy_down")
 	if _remaining() == 0:
 		_notice = "Порядок навели. Теперь к реле справа — E."
@@ -379,6 +463,7 @@ func _interact() -> void:
 	_notice_left = 5
 	Metrics.record("relay_disabled_" + str(room_index + 1))
 	if room_index == 2:
+		night.cancel()
 		run_state = "won"
 		Metrics.completed = true
 		Metrics.record("route_completed")
@@ -390,12 +475,16 @@ func _restart() -> void:
 		return
 	health = int(encounter.player_health)
 	invincible = 1.5
+	night.reset()
 	run_state = "playing"
 	_load_room(room_index, 170)
 	Metrics.record("checkpoint_restart")
 
 
 func _start_new_run() -> void:
+	night.reset()
+	night_damage = 0
+	burst_hits = 0
 	cleared = [false, false, false]
 	kills = 0
 	deaths = 0
@@ -458,12 +547,30 @@ func _feedback(at: Vector2, caption: String, color: Color, sound: String) -> voi
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	if is_instance_valid(night_fx):
+		night_fx.update(delta, night.active())
+		moose.power_pose = night.pose()
+		moose.power_scale = lerpf(1.0, float(night.tuning.size_multiplier), night_fx.strength)
+		moose.modulate = moose.modulate.lerp(Color(1.2, 0.68, 0.62), night_fx.strength * 0.35)
+	night_bar.size.x = (
+		220
+		* (night.remaining / float(night.tuning.duration) if night.active() else night.charge / 100)
+	)
+	if night.active():
+		night_label.text = (
+			"НОЧЬ %.1fс · L %s"
+			% [night.remaining, "ГОТОВ" if night.cooldown <= 0 else "%.1fс" % night.cooldown]
+		)
+	else:
+		night_label.text = (
+			"T · НОЧЬ ГОТОВА" if night.charge >= 100 else "НОЧЬ · ЗАРЯД %d%%" % night.charge
+		)
 	_notice_left = maxf(0, _notice_left - delta)
 	_shake = move_toward(_shake, 0, delta * 30)
 	camera.offset = Vector2(sin(clock * 123), cos(clock * 97)) * _shake
 	moose.modulate.a = 0.5 if invincible > 0 and fmod(clock, 0.12) < 0.06 else 1.0
 	effects.seal = move_toward(effects.seal, 0.0 if cleared[room_index] else 1.0, delta * 1.8)
-	health_bar.value = health
+	health_bar.size.x = health * 2.2
 	health_label.text = "ЛОСЬ  /  " + str(health) + " HP"
 	objective.text = (
 		str(rooms[room_index].title) + "    ·    УЗЛЫ " + str(cleared.count(true)) + "/3"
@@ -551,7 +658,7 @@ func _sync_metrics() -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 16,
+			"revision": 17,
 			"room": room_index + 1,
 			"health": health,
 			"run_state": run_state,
@@ -568,6 +675,22 @@ func _sync_metrics() -> void:
 		true
 	)
 	Metrics.rig["seconds"] = elapsed_run
+	Metrics.rig.merge(
+		{
+			"night_active": night.active(),
+			"night_remaining": night.remaining,
+			"night_charge": night.charge,
+			"night_casts": night.casts,
+			"night_bursts": night.bursts,
+			"night_damage": night_damage,
+			"burst_hits": burst_hits,
+			"power_scale": moose.power_scale,
+			"sound_muted": audio.muted if is_instance_valid(audio) else true,
+			"shoe_layers": 2,
+			"hand_digits": 4
+		},
+		true
+	)
 	Metrics.rig["score_online"] = scores.online if is_instance_valid(scores) else false
 	Metrics.rig["score_session_ready"] = (
 		not scores.token.is_empty() if is_instance_valid(scores) else false

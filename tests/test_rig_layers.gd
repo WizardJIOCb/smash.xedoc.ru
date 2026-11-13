@@ -17,8 +17,12 @@ func test_camera_side_limbs_keep_render_priority_in_both_directions() -> void:
 		assert_gt(rig.leg_meshes.near.z_index, rig.leg_meshes.far.z_index)
 		assert_lt(rig.bones.near_thigh.position.x, rig.bones.far_thigh.position.x)
 	assert_ne(hand.texture.resource_path, far_hand.texture.resource_path)
-	var far_shoe: Sprite2D = rig.bones.far_foot.get_node("shoe")
-	assert_gt(rig.leg_meshes.far.z_index, far_shoe.z_index, "Far cuff covers its shoe collar")
+	for side: String in ["near", "far"]:
+		var back: Sprite2D = rig.bones[side + "_foot"].get_node("shoe_back")
+		var front: Sprite2D = rig.bones[side + "_foot"].get_node("shoe_front")
+		assert_lt(back.z_index, rig.leg_meshes[side].z_index, "Rear collar stays behind cuff")
+		assert_gt(front.z_index, rig.leg_meshes[side].z_index, "Tongue covers cuff from front")
+		assert_eq(back.transform, front.transform, "Shoe halves keep a shared ankle pivot")
 
 
 func test_continuous_trousers_resolve_all_skin_bones_with_normalized_weights() -> void:

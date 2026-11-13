@@ -26,7 +26,7 @@ def main():
     cover = ROOT / f'.studioigor/captures/menu-v{version}/frame_002.png'
     if cover.exists():
         shutil.copy2(cover, output / 'cover.png')
-    for name in ('index.js', 'index.wasm'):
+    for name in [path.name for path in output.glob('game-*') if path.suffix in ('.js', '.wasm', '.pck')]:
         data = (output / name).read_bytes()
         (output / (name + '.gz')).write_bytes(gzip.compress(data, mtime=0))
     (output / 'release.json').write_text(json.dumps({'version': version, 'commit': revision, 'release': release}), encoding='utf-8')

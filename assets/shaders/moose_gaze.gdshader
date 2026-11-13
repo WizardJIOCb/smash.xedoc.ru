@@ -22,5 +22,8 @@ void fragment() {
 	vec2 pixel = UV * vec2(468.0, 333.0);
 	head = eye_patch(head, pixel, vec4(265.0, 155.0, 46.0, 25.0), near_eye);
 	head = eye_patch(head, pixel, vec4(317.0, 155.0, 22.0, 16.0), far_eye);
+	// Break the straight atlas crop into tapered fur tips over the neck.
+	float fur_tip = 0.95 + 0.018 * sin(pixel.x * 0.51) + 0.012 * sin(pixel.x * 1.13);
+	head.a *= 1.0 - smoothstep(fur_tip - 0.035, fur_tip, UV.y);
 	COLOR = head * vertex_tint;
 }

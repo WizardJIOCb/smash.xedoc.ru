@@ -11,7 +11,7 @@ const AttackPose = preload("res://scripts/actors/moose_attack_pose.gd")
 
 # Camera-side anatomy stays consistent when the whole rig is mirrored.
 const DEPTH_FAR_LEG = 0
-const DEPTH_NEAR_LEG = 2
+const DEPTH_NEAR_LEG = 3
 const DEPTH_FAR_ARM = 5
 const DEPTH_NECK = 8
 const DEPTH_NEAR_ARM = 20
@@ -49,6 +49,8 @@ var sleeve: Polygon2D
 var gaze_material: ShaderMaterial
 var camera_glance: bool = false
 var glance_count: int = 0
+var power_scale: float = 1.0
+var power_pose := Vector2.ZERO
 
 var _travel_blend: float = 0.0
 var _air_blend: float = 0.0
@@ -96,9 +98,12 @@ func _ready() -> void:
 		_bone(side + "_thigh", bones.hips, Vector2(-8 if near_side else 8, 5), 38)
 		_bone(side + "_shin", bones[side + "_thigh"], Vector2(0, 38), 38)
 		_bone(side + "_foot", bones[side + "_shin"], Vector2(0, 38), 20)
-		# Far cuff lies over its own shoe; the near shoe retains its original overlap.
-		var shoe_depth := depth + 1 if near_side else depth - 1
-		_part("shoe", bones[side + "_foot"], Vector2(48, 27), Vector2(0.3, 0.4), shoe_depth, shade)
+		# Rear collar < trouser cuff < front collar/tongue, for EACH foot.
+		for piece: String in ["shoe_back", "shoe_front"]:
+			var shoe_depth := depth - 1 if piece == "shoe_back" else depth + 1
+			_part(
+				piece, bones[side + "_foot"], Vector2(48, 27), Vector2(0.3, 0.4), shoe_depth, shade
+			)
 		_bone(side + "_arm", bones.body, Vector2(-19 if near_side else 18, -54), 31)
 		_bone(side + "_fore", bones[side + "_arm"], Vector2(0, 31), 30)
 		_bone(side + "_hand", bones[side + "_fore"], Vector2(0, 30), 16)
@@ -213,7 +218,7 @@ func _process(delta: float) -> void:
 	if facing != _previous_facing:
 		_reset_feet()
 		_previous_facing = facing
-	scale.x = facing
+	scale = Vector2(facing, 1) * power_scale
 	var low := crouch_requested or (combat.low and strike >= 0)
 	crouch = lerpf(crouch, float(low and not airborne), 1.0 - exp(-delta * 14))
 	var walk_cycle := float(motion.stride_half) * 2.0 / float(motion.stance_ratio)
@@ -230,7 +235,7 @@ func _process(delta: float) -> void:
 		var guard_stride := absf(float(motion.guard_far_foot))
 		gait += maxf(0, _stride_half() - guard_stride) / cycle_distance * TAU
 		for side: String in ["near", "far"]:
-			_foot_world[side] = position.x + facing * Vector2(_foot_local[side]).x
+			_foot_world[side] = position.x + facing * power_scale * Vector2(_foot_local[side]).x
 			var cycle := fposmod(gait + (PI if side == "far" else 0.0), TAU) / TAU
 			_was_support[side] = cycle < float(motion.stance_ratio)
 	_was_travelling = moving
@@ -260,7 +265,7 @@ func _process(delta: float) -> void:
 			hip_shift += attack.y * float(kick_body.high_chamber_shift)
 			# The support foot changes when the high kick uses the far leg.
 			hip_shift *= 1.0 if combat.side == "near" else -0.65
-	bones.hips.position = Vector2(hip_shift, _hip_spring.x)
+	bones.hips.position = Vector2(hip_shift - power_pose.y * 8, _hip_spring.x + power_pose.x * 7)
 	var acceleration_lean := clampf(horizontal_acceleration * facing / 1600.0, -1, 1) * 0.13
 	var body_target := 0.035 + _travel_blend * 0.14 + acceleration_lean
 	body_target += _sprint_blend * 0.07
@@ -273,7 +278,7 @@ func _process(delta: float) -> void:
 			body_target -= attack.x * lean - attack.y * 0.07
 	else:
 		body_target += attack.x * (0.32 if combat.side == "far" else 0.22) - attack.y * 0.12
-	body_target += preparation * 0.11
+	body_target += preparation * 0.11 - power_pose.x * 0.18 + power_pose.y * 0.3
 	body_target += compression * 0.1 - clampf(vertical_speed / 600.0, -1, 1) * 0.06
 	var stiffness := float(kick_body.high_spring) if high_kick else float(motion.body_stiffness)
 	var damping := float(kick_body.high_damping) if high_kick else float(motion.body_damping)
@@ -292,6 +297,14 @@ func _process(delta: float) -> void:
 		bones[side + "_fore"].rotation = -1.55 - absf(swing) * 0.25 - _air_blend * 0.18
 		bones[side + "_hand"].rotation = 0.0
 	attack_pose.apply(self)
+	if power_pose.length_squared() > 0.001:
+		for side: String in ["near", "far"]:
+			bones[side + "_arm"].rotation = lerpf(
+				bones[side + "_arm"].rotation,
+				0.55 - power_pose.y * 1.5,
+				power_pose.x + power_pose.y
+			)
+			bones[side + "_fore"].rotation = -1.9 + power_pose.y * 1.7
 	debug_layer.queue_redraw()
 
 
@@ -330,7 +343,7 @@ func _reset_feet() -> void:
 	for side: String in ["far", "near"]:
 		var hip_x: float = bones[side + "_thigh"].position.x
 		var rest := float(motion["guard_" + side + "_foot"])
-		_foot_world[side] = position.x + facing * (hip_x + rest)
+		_foot_world[side] = position.x + facing * power_scale * (hip_x + rest)
 		var cycle := fposmod(gait + (PI if side == "far" else 0.0), TAU) / TAU
 		_was_support[side] = cycle < float(motion.stance_ratio)
 		_foot_local[side] = Vector2(hip_x + rest, -6)
@@ -363,8 +376,10 @@ func _pose_leg(side: String, delta: float) -> void:
 	if moving:
 		if supporting:
 			if not _was_support[side]:
-				_foot_world[side] = position.x + facing * (hip_x + stride * step_direction)
-			target.x = (float(_foot_world[side]) - position.x) * facing
+				_foot_world[side] = (
+					position.x + facing * power_scale * (hip_x + stride * step_direction)
+				)
+			target.x = (float(_foot_world[side]) - position.x) * facing / power_scale
 		else:
 			var swing := clampf((cycle - stance) / (1.0 - stance), 0, 1)
 			target.x = hip_x + lerpf(-stride, stride, smoothstep(0, 1, swing)) * step_direction

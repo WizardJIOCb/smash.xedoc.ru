@@ -1,0 +1,3 @@
+Built-in image_gen, edit of assets/characters/los/fist_back.png, transparent_background=true.
+
+Use case: precise-object-edit. Edit target: supplied outer-view furry moose fist game sprite. Make this fist FOUR-DIGIT cartoon anatomy: exactly THREE curled fingers plus ONE thumb, four digits total. The current image has four curled finger bulges along its right edge; REMOVE one, so there are only THREE broad knuckle/finger bulges on the right edge plus the existing thumb across the top. Preserve warm russet furry painterly rendering, dorsal back-of-hand toward camera, wrist entering from left, punching axis horizontal toward right, believable thumb above fingers. Do not rotate. Single isolated fist, no arm sleeve, no text, no extra fingers. Actual transparent background.

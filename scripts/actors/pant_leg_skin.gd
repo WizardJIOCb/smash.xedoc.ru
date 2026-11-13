@@ -19,8 +19,8 @@ func setup(rig: Skeleton2D, bones: Dictionary, side: String, depth: int) -> void
 	var thigh_weights := PackedFloat32Array()
 	var shin_weights := PackedFloat32Array()
 	var faces: Array[PackedInt32Array] = []
-	# The far cuff reaches below the ankle joint, covering the top of its shoe.
-	var size := Vector2(34, 87 if side == "near" else 90)
+	# Cuff ends inside the split collar on both shoes.
+	var size := Vector2(34, 87)
 	var origin: Vector2 = bones.hips.position + thigh.position + Vector2(-17, -10)
 	for row in range(19):
 		var v := row / 18.0

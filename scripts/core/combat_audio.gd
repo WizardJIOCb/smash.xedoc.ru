@@ -3,11 +3,14 @@ extends Node
 
 var sounds: Dictionary = {}
 var voices: Array[AudioStreamPlayer] = []
-var muted: bool = false
+var muted: bool = true
 var cursor: int = 0
 
 
 func _ready() -> void:
+	var preferences := ConfigFile.new()
+	if preferences.load("user://audio.cfg") == OK:
+		muted = bool(preferences.get_value("sound", "muted", true))
 	var settings := {
 		"hit": [92, 0.15, 0.7],
 		"block": [520, 0.12, 0.45],
@@ -25,6 +28,16 @@ func _ready() -> void:
 		player.volume_db = -16
 		add_child(player)
 		voices.append(player)
+
+
+func set_muted(value: bool) -> void:
+	muted = value
+	if muted:
+		for player: AudioStreamPlayer in voices:
+			player.stop()
+	var preferences := ConfigFile.new()
+	preferences.set_value("sound", "muted", muted)
+	preferences.save("user://audio.cfg")
 
 
 func play(id: String) -> void:

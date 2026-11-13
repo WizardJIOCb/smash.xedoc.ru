@@ -22,6 +22,8 @@ var camera: Camera2D
 var closeup: bool = false
 var floor_y: float = 555.0
 var movement_bounds := Vector2(90, 1170)
+var move_power: float = 1.0
+var combat_rate: float = 1.0
 
 var _jump_buffer: float = 0.0
 var _preparation_time: float = -1.0
@@ -131,6 +133,7 @@ func _physics_process(delta: float) -> void:
 	var target_speed := float(motion.run_speed) if moose.sprinting else float(motion.walk_speed)
 	if crouching:
 		target_speed = float(motion.crouch_speed)
+	target_speed *= move_power
 	if moose.combat.elapsed >= 0 and lift == 0:
 		move_scale = minf(move_scale, 0.2 if moose.combat.kind == "kick" else 0.48)
 	var previous_x := moose.position.x
@@ -187,15 +190,19 @@ func _physics_process(delta: float) -> void:
 	moose.position.y = floor_y + lift
 	moose.airborne = lift < -0.01
 	moose.vertical_speed = vertical_speed
-	moose.combat.advance(delta, moose.airborne, crouching)
+	moose.combat.advance(delta * combat_rate, moose.airborne, crouching)
 	if Input.is_action_just_pressed("world"):
-		quarantine = not quarantine
+		_world_pressed()
 	if Input.is_action_just_pressed("bones"):
 		moose.show_bones = not moose.show_bones
 	if Input.is_action_just_pressed("closeup"):
 		closeup = not closeup
 	if Engine.get_physics_frames() % 6 == 0:
 		_sync_metrics()
+
+
+func _world_pressed() -> void:
+	quarantine = not quarantine
 
 
 func _process(delta: float) -> void:

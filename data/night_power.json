@@ -1,0 +1,15 @@
+{
+  "duration": 8.0,
+  "damage_multiplier": 1.8,
+  "incoming_multiplier": 0.65,
+  "move_multiplier": 1.12,
+  "attack_rate": 1.15,
+  "size_multiplier": 1.12,
+  "hit_charge": 12.0,
+  "kill_charge": 18.0,
+  "burst_windup": 0.28,
+  "burst_recovery": 0.42,
+  "burst_cooldown": 2.0,
+  "burst_radius": 210.0,
+  "burst_damage": 52
+}

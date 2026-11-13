@@ -15,6 +15,8 @@ try {
         }
         'build' {
             & $godotExecutable --headless --path . --export-release Web build/web/index.html
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            python tools/prepare_web_cache.py
         }
         'capture' {
             $captureProcess = Start-Process -FilePath $godotExecutable -ArgumentList '--path', '.',

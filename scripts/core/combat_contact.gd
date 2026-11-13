@@ -1,13 +1,15 @@
 extends RefCounted
 ## One attack may touch each target once, even across multiple active frames.
 
-var last_serial: int = -1
+var recent_serials: Array[int] = []
 
 
 func accept(serial: int) -> bool:
-	if serial == last_serial:
+	if serial in recent_serials:
 		return false
-	last_serial = serial
+	recent_serials.append(serial)
+	if recent_serials.size() > 32:
+		recent_serials.pop_front()
 	return true
 
 
