@@ -47,3 +47,5 @@ if (ROOT / 'art/characters/los/neck-v3.png').exists():
         subprocess.run([sys.executable, str(ROOT / 'tools/prepare_rig_v5.py')], check=True)
     if (ROOT / 'art/characters/los/sleeve-v6.png').exists():
         subprocess.run([sys.executable, str(ROOT / 'tools/prepare_rig_v6.py')], check=True)
+    if (ROOT / 'art/characters/los/fist-back-v7.png').exists():
+        subprocess.run([sys.executable, str(ROOT / 'tools/prepare_rig_v7.py')], check=True)

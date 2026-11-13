@@ -19,8 +19,9 @@ try {
         'capture' {
             $captureProcess = Start-Process -FilePath $godotExecutable -ArgumentList '--path', '.',
                 '--resolution', '1280x720', '--fixed-fps', '60', '--script', 'res://tools/capture.gd',
-                '--', '--out', '.studioigor/captures/high-kick-v13', '--duration', '4', '--every', '0.04',
-                '--inputs', 'tools/inputs/high_kick_review.json' `
+                '--', '--scene', 'res://scenes/gyms/attack_gym.tscn',
+                '--out', '.studioigor/captures/fist-v16', '--duration', '6.5', '--every', '0.1',
+                '--inputs', 'tools/inputs/fist_review.json' `
                 -WorkingDirectory $taskRoot -WindowStyle Hidden -PassThru `
                 -RedirectStandardOutput '.tools/capture-output.log' -RedirectStandardError '.tools/capture-error.log'
             $captureProcess.WaitForExit()

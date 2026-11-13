@@ -12,7 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
-    release = 'v15-' + revision[:12]
+    version = json.loads((ROOT / 'data/build.json').read_text())['version']
+    release = f'v{version}-' + revision[:12]
     output = ROOT / 'build/releases' / release
     if output.exists():
         raise RuntimeError('Release already frozen; do not mutate an existing release')
@@ -22,13 +23,13 @@ def main():
             shutil.copy2(source, output / source.name)
     (output / 'api').mkdir()
     shutil.copy2(ROOT / 'deploy/api/scores.php', output / 'api/scores.php')
-    cover = ROOT / '.studioigor/captures/menu-v15b/frame_002.png'
+    cover = ROOT / f'.studioigor/captures/menu-v{version}/frame_002.png'
     if cover.exists():
         shutil.copy2(cover, output / 'cover.png')
     for name in ('index.js', 'index.wasm'):
         data = (output / name).read_bytes()
         (output / (name + '.gz')).write_bytes(gzip.compress(data, mtime=0))
-    (output / 'release.json').write_text(json.dumps({'version': 15, 'commit': revision, 'release': release}), encoding='utf-8')
+    (output / 'release.json').write_text(json.dumps({'version': version, 'commit': revision, 'release': release}), encoding='utf-8')
     hashes = {str(path.relative_to(output)).replace('\\', '/'): hashlib.sha256(path.read_bytes()).hexdigest()
               for path in sorted(output.rglob('*')) if path.is_file()}
     (output / 'release-manifest.json').write_text(json.dumps(hashes, indent=2), encoding='utf-8')

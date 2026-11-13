@@ -52,4 +52,4 @@ Godot Standard **4.7.2**, GDScript, Compatibility, Web templates той же в�
 
 ## Проверки
 
-17 GUT tests: IK, слои и веса, шаг, буфер комбо, однократный урон и подсчёт очков. `tools/district_route_review.tscn` проходит маршрут обычными игровыми командами без изменения здоровья или врагов, используется с `tools/capture.gd`. Он исключён из Web export. API проверяется `python3 tools/test_scores_api.py deploy/api/scores.php` на хосте с PHP8.3: изолированное временное хранилище, публичные рекорды не затрагиваются.
+18 GUT tests: IK, слои и веса, шаг, буфер комбо, однократный урон, разделение тел и подсчёт очков. `tools/district_route_review.tscn` проходит маршрут обычными игровыми командами без изменения здоровья или врагов, используется с `tools/capture.gd`. Он исключён из Web export. API проверяется `python3 tools/test_scores_api.py deploy/api/scores.php` на хосте с PHP8.3: изолированное временное хранилище, публичные рекорды не затрагиваются.

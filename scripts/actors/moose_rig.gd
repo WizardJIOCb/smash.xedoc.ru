@@ -76,8 +76,8 @@ func _ready() -> void:
 	_bone("hips", skeleton, Vector2(0, -80), 12)
 	_bone("body", bones.hips, Vector2(0, -9), 65)
 	var neck := _part("neck", bones.body, Vector2(27, 43), Vector2(0.5, 0.18), DEPTH_NECK)
-	neck.position += Vector2(12, -58)
-	_bone("head", bones.body, Vector2(13, -64), 25)
+	neck.position += Vector2(8, -53)
+	_bone("head", bones.body, Vector2(9, -59), 25)
 	var head := _part("head", bones.head, Vector2(141, 100), Vector2(0.48, 0.9), DEPTH_HEAD)
 	gaze_material = ShaderMaterial.new()
 	gaze_material.shader = load("res://assets/shaders/moose_gaze.gdshader")
@@ -125,8 +125,8 @@ func _ready() -> void:
 			_segment(
 				"fist_back",
 				bones.near_hand,
-				Vector2(0.09, 0.53),
-				Vector2(0.88, 0.50),
+				Vector2(0.09, 0.64),
+				Vector2(0.90, 0.47),
 				23,
 				arm_depth + 2,
 				shade

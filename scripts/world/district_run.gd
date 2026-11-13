@@ -256,7 +256,20 @@ func _physics_process(delta: float) -> void:
 				surface = minf(surface, ledge.position.y)
 	floor_y = surface
 	lift = minf(0, moose.position.y - surface)
+	var before_x := moose.position.x
 	super._physics_process(delta)
+	for enemy: Enemy in enemies:
+		if (
+			not enemy.dead
+			and enemy.kind != "drone"
+			and absf(moose.position.y - enemy.position.y) < 45
+		):
+			var corrected := Contact.separate(before_x, moose.position.x, enemy.position.x)
+			if not is_equal_approx(corrected, moose.position.x):
+				moose.position.x = corrected
+				speed = 0
+				moose.horizontal_speed = 0
+				_stride_stop.active = false
 	_resolve_attacks()
 	_move_projectiles(delta)
 	if _transition <= 0:
@@ -538,7 +551,7 @@ func _sync_metrics() -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 15,
+			"revision": 16,
 			"room": room_index + 1,
 			"health": health,
 			"run_state": run_state,

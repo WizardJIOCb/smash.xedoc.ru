@@ -119,6 +119,10 @@ func _physics_process(delta: float) -> void:
 			state = "approach"
 			elapsed = 0
 	rig.facing = facing
+	if kind != "drone" and absf(target.position.y - position.y) < 45:
+		var gap := target.position.x - position.x
+		if absf(gap) < 72:
+			position.x = target.position.x - (signf(gap) if absf(gap) > 0.1 else facing) * 72
 	queue_redraw()
 
 

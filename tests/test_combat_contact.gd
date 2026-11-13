@@ -33,3 +33,9 @@ func test_damage_interrupt_discards_buffered_follow_up() -> void:
 	assert_eq(attack.elapsed, -1.0)
 	attack.request("punch", false)
 	assert_eq(attack.side, "near")
+
+
+func test_grounded_bodies_cannot_pass_through_or_swallow_each_other() -> void:
+	assert_eq(Contact.separate(400, 530, 500), 428.0)
+	assert_eq(Contact.separate(600, 490, 500), 572.0)
+	assert_eq(Contact.separate(400, 350, 500), 350.0, "Moving away stays unrestricted")
