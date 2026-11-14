@@ -156,7 +156,7 @@ func _draw_metro() -> void:
 func _draw_roofs() -> void:
 	_draw_gap(false)
 	var t: Dictionary = rules.tuning
-	if t.supports.is_empty():
+	if not bool(t.gap_enabled) or t.supports.is_empty():
 		return
 	var start := Vector2(
 		float(t.gap[0]) - float(t.bridge_overlap), float(t.floor) + float(t.foot_offset)
