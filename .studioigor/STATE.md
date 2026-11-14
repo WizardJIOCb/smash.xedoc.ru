@@ -2,10 +2,10 @@
 
 PROJECT: Лось: район закрыт
 PHASE: 5 — Assets and look-dev
-UPDATED: 2026-11-14 12:30
+UPDATED: 2026-11-14 12:33
 
 ## Now
-Опубликовать v32 и проверить хват/попадания в публичном бою. User appearance/feel gates остаются открыты.
+Пользователь оценивает исправленные кисти и замахи на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен.
 
 ## Open questions
 - none
@@ -46,3 +46,4 @@ UPDATED: 2026-11-14 12:30
 | 2026-11-14 12:16 | 5 — Assets and look-dev | v31: бита112px с двуручным замахом/дугой/доводкой; fox pistol54x28 и lynx rifle120x58 с индивидуальным хватом и дулом.46GUT/648; native63+48frames/3hits и enemy18,errors0; Web готов. | Опубликовать v31 и проверить новую биту и хват врагов в публичном браузере. Art/feel gates открыты. |
 | 2026-11-14 12:22 | 5 — Assets and look-dev | v31 опубликована3bde584: бита с явным замахом назад и ударом вперёд; компактный pistol fox и крупный rifle lynx с нормальным хватом.46GUT/648, публично4punches/6hits/1kill/100HP/errors0;18hashes/cache2hit1download,rollbackv30,scores preserved. Исключены старые build из PCK. | Пользователь оценивает новый замах биты и хват оружия на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен. |
 | 2026-11-14 12:30 | 5 — Assets and look-dev | v32: исправлены кисти биты/ограничены запястья; кисти врагов привязаны к hand-bone; замахи кролика/бобра обходят плечо, Бригадиру оставлен достижимый двуручный хват. Bat32/enemy18frames,0errors,46GUT/648,Web ready. | Опубликовать v32 и проверить хват/попадания в публичном бою. User appearance/feel gates остаются открыты. |
+| 2026-11-14 12:33 | 5 — Assets and look-dev | v32 опубликована85a4574: кисти/локти биты и оружия врагов исправлены, замахи бобра/кролика обходят плечо.46GUT/648; native bat32/enemy18frames0errors, public2punches/2hits/100HP/errors0/cache2hit1download;18hashes,rollbackv31,scores preserved. | Пользователь оценивает исправленные кисти и замахи на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен. |
