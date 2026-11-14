@@ -180,7 +180,7 @@ func _physics_process(delta: float) -> void:
 			_hold(action, false)
 		_sync_metrics()
 		front.next_requested.disconnect(_continue_chapter)
-		front.start_requested.disconnect(_start_new_run)
+		front.start_requested.disconnect(_front_start)
 	var deadline := 480 if route.chapter >= 3 else 300
 	if DisplayServer.get_name() == "headless" and (run_state == "won" or review_time > deadline):
 		_sync_metrics()
