@@ -278,7 +278,7 @@ func _new_attack(_delta: float) -> void:
 	while _events_fired < count and elapsed >= next_time:
 		_events_fired += 1
 		if is_ranged() and not _uses_pulse():
-			var muzzle: Vector2 = rig.bones.near_hand.global_position + Vector2(facing * 18, -2)
+			var muzzle: Vector2 = rig.weapon_muzzle()
 			shot.emit(muzzle, aim, int(tuning.damage))
 			shots_fired += 1
 			rig.recoil = 1.0

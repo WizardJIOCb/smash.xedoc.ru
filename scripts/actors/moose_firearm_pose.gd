@@ -11,7 +11,7 @@ var _armed: bool = false
 
 
 func apply(rig: Node2D) -> void:
-	var armed: bool = not rig.held_firearm.is_empty()
+	var armed: bool = not rig.held_firearm.is_empty() or rig.held_melee == "bat"
 	if _far_parts.is_empty():
 		for id: String in ["far_arm", "far_fore", "far_hand"]:
 			for child: Node in rig.bones[id].get_children():

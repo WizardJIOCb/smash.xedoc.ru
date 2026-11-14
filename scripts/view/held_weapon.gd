@@ -16,7 +16,7 @@ func equip(id: String) -> void:
 func _draw() -> void:
 	if painting != null:
 		var widths := {
-			"bat": 74.0,
+			"bat": 112.0,
 			"shovel": 96.0,
 			"hockey": 102.0,
 			"knuckles": 23.0,

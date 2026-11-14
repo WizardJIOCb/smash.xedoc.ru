@@ -12,7 +12,8 @@ func apply(rig: Node2D) -> void:
 	var origin: Vector2 = rig.bones.hips.position + rig.bones.body.position
 	rig.arm_meshes.far.z_index = 15 if rig.kind in ["fox", "lynx", "firewall", "foreman"] else 5
 	if rig.kind in ["fox", "lynx", "firewall"]:
-		var grip := _point("gun_grip") + Vector2(rig.recoil * 2, 0)
+		var hold: Array = tuning.gun_grip_by_kind.get(rig.kind, tuning.gun_grip)
+		var grip := Vector2(hold[0], hold[1]) + Vector2(rig.recoil * 2, 0)
 		var support: Array = tuning.gun_support_by_kind.get(rig.kind, tuning.gun_support)
 		_arm(rig, "near", origin + grip)
 		_arm(rig, "far", origin + grip + Vector2(support[0], support[1]))

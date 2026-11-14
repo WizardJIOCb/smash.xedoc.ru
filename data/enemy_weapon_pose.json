@@ -7,5 +7,6 @@
   "light_rest": [22, -12],
   "light_wind": [27, -42],
   "light_strike": [-36, -43],
-  "gun_support_by_kind": {"fox": [-35, 5], "lynx": [-44, 6], "firewall": [-47, 7]}
+  "gun_support_by_kind": {"fox": [2, 4], "lynx": [-45, -11], "firewall": [-47, 7]},
+  "gun_grip_by_kind": {"fox": [-20, -48], "lynx": [-16, -42]}
 }

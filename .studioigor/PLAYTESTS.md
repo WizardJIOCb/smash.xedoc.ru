@@ -170,3 +170,5 @@ One session — one section. The user's feedback — verbatim. The first questio
   rounds -> rifle0/24/reserve120/throws0; next press -> throws1/hit1/pickup1/fists,76HP.
   Enlarged enemy guns viewed; errors0,QA tab closed. Cache2/1,18hashes,rollbackv29,
   scores unchanged during activation; no score submitted.
+
+- 2026-11-14 v31: bat112px/two-hand handle, wind/sweep/follow/recover with standing/low/air timing; damage only sweep. Fox54x28 pistol + cup grip, lynx120x58 rifle + fore-end support; actual muzzle sockets. 46GUT/648, Web export clean. Native bat gallery63frames + range48frames/3contacts, enemy grips18frames, errors0; reviewed both facings. User feel approval remains open.

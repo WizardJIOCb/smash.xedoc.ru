@@ -246,6 +246,8 @@ func advance(delta: float, enemies: Array, playing: bool) -> void:
 		return
 	_clock += delta
 	hero.held_firearm = equipped if is_ranged() else ""
+	hero.held_melee = equipped if not is_ranged() else ""
+	hero.combat.weapon = equipped
 	hero.firearm_reloading = _reload_left > 0
 	hero.firearm_recoil = visual.flash / 0.065
 	_cooldown = maxf(0, _cooldown - delta)
@@ -319,6 +321,8 @@ func _update_visual() -> void:
 		angle = -visual.flash * 1.7
 		if _reload_left > 0:
 			angle = 0.65
+	elif equipped == "bat":
+		angle = hero.melee_angle
 	else:
 		var envelope: Vector2 = hero.combat.envelope()
 		if hero.combat.kind == "punch" and hero.combat.elapsed >= 0:
@@ -512,6 +516,8 @@ func _cancel_reload() -> void:
 func _refresh() -> void:
 	if is_instance_valid(hero):
 		hero.held_firearm = equipped if is_ranged() else ""
+		hero.held_melee = equipped if not is_ranged() else ""
+		hero.combat.weapon = equipped
 		hero.firearm_reloading = _reload_left > 0
 	if is_instance_valid(visual):
 		visual.equip(equipped)

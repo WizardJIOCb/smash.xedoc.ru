@@ -11,6 +11,7 @@ var low: bool = false
 var kick_step: int = 0
 var serial: int = 0
 var chain_length: int = 0
+var weapon: String = "fists"
 var counts := {
 	"near": 0,
 	"far": 0,
@@ -65,6 +66,8 @@ func advance(delta: float, airborne: bool, crouching: bool = false) -> void:
 
 
 func timings() -> Dictionary:
+	if weapon == "bat" and kind == "punch":
+		return tuning["air_bat" if in_air else ("crouch_bat" if low else "bat")]
 	if in_air:
 		return tuning["air_" + kind]
 	if low:

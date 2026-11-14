@@ -3,6 +3,22 @@ extends GutTest
 const Sequence = preload("res://scripts/core/attack_sequence.gd")
 
 
+func test_bat_damage_waits_for_swing_and_stops_before_recovery() -> void:
+	for state in [[false, false], [false, true], [true, false]]:
+		var attack := Sequence.new()
+		attack.weapon = "bat"
+		attack.request("punch", state[0], state[1])
+		var timing := attack.timings()
+		attack.advance(float(timing.windup), state[0], state[1])
+		assert_false(attack.is_active(), "Raising the bat cannot deal damage")
+		attack.advance(float(timing.extension) - attack.elapsed + 0.001, state[0], state[1])
+		assert_true(attack.is_active(), "The forward sweep deals damage")
+		attack.advance(float(timing.hold) - attack.elapsed + 0.001, state[0], state[1])
+		assert_false(attack.is_active(), "Returning the bat cannot deal damage")
+		attack.advance(float(timing.duration), state[0], state[1])
+		assert_eq(attack.elapsed, -1.0)
+
+
 func test_buffered_punches_alternate_and_finish_without_extra_input() -> void:
 	var attack := Sequence.new()
 	attack.request("punch", false)

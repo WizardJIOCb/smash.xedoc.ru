@@ -11,6 +11,8 @@ var fit: Dictionary = JSON.parse_string(
 )
 var kind: String = "shield"
 var weapon_pose := WeaponPose.new()
+var weapon_sprite: Sprite2D
+var muzzle_uv := Vector2(0.02, 0.2)
 var body_scale: float = 1.0
 var recoil: float = 0.0
 var stomp: float = 0.0
@@ -82,11 +84,14 @@ func _ready() -> void:
 		_bone("weapon", bones.near_hand, Vector2.ZERO, 24)
 		var gun := kind in ["fox", "lynx", "firewall"]
 		var weapon_size: Array = anatomy.get("weapon_size", [62, 25] if gun else [30, 77])
-		_part(
+		var weapon_pivot: Array = anatomy.get("weapon_pivot", [0.82, 0.5] if gun else [0.5, 0.8])
+		var muzzle: Array = anatomy.get("muzzle", [0.02, 0.2])
+		muzzle_uv = Vector2(muzzle[0], muzzle[1])
+		weapon_sprite = _part(
 			"weapon",
 			bones.weapon,
 			Vector2(weapon_size[0], weapon_size[1]),
-			Vector2(0.82, 0.5) if gun else Vector2(0.5, 0.8),
+			Vector2(weapon_pivot[0], weapon_pivot[1]),
 			16
 		)
 		_part("extra", bones.body, Vector2(26, 32), Vector2(0.5, 0), 11).position += Vector2(22, -7)
@@ -95,6 +100,10 @@ func _ready() -> void:
 
 func asset_path(id: String) -> String:
 	return "res://assets/enemies/%s/%s.png" % [kind if art_profile.is_empty() else art_profile, id]
+
+
+func weapon_muzzle() -> Vector2:
+	return weapon_sprite.to_global(weapon_sprite.texture.get_size() * muzzle_uv)
 
 
 func _apply_scale() -> void:

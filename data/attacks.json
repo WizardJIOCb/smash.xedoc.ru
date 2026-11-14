@@ -26,5 +26,8 @@
   "air_punch": {"windup":0.07,"extension":0.12,"hold":0.17,"duration":0.34,"chain":0.26},
   "air_kick": {"windup":0.12,"extension":0.20,"hold":0.29,"duration":0.53,"chain":0.29},
   "crouch_punch": {"windup":0.075,"extension":0.13,"hold":0.185,"duration":0.37,"chain":0.27},
-  "crouch_kick": {"windup":0.14,"extension":0.22,"hold":0.29,"duration":0.55,"chain":0.44}
+  "crouch_kick": {"windup":0.14,"extension":0.22,"hold":0.29,"duration":0.55,"chain":0.44},
+  "bat": {"windup": 0.19, "extension": 0.27, "hold": 0.36, "duration": 0.68, "chain": 0.58},
+  "air_bat": {"windup": 0.13, "extension": 0.22, "hold": 0.31, "duration": 0.57, "chain": 0.48},
+  "crouch_bat": {"windup": 0.16, "extension": 0.25, "hold": 0.34, "duration": 0.63, "chain": 0.53}
 }
