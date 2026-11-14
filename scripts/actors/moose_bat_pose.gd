@@ -13,6 +13,7 @@ var pose: Dictionary = {}
 
 func prepare(rig: Node2D) -> float:
 	pose = tuning.rest.duplicate(true)
+	rig.bones.far_arm.position.x = 18
 	if rig.held_melee != "bat":
 		return 0.0
 	if rig.blocking:
@@ -49,6 +50,7 @@ func prepare(rig: Node2D) -> float:
 			pose = _blend("follow", "finish", smoothstep(follow, finish, time))
 		else:
 			pose = _blend("finish", "rest", smoothstep(finish, float(timing.duration), time))
+	rig.bones.far_arm.position.x = float(pose.shoulder)
 	return float(pose.weight)
 
 
@@ -68,7 +70,7 @@ func apply(rig: Node2D) -> void:
 	)
 	var angle := projected.angle()
 	rig.melee_angle = angle
-	rig.melee_length = projected.length()
+	rig.melee_length = maxf(float(tuning.min_projection), projected.length())
 	var origin: Vector2 = rig.bones.hips.position + rig.bones.body.position
 	var at := origin + Vector2(pose.grip[0], pose.grip[1])
 	rig.melee_origin = at
@@ -81,7 +83,7 @@ func apply(rig: Node2D) -> void:
 
 func _blend(from: String, to: String, amount: float) -> Dictionary:
 	var result := {}
-	for key: String in ["yaw", "pitch", "lean", "weight"]:
+	for key: String in ["yaw", "pitch", "lean", "weight", "shoulder"]:
 		result[key] = lerpf(float(tuning[from][key]), float(tuning[to][key]), amount)
 	result.grip = [
 		lerpf(tuning[from].grip[0], tuning[to].grip[0], amount),
