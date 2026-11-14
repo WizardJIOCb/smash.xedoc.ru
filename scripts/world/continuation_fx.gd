@@ -116,7 +116,7 @@ func sync_metrics(run) -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 36,
+			"revision": 37,
 			"room": run.room_index + 1,
 			"health": run.health,
 			"run_state": run.run_state,

@@ -2,10 +2,10 @@
 
 PROJECT: Лось: район закрыт
 PHASE: 5 — Assets and look-dev
-UPDATED: 2026-11-14 14:03
+UPDATED: 2026-11-14 14:09
 
 ## Now
-Пользователь оценивает кисти, дальнее плечо, стойку и возврат биты на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен.
+Опубликовать v37 и проверить обычную стойку и удары на сайте. Остальные позы и движение сохранены; пользователь оценивает внешний вид.
 
 ## Open questions
 - none
@@ -53,3 +53,4 @@ UPDATED: 2026-11-14 14:03
 | 2026-11-14 13:34 | 5 — Assets and look-dev | v35 published6b1e92c: real bat references studied; shoulder ready/load, weight shift, knob-led drive and wrap rebuilt; palm-down/up grips.48GUT/674; public6swings7hits2kills100HP,drop/swap/console0;18hashes,rollbackv34,scores preserved. | Пользователь оценивает новую стойку и полный взмах биты по референсам на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен. |
 | 2026-11-14 13:59 | 5 — Assets and look-dev | v36: shortest-angle bat recovery and continuous buffered entry; relaxed rear-diagonal ready, split barrel/head layers. Furry wrists skinned to forearms, cuff centered; far shoulder fixed to torso and upper arm behind chest.49GUT/700, Web clean; native126 chain frames +96 contact/3hits +23 firearm frames,0errors;390frame60FPS clip decoded. | Опубликовать v36 и проверить кисти, дальнее плечо и возврат биты в публичном бою. User art/feel gates открыты. |
 | 2026-11-14 14:03 | 5 — Assets and look-dev | v36 published b53e6fd: fixed torso shoulders/rear upper-arm layer and wrist/cuff skin, smooth recovery/buffered entry and rear-diagonal ready.49GUT/700; native126chain+15attachment+23gun frames0errors/shoulder drift0px. Public6swings7hits2kills100HP, both facings and Tab/G verified,console0/cache2hit1download.18hashes,rollbackv35,scores preserved;QA closed. | Пользователь оценивает кисти, дальнее плечо, стойку и возврат биты на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен. |
+| 2026-11-14 14:09 | 5 — Assets and look-dev | v37: пользователь в целом принимает v36, просит убрать уход биты под руку в стойке. Shaft split now stays in front of sleeves and under fingers; distal barrel keeps head occlusion, with correct inherited front depth.49GUT/700; native63frames/0errors, shoulder drift0px, same motion/grip geometry; Web clean. | Опубликовать v37 и проверить обычную стойку и удары на сайте. Остальные позы и движение сохранены; пользователь оценивает внешний вид. |

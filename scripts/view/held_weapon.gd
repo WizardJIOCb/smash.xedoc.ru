@@ -15,6 +15,7 @@ var grip_data: Dictionary = (
 	JSON.parse_string(FileAccess.get_file_as_string("res://data/weapon_grips.json")).bat
 )
 var _barrel: Sprite2D
+var _shaft: Sprite2D
 var _grip: Polygon2D
 
 
@@ -26,10 +27,16 @@ func _ready() -> void:
 	_barrel.region_enabled = true
 	_barrel.z_as_relative = false
 	add_child(_barrel)
+	_shaft = Sprite2D.new()
+	_shaft.texture = bat_grip
+	_shaft.centered = false
+	_shaft.region_enabled = true
+	add_child(_shaft)
 
 
 func _process(_delta: float) -> void:
 	_barrel.visible = weapon_id == "bat" and grip_active
+	_shaft.visible = _barrel.visible
 	if is_instance_valid(_grip):
 		_grip.visible = _barrel.visible
 	if not _barrel.visible:
@@ -42,11 +49,16 @@ func _process(_delta: float) -> void:
 		_grip.follow(side, wrist_directions[side])
 	var factor := float(grip_data.scale)
 	var split := float(grip_data.shaft_start)
+	var depth_split := float(grip_data.depth_split)
 	var pixels := bat_grip.get_size()
-	_barrel.region_rect = Rect2(split, 0, pixels.x - split, pixels.y)
-	_barrel.position = Vector2(split - grip_data.pivot[0], -grip_data.pivot[1]) * factor
+	_shaft.region_rect = Rect2(split, 0, depth_split - split, pixels.y)
+	_shaft.position = Vector2(split - grip_data.pivot[0], -grip_data.pivot[1]) * factor
+	_shaft.scale = Vector2(factor * bat_length, factor)
+	_barrel.region_rect = Rect2(depth_split, 0, pixels.x - depth_split, pixels.y)
+	_barrel.position = _shaft.position + Vector2((depth_split - split) * factor * bat_length, 0)
 	_barrel.scale = Vector2(factor * bat_length, factor)
-	_barrel.z_index = 12 if bat_behind_head else z_index
+	_barrel.z_as_relative = not bat_behind_head
+	_barrel.z_index = 12 if bat_behind_head else 0
 
 
 func equip(id: String) -> void:

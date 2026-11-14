@@ -1,5 +1,5 @@
 {
-  "bat": {"texture": "res://assets/weapons/bat-held-v3.png", "scale": 0.05667, "pivot": [360, 390], "near_wrist": [180, 530], "far_wrist": [340, 245], "near_cuff": [95, 590], "far_cuff": [230, 200], "shaft_start": 780, "skin_grid": [39, 36], "near_skin_fade": [250, 320, 450, 510], "far_skin_fade": [350, 410, 280, 330]},
+  "bat": {"texture": "res://assets/weapons/bat-held-v3.png", "scale": 0.05667, "pivot": [360, 390], "near_wrist": [180, 530], "far_wrist": [340, 245], "near_cuff": [95, 590], "far_cuff": [230, 200], "shaft_start": 780, "depth_split": 1200, "skin_grid": [39, 36], "near_skin_fade": [250, 320, 450, 510], "far_skin_fade": [350, 410, 280, 330]},
   "beaver": {"texture": "res://assets/enemies/beaver/weapon-held-v1.png", "pivot": [0.719, 0.811], "size": [36, 92]},
   "hare": {"texture": "res://assets/enemies/hare/weapon-held-v1.png", "pivot": [0.668, 0.781], "size": [35, 90]}
 }
