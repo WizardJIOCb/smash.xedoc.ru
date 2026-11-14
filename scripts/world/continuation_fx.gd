@@ -60,16 +60,48 @@ func weapon_contact(
 
 func sync_hud(run) -> void:
 	var gear: Dictionary = run.armory.stats()
+	var take: String = run.bindings.caption("interact")
+	run.armory.interact_caption = take
 	run.weapon_label.text = (
 		str(gear.name)
 		+ (
-			" · %d/%d  запас %d · F перезарядка" % [gear.loaded, gear.capacity, gear.reserve]
+			(
+				" · %d/%d запас %d · %s перезарядка · %s бросить"
+				% [
+					gear.loaded,
+					gear.capacity,
+					gear.reserve,
+					run.bindings.caption("reload_weapon"),
+					run.bindings.caption("drop_weapon")
+				]
+			)
 			if gear.ranged
-			else " · J атака · Tab смена"
+			else (
+				" · %s атака · %s смена · %s бросить"
+				% [
+					run.bindings.caption("strike"),
+					run.bindings.caption("cycle_weapon"),
+					run.bindings.caption("drop_weapon")
+				]
+			)
 		)
 	)
 	if gear.reload > 0:
 		run.weapon_label.text = "ПЕРЕЗАРЯДКА %d%%" % roundi(gear.reload_progress * 100)
+	if gear.id == "fists":
+		run.weapon_label.text = "Кулаки · %s — подобрать оружие" % take
+	run.controls_hint.text = (
+		"%s/%s ход · %s бег · %s прыжок · %s присед · %s блок · %s разворот · Esc меню"
+		% [
+			run.bindings.caption("left"),
+			run.bindings.caption("right"),
+			run.bindings.caption("sprint"),
+			run.bindings.caption("jump"),
+			run.bindings.caption("crouch"),
+			run.bindings.caption("block"),
+			run.bindings.caption("quick_turn")
+		]
+	)
 	run.boss_label.text = ""
 	run.boss_bar.size.x = 0
 	for enemy: Enemy in run.enemies:
@@ -84,7 +116,7 @@ func sync_metrics(run) -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 28,
+			"revision": 29,
 			"room": run.room_index + 1,
 			"health": run.health,
 			"run_state": run.run_state,
@@ -130,6 +162,8 @@ func sync_metrics(run) -> void:
 	Metrics.rig["wave"] = run.route.wave + 1
 	Metrics.rig["waves"] = run.rooms[run.room_index].get("waves", []).size() + 1
 	Metrics.rig["weapon"] = run.armory.stats()
+	Metrics.rig["key_turn"] = run.bindings.caption("quick_turn")
+	Metrics.rig["key_drop"] = run.bindings.caption("drop_weapon")
 	Metrics.rig["lift_present"] = is_instance_valid(run.carrier)
 	Metrics.rig["lift_upper"] = run.carrier.upper if is_instance_valid(run.carrier) else false
 	Metrics.rig["boss_phase"] = 0

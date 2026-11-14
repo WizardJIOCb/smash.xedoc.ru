@@ -138,3 +138,18 @@ One session — one section. The user's feedback — verbatim. The first questio
 - PHP symlink cache initially served prior handler; nginx SCRIPT_FILENAME changed to
   $realpath_root, nginx -t/reload passed. Live chapter1 keeps two legacy scores,
   chapter2/3 empty. No test score submitted. All18 release hashes verified, rollbackv27.
+
+## PT-12 — 2026-11-14 — controls, weapons and enemy anatomy v29
+- User: I turn (supersedes U), editable saved keys; G drop/E recover; next empty-pistol
+  attack throws it; natural two-hand firearm grips for Moose/enemies; enemy heads/hare knees.
+- 45GUT/620assertions, format/lint. Ammo conserved across drop/reload/recovery, one throw
+  hit only, conflict/Esc rejection and manual turn survives held movement.
+- Native tower route32frames/0errors/completed12kills4relays. Enemy anatomy36frames,
+  weapon grips26frames, Moose firearm poses30frames; both facings reviewed.
+- Local Web actual keys: I->U, conflicting J rejected, U persists across reload and
+  turns facing1->-1. Reset restores I. G/E keeps7loaded/70reserve; seven shots away,
+  next attack throws1/hits1, leaves1pickup/fists. Console errors0. No leaderboard row.
+- Capture driver deliberately strips InputMap; native menu capture is visual/flow only,
+  not remap persistence evidence. Browser above supplies real-key/save evidence.
+- Hare leg original edit source/prompt retained in art/campaign/hare-leg-v29.json.
+  Native artist/feel gates remain open; physical phone untested.

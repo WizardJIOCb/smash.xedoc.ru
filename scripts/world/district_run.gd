@@ -18,9 +18,11 @@ const Armory = preload("res://scripts/systems/armory.gd")
 const Lift = preload("res://scripts/world/district_lift.gd")
 const Continuation = preload("res://scripts/world/continuation_fx.gd")
 const Route = preload("res://scripts/core/route_state.gd")
+const KeyBindings = preload("res://scripts/core/key_bindings.gd")
 
 var continuation := Continuation.new()
 var route := Route.new()
+var bindings := KeyBindings.new()
 var armory: Armory
 var carrier: Lift
 var weapon_label: Label
@@ -98,13 +100,16 @@ func _ready() -> void:
 		["super_strike", KEY_O],
 		["ultimate", KEY_Q],
 		["cycle_weapon", KEY_TAB],
-		["reload_weapon", KEY_F]
+		["reload_weapon", KEY_F],
+		["drop_weapon", KEY_G],
+		["quick_turn", KEY_I]
 	]:
 		if not InputMap.has_action(pair[0]):
 			InputMap.add_action(pair[0])
 		var event := InputEventKey.new()
 		event.physical_keycode = pair[1]
 		InputMap.action_add_event(pair[0], event)
+	bindings.setup()
 	# The gym UI is replaced with a readable game HUD.
 	for child: Node in get_children():
 		if child is CanvasLayer:
@@ -134,6 +139,7 @@ func _ready() -> void:
 	add_child(fps_counter)
 	front.fps_enabled = fps_counter.enabled
 	add_child(front)
+	front.bindings = bindings
 	front.chapters = route.chapters
 	front.completed_chapters = route.completed
 	front.chapter_requested.connect(_select_chapter)
@@ -271,6 +277,7 @@ func _load_room(index: int, spawn_x: float) -> void:
 	moose.combat.interrupt()
 	moose.horizontal_speed = 0
 	moose.facing = 1 if spawn_x < 640 else -1
+	_manual_facing = false
 	moose.airborne = false
 	_jump_buffer = 0
 	_preparation_time = -1
@@ -354,7 +361,9 @@ func _build_physics_surfaces(base_floor: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if is_instance_valid(front) and front.is_open():
 		if event.is_action_pressed("pause_run"):
-			if front.page == "home" and front.can_resume:
+			if front.page == "controls":
+				front.show_settings()
+			elif front.page == "home" and front.can_resume:
 				_resume_run()
 			else:
 				front.show_home(front.can_resume)
@@ -378,6 +387,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			_tip_serial = -1
 		elif event.is_action_pressed("reload_weapon"):
 			armory.reload()
+		elif event.is_action_pressed("drop_weapon"):
+			armory.drop(floor_y)
+			_tip_serial = -1
+		elif event.is_action_pressed("quick_turn"):
+			quick_turn()
+			_tip_serial = -1
 		if night.burst_time < 0:
 			if not event.is_action_pressed("strike") or armory.before_attack("punch"):
 				super._unhandled_input(event)
@@ -402,6 +417,7 @@ func _physics_process(delta: float) -> void:
 			and not Input.is_action_pressed("block")
 		)
 	)
+	armory.ground_y = floor_y
 	armory.advance(delta, enemies, run_state == "playing")
 	continuation.advance_lift(self, delta, simulation_paused)
 	blood.paused = simulation_paused
@@ -692,7 +708,13 @@ func _remaining() -> int:
 func _interact() -> void:
 	if armory.interact():
 		_tip_serial = -1
-		_notice = "Оружие: " + str(armory.stats().name) + " · J — атака · Tab — смена"
+		_notice = (
+			"Оружие: "
+			+ str(armory.stats().name)
+			+ " · "
+			+ bindings.caption("drop_weapon")
+			+ " — бросить"
+		)
 		_notice_left = 4
 		return
 	if is_instance_valid(carrier) and carrier.activate(moose.position):
@@ -825,12 +847,17 @@ func _process(delta: float) -> void:
 	)
 	if night.active():
 		night_label.text = (
-			"УЛЬТА %.1fс · O %s"
-			% [night.remaining, "ГОТОВ" if night.cooldown <= 0 else "%.1fс" % night.cooldown]
+			"УЛЬТА %.1fс · %s %s"
+			% [
+				night.remaining,
+				bindings.caption("super_strike"),
+				"ГОТОВ" if night.cooldown <= 0 else "%.1fс" % night.cooldown
+			]
 		)
 	else:
 		night_label.text = (
-			"Q · УЛЬТА ГОТОВА" if night.charge >= 100 else "Q · УЛЬТА %d%%" % night.charge
+			bindings.caption("ultimate")
+			+ (" · УЛЬТА ГОТОВА" if night.charge >= 100 else " · УЛЬТА %d%%" % night.charge)
 		)
 	_notice_left = maxf(0, _notice_left - delta)
 	_shake = move_toward(_shake, 0, delta * 30)
@@ -855,7 +882,7 @@ func _process(delta: float) -> void:
 		)
 	elif _remaining() == 0:
 		message.text = (
-			"E — отключить реле"
+			bindings.caption("interact") + " — отключить реле"
 			if moose.position.distance_to(relay) < 110
 			else "Охрана снята. Доберись до реле справа →"
 		)
@@ -863,7 +890,11 @@ func _process(delta: float) -> void:
 		message.text = (
 			"Охрана: "
 			+ str(_remaining())
-			+ "   ·   J/K — бой · L — блок   ·   "
+			+ "   ·   "
+			+ bindings.caption("strike")
+			+ "/"
+			+ bindings.caption("kick")
+			+ " — бой   ·   "
 			+ str(rooms[room_index].hint)
 		)
 	continuation.sync_hud(self)

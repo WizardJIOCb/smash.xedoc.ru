@@ -39,6 +39,21 @@ var _trail: Array[Vector2] = []
 var _trail_serial: int = -1
 var _stride_stop := StrideStop.new()
 var _direction_was_held: bool = false
+var _turn_axis: float = 0.0
+var _manual_facing: bool = false
+
+
+func quick_turn() -> void:
+	if moose.ragdoll_active:
+		return
+	moose.combat.interrupt()
+	moose.facing *= -1
+	_turn_axis = Input.get_axis("left", "right")
+	_manual_facing = true
+	_stride_stop.active = false
+	_direction_was_held = false
+	moose.finishing_step = false
+	moose.stop_cycle_distance = 0
 
 
 func _ready() -> void:
@@ -133,6 +148,10 @@ func _background(path: String) -> TextureRect:
 
 func _physics_process(delta: float) -> void:
 	var direction := Input.get_axis("left", "right")
+	if direction == 0:
+		_turn_axis = 0
+	if _manual_facing and direction != 0 and direction != _turn_axis:
+		_manual_facing = false
 	var crouching := Input.is_action_pressed("crouch") and lift == 0
 	moose.blocking = Input.is_action_pressed("block")
 	if moose.blocking:
@@ -186,6 +205,7 @@ func _physics_process(delta: float) -> void:
 		and absf(speed) > 20
 		and moose.combat.chain_length == 0
 		and not moose.blocking
+		and not _manual_facing
 	):
 		moose.facing = signf(speed)
 	_jump_buffer = maxf(0, _jump_buffer - delta)

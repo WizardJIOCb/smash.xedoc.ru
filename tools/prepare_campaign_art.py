@@ -65,6 +65,11 @@ def main():
         fit(cells[2], (180, 276), True).save(output / 'far_arm.png')
         fit(cells[3], (152, 296), True).save(output / 'near_leg.png')
         fit(cells[3], (152, 296), True).save(output / 'far_leg.png')
+        if kind == 'hare':
+            # Intact neutral leg; the v28 pre-bent/torn painting split at the knee.
+            neutral = Image.open(ART / 'sources/hare-leg-v29.png')
+            for side in ['near', 'far']:
+                fit(neutral, (152, 296), True).save(output / (side + '_leg.png'))
         weapon = image.crop((int(image.width * .28), image.height // 2, int(image.width * .74), image.height))
         if kind not in ['fox', 'lynx', 'firewall']:
             weapon = weapon.rotate(-90, expand=True)

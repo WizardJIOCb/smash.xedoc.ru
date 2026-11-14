@@ -30,8 +30,6 @@ func test_seven_round_magazine_and_reload_conserve_rounds() -> void:
 		armory.advance(0.34, [], true)
 	assert_eq(armory.stats().shots, 7)
 	assert_eq(armory.stats().loaded, 0)
-	armory.before_attack("punch")
-	assert_eq(armory.stats().shots, 7, "An empty magazine cannot shoot")
 	assert_true(armory.reload())
 	armory.advance(0.5, [], true)
 	assert_eq(armory.stats().loaded, 0, "Reload has a real duration")
@@ -128,3 +126,52 @@ func test_equipment_change_cancels_swing_and_long_weapon_includes_shaft() -> voi
 	)
 	armory.cycle()
 	assert_eq(armory.hero.combat.elapsed, -1.0)
+
+
+func test_drop_and_repickup_keep_exact_rounds_and_cancel_reload() -> void:
+	var armory = make_armory()
+	assert_false(armory.drop(500), "Fists cannot be thrown away")
+	armory.grant("pistol", 17)
+	armory.before_attack("punch")
+	armory.advance(0.4, [], true)
+	assert_true(armory.reload())
+	assert_true(armory.drop(500))
+	assert_eq(armory.equipped, "fists")
+	assert_false("pistol" in armory.inventory)
+	assert_false(armory.ammunition.has("pistol"))
+	for index in range(60):
+		armory.advance(1.0 / 60, [], true)
+	assert_eq(armory.pickups.size(), 1)
+	assert_almost_eq(armory.pickups[0].at.y, 482.0, 0.01, "Weapon settles on the road")
+	armory.hero.position = armory.pickups[0].at
+	assert_true(armory.interact())
+	assert_eq(armory.stats().loaded, 6)
+	assert_eq(armory.stats().reserve, 17, "Dropping during reload does not create rounds")
+	assert_eq(armory.pickups.size(), 0)
+	armory.advance(0, [], false)
+	assert_false(armory.drop(500), "A paused game cannot discard gear")
+
+
+func test_empty_pistol_next_attack_throws_once_and_can_be_recovered() -> void:
+	var armory = make_armory()
+	armory.grant("pistol", 11)
+	armory.ammunition.pistol.loaded = 0
+	var target := Target.new()
+	add_child_autofree(target)
+	watch_signals(armory)
+	assert_false(armory.before_attack("punch"))
+	assert_eq(armory.equipped, "fists")
+	assert_eq(armory.stats().throws, 1)
+	var item: Dictionary = armory.pickups[0]
+	target.position = item.at + Vector2(100, 0)
+	armory.advance(0.25, [target], true)
+	assert_signal_emit_count(armory, "projectile_hit", 1)
+	assert_eq(get_signal_parameters(armory, "projectile_hit")[2], 18)
+	for index in range(60):
+		armory.advance(1.0 / 60, [target], true)
+	assert_signal_emit_count(armory, "projectile_hit", 1)
+	armory.hero.position = item.at
+	assert_true(armory.interact())
+	assert_eq(armory.stats().loaded, 0)
+	assert_eq(armory.stats().reserve, 11)
+	assert_true(armory.reload())

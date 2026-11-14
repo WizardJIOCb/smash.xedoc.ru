@@ -1,0 +1,9 @@
+{
+  "tool": "built-in image_gen",
+  "source": "art/campaign/sources/hare-leg-v29.png",
+  "runtime": [
+    "assets/enemies/hare/near_leg.png",
+    "assets/enemies/hare/far_leg.png"
+  ],
+  "prompt": "Edit target: the attached single cutout trouser leg and sneaker sprite for a painterly cartoon anthropomorphic hare game enemy. Keep the existing dark charcoal purple work trousers, cargo pocket, fabric shading, worn cream sneaker, left-facing profile and brush texture. Fix: reconstruct a completely continuous opaque intact trouser leg from hip to cuff, no rips, no holes, no exposed skin at knee. Neutral rigging pose: leg straight vertically down with knee centered along hip/ankle axis, no pre-bent knee or sideways curved shin; shoe remains pointing LEFT naturally, boot sole horizontal. Full isolated single leg on true transparent background, generous empty transparent margin, no other body parts, no text, no shadows under sole. Preserve cartoony proportions, cloth wrinkles, original palette and shoe detail. This is a replacement game rigging sprite, not a full character."
+}

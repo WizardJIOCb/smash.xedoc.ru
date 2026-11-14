@@ -22,6 +22,10 @@ var shots_fired: int = 0
 var bullet_hits: int = 0
 var reloads: int = 0
 var visual: Node2D
+var interact_caption: String = "E"
+var ground_y: float = 555.0
+var throws: int = 0
+var thrown_hits: int = 0
 
 var _reload_left: float = 0.0
 var _reload_weapon: String = ""
@@ -34,9 +38,11 @@ var _clock: float = 0.0
 
 func configure(actor: Node2D) -> void:
 	hero = actor
+	ground_y = hero.position.y
 	process_priority = 60
 	z_index = 24
 	visual = HeldWeapon.new()
+	visual.z_index = -3
 	add_child(visual)
 	hero.combat.started.connect(_swing_started)
 	reset()
@@ -56,6 +62,8 @@ func reset(keep_inventory: bool = false) -> void:
 		shots_fired = 0
 		bullet_hits = 0
 		reloads = 0
+		throws = 0
+		thrown_hits = 0
 	_refresh()
 
 
@@ -95,8 +103,46 @@ func interact() -> bool:
 	if closest < 0:
 		return false
 	var item: Dictionary = pickups.pop_at(closest)
-	grant(item.id, int(item.reserve))
+	if item.has("ammo"):
+		var previous: Dictionary = ammunition.get(item.id, {}).duplicate()
+		grant(item.id, 0)
+		if previous.is_empty():
+			ammunition[item.id] = item.ammo.duplicate()
+		else:
+			ammunition[item.id] = previous
+			ammunition[item.id].reserve += int(item.ammo.loaded) + int(item.ammo.reserve)
+		changed.emit()
+	else:
+		grant(item.id, int(item.reserve))
 	item.visual.queue_free()
+	return true
+
+
+func drop(floor_y: float) -> bool:
+	if not _can_use() or equipped == "fists":
+		return false
+	var id := equipped
+	var art := HeldWeapon.new()
+	art.equip(id)
+	art.position = to_local(hero.bones.near_hand.global_position)
+	add_child(art)
+	var item := {
+		"id": id,
+		"at": art.position,
+		"visual": art,
+		"reserve": -1,
+		"velocity": Vector2(hero.facing * 140, -120),
+		"floor": floor_y - 18
+	}
+	if ammunition.has(id):
+		item["ammo"] = ammunition[id].duplicate()
+		ammunition.erase(id)
+	pickups.append(item)
+	inventory.erase(id)
+	hero.combat.interrupt()
+	equipped = "fists"
+	_cancel_reload()
+	_refresh()
 	return true
 
 
@@ -189,10 +235,6 @@ func melee_area(base: Rect2, kind: String, tip: Vector2) -> Rect2:
 	)
 
 
-func attack_serial(serial: int) -> int:
-	return serial
-
-
 func advance(delta: float, enemies: Array, playing: bool) -> void:
 	_playing = playing
 	visual.visible = is_instance_valid(hero) and hero.visible and not hero.ragdoll_active
@@ -200,6 +242,9 @@ func advance(delta: float, enemies: Array, playing: bool) -> void:
 		_held = false
 		return
 	_clock += delta
+	hero.held_firearm = equipped if is_ranged() else ""
+	hero.firearm_reloading = _reload_left > 0
+	hero.firearm_recoil = visual.flash / 0.065
 	_cooldown = maxf(0, _cooldown - delta)
 	visual.flash = maxf(0, visual.flash - delta)
 	if _reload_left > 0:
@@ -210,7 +255,21 @@ func advance(delta: float, enemies: Array, playing: bool) -> void:
 		_fire()
 	_advance_bullets(delta, enemies)
 	for item: Dictionary in pickups:
-		item.visual.position.y = item.at.y + sin(_clock * 2.8 + item.at.x) * 3
+		if item.has("velocity"):
+			var previous: Vector2 = item.at
+			item.velocity.y += 720 * delta
+			item.at += item.velocity * delta
+			if item.get("thrown", false):
+				_throw_contact(item, previous, enemies)
+			item.at.x = clampf(item.at.x, 28, 1252)
+			item.visual.rotation += delta * item.velocity.x / 45
+			if item.at.y >= float(item.floor) and item.velocity.y > 0:
+				item.at.y = item.floor
+				item.erase("velocity")
+				item.visual.rotation = -0.16
+		item.visual.position = item.at
+		if not item.has("velocity"):
+			item.visual.position.y += sin(_clock * 2.8 + item.at.x) * 3
 	visual.queue_redraw()
 	queue_redraw()
 
@@ -228,7 +287,10 @@ func stats() -> Dictionary:
 		"reload_progress": 0.0,
 		"shots": shots_fired,
 		"bullet_hits": bullet_hits,
-		"bullets": bullets.size()
+		"bullets": bullets.size(),
+		"pickups": pickups.size(),
+		"throws": throws,
+		"thrown_hits": thrown_hits
 	}
 	if is_ranged():
 		state.loaded = ammunition[equipped].loaded
@@ -276,6 +338,17 @@ func _fire() -> bool:
 	if not _can_use() or _cooldown > 0 or _reload_left > 0 or not is_ranged():
 		return false
 	var ammo: Dictionary = ammunition[equipped]
+	if int(ammo.loaded) <= 0 and equipped == "pistol":
+		drop(ground_y)
+		var item: Dictionary = pickups.back()
+		item.velocity = Vector2(hero.facing * 520, -90)
+		item["thrown"] = true
+		_serial -= 1
+		item["serial"] = _serial
+		throws += 1
+		hero.combat.request("punch", hero.airborne, hero.crouch_requested)
+		hero.combat.side = "near"
+		return false
 	if int(ammo.loaded) <= 0 or bullets.size() >= int(tuning.bullet_limit):
 		return false
 	var spec: Dictionary = tuning.weapons[equipped]
@@ -299,6 +372,39 @@ func _fire() -> bool:
 	shot.emit(equipped, at)
 	changed.emit()
 	return true
+
+
+func _throw_contact(item: Dictionary, previous: Vector2, enemies: Array) -> void:
+	var start := to_global(previous)
+	var finish := to_global(item.at)
+	var nearest := 1.01
+	var victim: Node2D
+	for enemy: Node2D in enemies:
+		if not is_instance_valid(enemy):
+			continue
+		var hit := -1.0
+		if enemy.dead:
+			if is_instance_valid(enemy.corpse):
+				var at: Vector2 = enemy.corpse.contact(
+					Rect2(start, Vector2.ZERO).expand(finish).grow(8), finish
+				)
+				if at != Vector2.INF:
+					hit = start.distance_to(at) / maxf(0.01, start.distance_to(finish))
+		else:
+			hit = _segment_rect(start, finish, enemy.hurtbox().grow(8))
+		if hit >= 0 and hit < nearest:
+			nearest = hit
+			victim = enemy
+	if not is_instance_valid(victim):
+		return
+	item.thrown = false
+	item.at = previous.lerp(item.at, nearest)
+	var axis: Vector2 = item.velocity.normalized()
+	item.velocity = Vector2(-item.velocity.x * 0.15, -90)
+	thrown_hits += 1
+	projectile_hit.emit(
+		victim, int(item.serial), int(tuning.throw_damage), to_global(item.at), axis, "throw"
+	)
 
 
 func _advance_bullets(delta: float, enemies: Array) -> void:
@@ -400,6 +506,9 @@ func _cancel_reload() -> void:
 
 
 func _refresh() -> void:
+	if is_instance_valid(hero):
+		hero.held_firearm = equipped if is_ranged() else ""
+		hero.firearm_reloading = _reload_left > 0
 	if is_instance_valid(visual):
 		visual.equip(equipped)
 	changed.emit()
@@ -420,7 +529,7 @@ func _draw() -> void:
 			is_instance_valid(hero)
 			and hero.global_position.distance_to(to_global(at)) < float(tuning.pickup_radius)
 		)
-		var text := ("E · " if nearby else "") + str(tuning.weapons[item.id].name)
+		var text := (interact_caption + " · " if nearby else "") + str(tuning.weapons[item.id].name)
 		draw_string(
 			font,
 			at + Vector2(-12, -28),

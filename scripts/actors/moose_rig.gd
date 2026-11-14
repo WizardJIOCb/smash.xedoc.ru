@@ -8,6 +8,7 @@ const PantLegSkin = preload("res://scripts/actors/pant_leg_skin.gd")
 const SleeveSkin = preload("res://scripts/actors/sleeve_skin.gd")
 const AttackSequence = preload("res://scripts/core/attack_sequence.gd")
 const AttackPose = preload("res://scripts/actors/moose_attack_pose.gd")
+const FirearmPose = preload("res://scripts/actors/moose_firearm_pose.gd")
 
 # Camera-side anatomy stays consistent when the whole rig is mirrored.
 const DEPTH_FAR_LEG = 0
@@ -28,6 +29,10 @@ var travel: float = 0.0
 var airborne: bool = false
 var combat := AttackSequence.new()
 var attack_pose := AttackPose.new()
+var firearm_pose := FirearmPose.new()
+var held_firearm: String = ""
+var firearm_reloading: bool = false
+var firearm_recoil: float = 0.0
 var strike: float:
 	get:
 		return combat.elapsed
@@ -304,6 +309,7 @@ func _process(delta: float) -> void:
 		bones[side + "_fore"].rotation = -1.55 - absf(swing) * 0.25 - _air_blend * 0.18
 		bones[side + "_hand"].rotation = 0.0
 	attack_pose.apply(self)
+	firearm_pose.apply(self)
 	guard_blend = move_toward(guard_blend, float(blocking), delta * 12)
 	if guard_blend > 0:
 		for side: String in ["near", "far"]:

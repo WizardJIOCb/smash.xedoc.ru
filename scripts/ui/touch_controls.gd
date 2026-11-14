@@ -12,6 +12,8 @@ const BUTTONS = [
 	["interact", "ВЗЯТЬ", Vector2(959, 646), 35.0],
 	["cycle_weapon", "СМЕНА", Vector2(805, 625), 30.0],
 	["reload_weapon", "ПАТРОНЫ", Vector2(880, 625), 30.0],
+	["drop_weapon", "БРОСИТЬ", Vector2(805, 696), 23.0],
+	["quick_turn", "РАЗВОРОТ", Vector2(880, 696), 23.0],
 	["world", "ДЕНЬ/НОЧЬ", Vector2(880, 451), 35.0],
 	["ultimate", "УЛЬТА", Vector2(980, 451), 35.0],
 	["super_strike", "ИМПУЛЬС", Vector2(1080, 451), 35.0],
@@ -204,7 +206,11 @@ func _draw_controls() -> void:
 
 
 func _draw_icon(action: String, at: Vector2, color: Color) -> void:
-	if action in ["cycle_weapon", "reload_weapon"]:
+	if action == "drop_weapon":
+		_stroke(at, [Vector2(0, -14), Vector2(0, 8), Vector2(-7, 1)], color)
+		_stroke(at, [Vector2(0, 8), Vector2(7, 1)], color)
+		_stroke(at, [Vector2(-13, 9), Vector2(-13, 14), Vector2(13, 14), Vector2(13, 9)], color)
+	elif action in ["cycle_weapon", "reload_weapon", "quick_turn"]:
 		canvas.draw_arc(at, 13, -PI * 0.7, PI * 0.9, 24, color, 2, true)
 		_stroke(at, [Vector2(-14, -3), Vector2(-10, -12), Vector2(-4, -10)], color)
 		if action == "reload_weapon":

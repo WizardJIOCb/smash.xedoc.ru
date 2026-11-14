@@ -1,5 +1,6 @@
 {
   "pickup_radius": 82.0,
+  "throw_damage": 18,
   "bullet_limit": 32,
   "bullet_lifetime": 1.1,
   "weapons": {

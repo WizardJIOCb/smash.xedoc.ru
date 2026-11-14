@@ -30,7 +30,8 @@ func _show_stage(value: int) -> void:
 		rig.art_profile = ""
 		rig.body_scale = 1.35 if stage >= 4 else 1.0
 		var socket := Node2D.new()
-		socket.position = Vector2(390 if direction < 0 else 890, 560)
+		socket.position = Vector2(390 if direction < 0 else 890, 545)
+		socket.scale = Vector2.ONE * 2.5
 		add_child(socket)
 		rig.facing = direction
 		socket.add_child(rig)
@@ -47,6 +48,7 @@ func _physics_process(delta: float) -> void:
 	var phase := fmod(clock, 1.5) / 1.5
 	for socket: Node2D in actors:
 		var rig: Rig = socket.get_child(0)
+		rig.pace = 45 if phase < 0.4 else 0
 		rig.wind = sin(phase * PI)
 		rig.strike = maxf(0, sin((phase - 0.5) * TAU))
 		rig.recoil = maxf(0, sin(phase * TAU * 3))

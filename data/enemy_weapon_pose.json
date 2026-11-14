@@ -1,0 +1,5 @@
+{
+  "gun_grip": [8, -42], "gun_support": [-28, 5],
+  "heavy_rest": [20, -15], "heavy_wind": [19, -85], "heavy_strike": [-28, -43],
+  "light_rest": [22, -12], "light_wind": [27, -42], "light_strike": [-36, -43]
+}

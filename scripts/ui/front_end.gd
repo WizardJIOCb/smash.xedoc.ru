@@ -11,6 +11,9 @@ signal fps_requested(enabled: bool)
 
 const Moose = preload("res://scripts/actors/moose_rig.gd")
 const FONT = preload("res://assets/fonts/Manrope-Semibold.tres")
+const KeyMenu = preload("res://scripts/ui/key_bindings_menu.gd")
+
+var bindings: RefCounted
 
 var chapters: Array = []
 var chapter_index: int = 0
@@ -180,34 +183,41 @@ func show_records(refresh: bool = true) -> void:
 
 func show_help() -> void:
 	_page("help")
-	_label(content, Vector2(64, 112), "Как устроить шум", 48)
+	_label(content, Vector2(64, 100), "Как устроить шум", 42)
+	var left := ""
+	for action: String in [
+		"left", "right", "jump", "crouch", "sprint", "strike", "kick", "block", "quick_turn"
+	]:
+		left += key(action) + "     " + str(bindings.ACTIONS[action]) + "\n"
+	_label(content, Vector2(72, 194), left, 21)
+	var right := ""
+	for action: String in [
+		"interact",
+		"cycle_weapon",
+		"reload_weapon",
+		"drop_weapon",
+		"world",
+		"ultimate",
+		"super_strike",
+		"restart",
+		"mute"
+	]:
+		right += key(action) + "     " + str(bindings.ACTIONS[action]) + "\n"
+	_label(content, Vector2(704, 194), right, 21, Color("e2b36e"))
 	_label(
 		content,
-		Vector2(72, 216),
+		Vector2(72, 538),
 		(
-			"A / D или ← / →     Ходить\nShift     Бежать\nW / ↑ / Пробел     Прыгать"
-			+ "\nS / ↓     Присесть и идти в приседе\nJ     Серия ударов руками"
-			+ "\nK     Серия ударов ногами\nL     Блок · удерживать · −75% урона\nE     Отключить реле"
-			+ "\nT     День / ночь\nQ     Ульта · 8 секунд\nO     Импульс во время ульты"
-			+ "\nEsc     Меню    R     Повтор    M     Звук"
+			"Esc — меню. Клавиши меняются в настройках.\n"
+			+ "Удерживай блок: −75% урона. Удерживай атаку для автомата."
 		),
-		21
-	)
-	_label(
-		content,
-		Vector2(704, 264),
-		(
-			"Сними три узла карантина.\n\nЩит пробивается ногой."
-			+ "\nПод кабелем можно присесть.\nДрон запоминает, куда целился."
-			+ "\n\nУльта: урон ×1,8 и красная аура.\nO — импульс, перерыв 2 секунды."
-			+ "\nРаботает и днём, и ночью.\nЗаряд — за попадания и победы."
-			+ "\n\nE — оружие / лифт / реле\nTab — смена оружия · F — перезарядка"
-			+ "\nJ — оружие, удерживай для автомата"
-		),
-		18,
-		Color("e2b36e")
+		18
 	)
 	_button("← Главное меню", 614, func() -> void: show_home(can_resume)).grab_focus()
+
+
+func key(action: String) -> String:
+	return bindings.caption(action) if bindings != null else action
 
 
 func show_finish(score: int, seconds: float, previous_name: String) -> void:
@@ -288,7 +298,16 @@ func show_settings() -> void:
 	_label(content, Vector2(72, 216), "Параметры сохраняются на этом устройстве.", 20)
 	_button("Звук: " + ("выключен" if muted else "включён"), 342, _toggle_sound, true)
 	_button("Показывать FPS: " + ("да" if fps_enabled else "нет"), 414, _toggle_fps)
+	_button("Клавиши управления", 486, show_controls)
 	_button("← Главное меню", 614, func() -> void: show_home(can_resume))
+
+
+func show_controls() -> void:
+	_page("controls")
+	var keys := KeyMenu.new()
+	keys.bindings = bindings
+	keys.closed.connect(show_settings)
+	content.add_child(keys)
 
 
 func _toggle_fps() -> void:

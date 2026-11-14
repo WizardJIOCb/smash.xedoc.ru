@@ -2,11 +2,15 @@ extends Node2D
 ## Original painterly parts on native bones; continuous two-bone leg meshes.
 
 const ArmSkin = preload("res://scripts/actors/enemy_arm_skin.gd")
-
+const WeaponPose = preload("res://scripts/actors/enemy_weapon_pose.gd")
 ## Explicit preview-only donor. Production loads the actual species.
 @export var art_profile: String = ""
 
+var fit: Dictionary = JSON.parse_string(
+	FileAccess.get_file_as_string("res://data/enemy_rig_fit.json")
+)
 var kind: String = "shield"
+var weapon_pose := WeaponPose.new()
 var body_scale: float = 1.0
 var recoil: float = 0.0
 var stomp: float = 0.0
@@ -38,8 +42,11 @@ func _ready() -> void:
 		_part("body", bones.body, Vector2(103, 51), Vector2(0.5, 0.5), 10)
 		return
 	_part("torso", bones.body, Vector2(66, 79), Vector2(0.5, 0.94), 10)
-	_bone("head", bones.body, Vector2(-9, -59), 30)
-	_part("head", bones.head, Vector2(83, 75), Vector2(0.65, 0.87), 13)
+	var anatomy: Dictionary = fit.get(kind, {}) if art_profile.is_empty() else {}
+	var socket: Array = anatomy.get("head_socket", [-9, -59])
+	var pivot: Array = anatomy.get("head_pivot", [0.65, 0.87])
+	_bone("head", bones.body, Vector2(socket[0], socket[1]), 30)
+	_part("head", bones.head, Vector2(83, 75), Vector2(pivot[0], pivot[1]), 13)
 	for side: String in ["far", "near"]:
 		var near_side := side == "near"
 		_bone(side + "_leg", bones.hips, Vector2(-9 if near_side else 10, -2), 36)
@@ -79,7 +86,7 @@ func _ready() -> void:
 			bones.weapon,
 			Vector2(62, 25) if gun else Vector2(30, 77),
 			Vector2(0.82, 0.5) if gun else Vector2(0.5, 0.8),
-			18
+			16
 		)
 		_part("extra", bones.body, Vector2(26, 32), Vector2(0.5, 0), 11).position += Vector2(22, -7)
 	_apply_scale()
@@ -207,10 +214,16 @@ func _process(delta: float) -> void:
 		bones.cable.rotation = _grip_rotation("near") + strike * 0.35
 	else:
 		bones.weapon.rotation = _grip_rotation("near") - wind * 0.15 + strike * 0.25
+	weapon_pose.apply(self)
 
 
 func _grip_rotation(side: String) -> float:
-	return -bones.body.rotation - bones[side + "_arm"].rotation - bones[side + "_fore"].rotation
+	return (
+		-bones.body.rotation
+		- bones[side + "_arm"].rotation
+		- bones[side + "_fore"].rotation
+		- bones[side + "_hand"].rotation
+	)
 
 
 func _pose_ground_leg(side: String, cycle: float, walk: float) -> void:
