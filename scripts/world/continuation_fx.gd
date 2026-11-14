@@ -162,6 +162,11 @@ func sync_metrics(run) -> void:
 	Metrics.rig["campaign_rules"] = (
 		run.campaign_rules.metrics() if is_instance_valid(run.campaign_rules) else {}
 	)
+	Metrics.rig["campaign_terrain"] = (
+		run.terrain.metrics()
+		if is_instance_valid(run.terrain) and run.terrain.has_method("metrics")
+		else {}
+	)
 	Metrics.rig["wave"] = run.route.wave + 1
 	Metrics.rig["waves"] = run.rooms[run.room_index].get("waves", []).size() + 1
 	Metrics.rig["weapon"] = run.armory.stats()

@@ -21,6 +21,7 @@ const Route = preload("res://scripts/core/route_state.gd")
 const KeyBindings = preload("res://scripts/core/key_bindings.gd")
 const CampaignRules = preload("res://scripts/world/campaign_rules.gd")
 const CampaignContact = preload("res://scripts/world/campaign_contact.gd")
+const CampaignTerrain = preload("res://scripts/world/campaign_terrain.gd")
 
 var continuation := Continuation.new()
 var route := Route.new()
@@ -351,6 +352,11 @@ func _build_physics_surfaces(base_floor: float) -> void:
 	if is_instance_valid(terrain):
 		remove_child(terrain)
 		terrain.queue_free()
+	if CampaignTerrain.applies(campaign_rules):
+		terrain = CampaignTerrain.new()
+		terrain.configure(self, campaign_rules, base_floor)
+		add_child(terrain)
+		return
 	terrain = Node2D.new()
 	add_child(terrain)
 	blood.clear()
@@ -439,6 +445,8 @@ func _physics_process(delta: float) -> void:
 	armory.ground_y = floor_y
 	continuation.advance_lift(self, delta, simulation_paused)
 	campaign_rules.advance(self, delta, run_state != "playing")
+	if terrain is CampaignTerrain:
+		terrain.advance(simulation_paused)
 	if run_state == "playing":
 		CampaignContact.intercept_player_fire(self, campaign_rules, delta)
 	armory.advance(delta, enemies, run_state == "playing")
