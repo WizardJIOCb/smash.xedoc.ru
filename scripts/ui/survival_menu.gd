@@ -9,20 +9,23 @@ func home(front, resumable: bool) -> void:
 	front._label(
 		front.content, Vector2(70, 198), "До какой волны дошёл — такой ты и царь.", 24, GOLD
 	)
-	(
-		front
-		. _label(
-			front.content,
-			Vector2(72, 252),
-			"Враги заходят с двух сторон. Каждая волна злее.\nМежду волнами — передышка, здоровье и оружие.\nВ коопе павшие встают после зачистки. Все легли — конец.",
-			20
-		)
+	front._label(
+		front.content,
+		Vector2(72, 252),
+		(
+			"Враги заходят с двух сторон. Каждая волна злее.\n"
+			+ "Между волнами — передышка, здоровье и оружие.\n"
+			+ "В коопе павшие встают после зачистки. Все легли — конец."
+		),
+		20
 	)
 	if resumable:
 		front._button("Продолжить выживание", 358, func(): front.resume_requested.emit(), true)
-		front._button("Начать заново · соло", 414, func(): front.survival_requested.emit())
+		front._button("Начать заново · соло", 414, func(): front.survival_solo_requested.emit())
 	else:
-		front._button("Выживать в одиночку", 358, func(): front.survival_requested.emit(), true)
+		front._button(
+			"Выживать в одиночку", 358, func(): front.survival_solo_requested.emit(), true
+		)
 		front._button("Выживать вместе · 2–16", 414, func(): front.survival_coop_requested.emit())
 	front._button(
 		"Цари района · рейтинг", 478, func(): front.survival_records_requested.emit("solo")
@@ -56,7 +59,7 @@ func finish(
 	front.name_input.size = Vector2(440, 48)
 	front.name_input.placeholder_text = "Название банды" if cooperative else "Как тебя зовёт двор?"
 	front.name_input.text = name_text
-	front.name_input.max_length = 24
+	front.name_input.max_length = 20
 	front.name_input.add_theme_stylebox_override("normal", front._style(Color("263b40")))
 	front.content.add_child(front.name_input)
 	front.submit_button = front._button(
@@ -71,14 +74,20 @@ func finish(
 	front.submit_button.disabled = not can_submit
 	if not can_submit:
 		front.submit_button.text = "Результат записывает ведущий"
-	front.score_status = front._label(front.content, Vector2(72, 472), "", 16)
-	front._button("Ещё волны", 518, func(): front.survival_requested.emit())
-	front._button(
+	front.score_status = front._label(front.content, Vector2(72, 472), "", 14)
+	var again: Button = front._button("Ещё волны", 496, func(): front.survival_requested.emit())
+	again.size.y = 50
+	if cooperative and not can_submit:
+		again.disabled = true
+		again.text = "Следующий забег начнёт ведущий"
+	var records_button: Button = front._button(
 		"Рейтинг выживания",
-		574,
+		552,
 		func(): front.survival_records_requested.emit("coop" if cooperative else "solo")
 	)
-	front._button("Главное меню", 630, func(): front.show_home(false))
+	records_button.size.y = 50
+	var home_button: Button = front._button("Главное меню", 608, func(): front.show_home(false))
+	home_button.size.y = 50
 
 
 func records(front, board: String, rows: Array, online: bool, loading: bool = false) -> void:

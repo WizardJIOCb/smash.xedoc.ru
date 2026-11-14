@@ -41,7 +41,8 @@ def main():
             raise ValueError('File SHA256 mismatch: ' + name)
     for path in target.rglob('*'):
         path.chmod(0o755 if path.is_dir() else 0o644)
-    subprocess.run(['php', '-l', str(target / 'api/scores.php')], check=True)
+    for endpoint in (target / 'api').glob('*.php'):
+        subprocess.run(['php', '-l', str(endpoint)], check=True)
     site = Path('/etc/nginx/sites-available/smash.xedoc.ru.conf')
     backup = base / ('nginx-before-' + release + '.conf')
     shutil.copy2(site, backup)

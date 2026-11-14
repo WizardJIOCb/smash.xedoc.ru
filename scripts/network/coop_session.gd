@@ -59,6 +59,7 @@ var _inside_context: bool = false
 var _start_automatically: bool = false
 var _qa_players: int = 0
 var _solo_endpoint: String = ""
+var _joining_survival: bool = false
 
 
 func _ready() -> void:
@@ -134,7 +135,7 @@ func join_room(player_name: String, code: String) -> void:
 
 func _build_id() -> String:
 	return (
-		"coop2-"
+		"coop3-"
 		+ FileAccess.get_file_as_string("res://data/district_rooms.json").sha256_text().left(12)
 	)
 
@@ -211,6 +212,11 @@ func _receive(packet: Dictionary) -> void:
 			_fail(str(packet.reason), "host_left")
 		"room":
 			var entered := room.is_empty()
+			if entered:
+				_joining_survival = (
+					bool(packet.room.get("started", false))
+					and int(packet.room.get("chapter", 0)) == run.Survival.ROOM_ID
+				)
 			you = str(packet.you)
 			room = packet.room
 			hosting = str(room.host) == you
@@ -258,7 +264,10 @@ func _start(chapter: int) -> void:
 	_guest_epoch = -1
 	lobby.hide_lobby()
 	run.scores.endpoint = ""
-	run._select_chapter(chapter)
+	if chapter == run.Survival.ROOM_ID:
+		run._start_survival()
+	else:
+		run._select_chapter(chapter)
 	starting = false
 	run.front.hide_menu()
 	_sync_members()
@@ -330,6 +339,8 @@ func before_step(delta: float) -> bool:
 		return true
 	for actor: Actor in actors.values():
 		if actor.health <= 0:
+			if run.survival.enabled:
+				continue
 			actor.recovery -= delta
 			if actor.recovery <= 0:
 				actor.reset_at(Vector2(_safe_spawn(), float(run.rooms[run.room_index].floor)))
@@ -357,8 +368,12 @@ func before_step(delta: float) -> bool:
 			if nearest != null:
 				enemy.target = nearest
 	if run.health <= 0:
-		host_recovery -= delta
-		if host_recovery <= 0:
+		if run.survival.enabled:
+			run.elapsed_run += delta
+			run.survival.advance(run, delta)
+		else:
+			host_recovery -= delta
+		if host_recovery <= 0 and not run.survival.enabled:
 			_revive_host()
 		else:
 			run.continuation.advance_lift(run, delta, false)
@@ -523,6 +538,7 @@ func _fail(reason: String, category: String = "connection") -> void:
 
 
 func _clear(reason: String = "client") -> void:
+	_joining_survival = false
 	if not room.is_empty():
 		Metrics.track(
 			"coop_leave",
@@ -547,6 +563,7 @@ func _clear(reason: String = "client") -> void:
 		actor.queue_free()
 	actors.clear()
 	run.run_state = "menu"
+	run.survival.enabled = false
 	run.moose.visible = true
 	for enemy: Node2D in run.enemies:
 		enemy.target = run.moose
@@ -604,7 +621,8 @@ func _snapshot() -> Dictionary:
 		"pickups": pickups,
 		"projectiles": projectiles,
 		"lift": lift_state,
-		"rules": run.campaign_rules.network_state()
+		"rules": run.campaign_rules.network_state(),
+		"survival": run.survival.snapshot()
 	}
 
 
@@ -616,11 +634,23 @@ func _player_name(id: String) -> String:
 
 
 func _apply_snapshot(state: Dictionary) -> void:
+	if _joining_survival:
+		_joining_survival = false
+		if str(state.get("state", "")) != "lost":
+			_fail("Волны уже начались. В эту банду можно войти перед следующим забегом.", "server")
+			return
 	if not active:
 		active = true
 		run.scores.endpoint = ""
 		lobby.hide_lobby()
 		run.front.hide_menu()
+	var incoming: Dictionary = state.get("survival", {})
+	if bool(incoming.get("enabled", false)) and int(incoming.get("wave", 0)) != run.survival.wave:
+		for enemy in run.enemies:
+			run.remove_child(enemy)
+			enemy.queue_free()
+		run.enemies.clear()
+	run.survival.apply_snapshot(incoming)
 	if int(state.epoch) != _guest_epoch:
 		_guest_epoch = int(state.epoch)
 		run._finish_shown = false

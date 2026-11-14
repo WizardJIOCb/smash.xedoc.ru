@@ -17,6 +17,9 @@ host/guest, число игроков/вместимость, оружие, кл
 - Бой: `room_enter`, `relay_clear`, `player_down`, `player_revive`,
   `weapon_change`, `power_use`.
 - Остальное: `menu_open`, `performance_summary`, `game_session_end`.
+- Выживание: `survival_start`, `survival_restart`, `survival_pause`, `survival_resume`,
+  `survival_wave_start`, `survival_wave_complete`, `survival_end`; параметр `game_kind`
+  разделяет кампанию и выживание, `wave` содержит достигнутую волну.
 
 Цели в кабинете автоматически не создаются. Параметры событий передаются
 внутри `game`; начните с воронки game_ready → chapter_start → chapter_complete.

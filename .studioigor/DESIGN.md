@@ -114,3 +114,10 @@ Chapter3 Башня Firewall: entrance/cooling/liftshaft/core,12guards including
 Eight unique original backgrounds; beaver/hare/fox/lynx; bat/shovel/hockey/knuckles/pistol7/rifle24.
 Room checkpoints, E moving lifts/call back, reinforcements, finite ammo/F reload/Tab cycle;
 chapter picker, carry gear via Next, separate chapter records; old first route preserved.
+
+## Survival — approved 2026-11-15
+Separate menu mode: endless arena waves from both sides, six living enemies maximum,
+sixteen enemies per wave maximum; health/damage grow and a boss joins every fifth wave.
+Five-second breathers restore12HP and offer a weapon. Coop fixes party size at start;
+fallen players revive after a clear, whole-party wipe ends the run. Solo/coop leaderboards
+are separate, ranked by reached wave, kills, then shorter elapsed time. Campaign saves stay separate.

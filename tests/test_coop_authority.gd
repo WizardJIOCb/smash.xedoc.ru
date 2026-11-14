@@ -130,3 +130,65 @@ func test_party_revival_restores_artwork_after_corpse_fade() -> void:
 	run.coop._revive_host()
 	assert_eq(run.moose.skeleton.modulate, Color.WHITE)
 	assert_true(run.moose.visible)
+
+
+func test_survival_host_stays_down_until_the_wave_is_cleared() -> void:
+	var run = party()
+	run.coop.starting = true
+	run._start_survival()
+	run.coop.starting = false
+	run.survival.wave = 1
+	run.survival.rest = 0
+	run.survival.pending = ["whip"]
+	run._hurt_player(200, run.moose.position)
+	run.coop.before_step(7.0)
+	assert_eq(run.health, 0, "Survival must not use the campaign six-second auto revive")
+	for enemy in run.enemies:
+		enemy.dead = true
+	run.survival.pending.clear()
+	run.survival.pending_count = 0
+	run.coop.before_step(0.01)
+	assert_eq(run.survival.completed, 1)
+	assert_eq(run.health, 50)
+	assert_eq(run.armory.pickups[0].id, "bat")
+	assert_true(run.moose.visible)
+
+
+func test_survival_total_wipe_finishes_before_any_revival() -> void:
+	var run = party()
+	run.survival.begin(2)
+	run.survival.wave = 3
+	run.health = 0
+	run.coop.actors["2"].health = 0
+	run.coop.before_step(10.0)
+	assert_eq(run.run_state, "lost")
+	assert_eq(run.health, 0)
+	assert_eq(run.survival.completed, 0)
+
+
+func test_explicit_solo_survival_leaves_the_old_party() -> void:
+	var run = party()
+	run.front.survival_solo_requested.emit()
+	assert_false(run.coop.active)
+	assert_true(run.coop.room.is_empty())
+	assert_true(run.survival.enabled)
+	assert_eq(run.survival.players, 1)
+	assert_eq(run.survival_scores.board, "solo")
+	assert_false(run.coop.lobby.root.visible)
+
+
+func test_survival_late_join_is_rejected_during_play_but_allowed_after_wipe() -> void:
+	var run = party()
+	run.survival.begin(2)
+	var state: Dictionary = run.coop._snapshot()
+	run.coop.hosting = false
+	run.coop._joining_survival = true
+	run.coop._apply_snapshot(state)
+	assert_false(run.coop.active)
+	assert_true(run.coop.room.is_empty())
+	run.coop.you = "1"
+	run.coop._joining_survival = true
+	state.state = "lost"
+	run.coop._apply_snapshot(state)
+	assert_true(run.coop.active, "A replacement player can join between completed attempts")
+	assert_eq(run.run_state, "lost")

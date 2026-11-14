@@ -134,3 +134,26 @@ test('SDK unavailable: game still loads and all queued data is sanitized', () =>
   w.ym = () => { throw new Error('SDK blocked'); };
   assert.doesNotThrow(() => w.smashAnalytics.event('coop_open'));
 });
+
+test('survival waves and defeat stay separate from campaign conversions', () => {
+  const events = [];
+  const tracker = createTracker((name, params) => events.push({name, params}));
+  const sample = (wave, completed, state = 'playing') => tracker.sample(frame({
+    seconds: 10 + wave, run_state: state, survival: {enabled: true, wave, completed}
+  }), {}, 0.5);
+  sample(0, 0);
+  sample(1, 0);
+  sample(1, 0);
+  sample(1, 1);
+  sample(2, 1);
+  sample(2, 1, 'lost');
+  sample(2, 1, 'lost');
+  sample(2, 1, 'menu');
+  assert.equal(events.filter(e => e.name === 'survival_start').length, 1);
+  assert.equal(events.filter(e => e.name === 'survival_wave_start').length, 2);
+  assert.equal(events.filter(e => e.name === 'survival_wave_complete').length, 1);
+  assert.equal(events.filter(e => e.name === 'survival_end').length, 1);
+  assert.equal(events.filter(e => e.name.startsWith('chapter_')).length, 0);
+  assert.equal(events.find(e => e.name === 'survival_end').params.wave, 2);
+  assert.equal(tracker.summary().chapters_started, 0);
+});

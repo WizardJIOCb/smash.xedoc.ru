@@ -13,11 +13,15 @@
     'chapter_restart', 'chapter_complete', 'chapter_fail', 'chapter_leave',
     'room_enter', 'relay_clear', 'player_down', 'player_revive', 'weapon_change', 'power_use',
     'coop_open', 'coop_create_attempt', 'coop_join_attempt', 'coop_room_create',
-    'coop_room_join', 'coop_invite_copy', 'coop_leave', 'coop_error', 'performance_summary'
+    'coop_room_join', 'coop_invite_copy', 'coop_leave', 'coop_error', 'performance_summary',
+    'survival_start', 'survival_restart', 'survival_pause', 'survival_resume',
+    'survival_wave_start', 'survival_wave_complete', 'survival_end'
   ]);
   const ENUMS = {
     mode: ['solo', 'coop'], role: ['solo', 'host', 'guest'],
-    menu: ['home', 'chapters', 'intro', 'finish', 'records', 'help', 'settings', 'controls'],
+    game_kind: ['campaign', 'survival'],
+    menu: ['home', 'chapters', 'intro', 'finish', 'records', 'help', 'settings', 'controls',
+      'survival', 'survival_finish', 'survival_records'],
     weapon: ['fists', 'knuckles', 'bat', 'shovel', 'hockey', 'pistol', 'rifle'],
     reason: ['client', 'connection', 'host_left', 'server', 'load', 'chapter_change', 'menu'],
     power: ['ultimate', 'impulse'], result: ['won', 'lost', 'left'],
@@ -28,7 +32,7 @@
   const LIMITS = {
     chapter: [1, 255], room: [1, 1024], players: [1, 16], capacity: [1, 16],
     seconds: [0, 86400], health: [0, 100], kills: [0, 10000], deaths: [0, 1000],
-    relays: [0, 1024], wave: [1, 100], load_ms: [0, 600000], fps: [0, 240],
+    relays: [0, 1024], wave: [1, 10000], load_ms: [0, 600000], fps: [0, 240],
     cache_hits: [0, 100], downloads: [0, 100], active_seconds: [0, 86400],
     chapters_started: [0, 1000], chapters_won: [0, 1000], version: [1, 100000]
   };
@@ -67,9 +71,11 @@
     const inRoom = coop.connected === true || coop.active === true;
     const multiplayer = coop.active === true && coop.world && Array.isArray(coop.world.players);
     const world = multiplayer ? coop.world : {};
+    const survival = (multiplayer ? world.survival : game.survival) || {};
     const hero = multiplayer ? world.players.find(player => String(player.id) === String(coop.you)) : null;
     const raw = {
       mode: inRoom ? 'coop' : 'solo', role: inRoom ? (coop.host ? 'host' : 'guest') : 'solo',
+      game_kind: survival.enabled ? 'survival' : 'campaign',
       chapter: multiplayer ? Number(world.chapter) + 1 : game.chapter,
       room: multiplayer ? Number(world.room) + 1 : game.room,
       players: multiplayer ? world.players.length : inRoom ? coop.players?.length : 1,
@@ -79,12 +85,13 @@
       weapon: multiplayer ? hero?.gear?.equipped : game.weapon?.id,
       kills: multiplayer ? world.kills : game.kills, deaths: multiplayer ? undefined : game.deaths,
       relays: multiplayer ? world.cleared?.filter(Boolean).length : game.relays,
-      wave: multiplayer ? Number(world.wave) + 1 : game.wave,
+      wave: survival.enabled ? Math.max(1, Number(survival.wave)) : multiplayer ? Number(world.wave) + 1 : game.wave,
       fps: game.fps, input: game.touch_controls ? 'touch' : 'keyboard'
     };
     return {
       ...sanitize(raw), state: multiplayer ? world.state : game.run_state,
       epoch: multiplayer ? coop.epoch : null,
+      stage_wave: Number(survival.wave) || 0, completed_wave: Number(survival.completed) || 0,
       casts: multiplayer ? hero?.power?.casts : game.night_casts,
       bursts: multiplayer ? hero?.power?.bursts : game.night_bursts,
       menu: game.menu
@@ -101,14 +108,16 @@
     let fpsCount = 0;
     const emit = (name, frame, extra = {}) => send(name, sanitize({...frame, ...extra}));
     function finish(reason) {
-      if (run && !run.finished) emit('chapter_leave', previous, {reason, result: 'left'});
+      if (run && !run.finished) emit(run.kind === 'survival' ? 'survival_end' : 'chapter_leave', previous, {reason, result: 'left'});
       run = null;
     }
     function sample(game, coop, delta, visible = true) {
       const frame = normalize(game, coop);
       const playing = frame.state === 'playing';
       if (!frame.chapter) return;
-      const newChapter = playing && (!run || run.chapter !== frame.chapter || run.mode !== frame.mode);
+      const survival = frame.game_kind === 'survival';
+      const goal = name => survival ? name.replace('chapter_', 'survival_') : name;
+      const newChapter = playing && (!run || run.chapter !== frame.chapter || run.mode !== frame.mode || run.kind !== frame.game_kind);
       const freshTimer = playing && run && previous && frame.seconds + 0.5 < previous.seconds;
       const restart = playing && run && previous && (
         ['lost', 'won'].includes(previous.state) || freshTimer ||
@@ -116,14 +125,14 @@
       );
       if (newChapter) {
         if (run) finish('chapter_change');
-        run = {chapter: frame.chapter, mode: frame.mode, finished: false};
-        started++;
-        emit('chapter_start', frame);
+        run = {chapter: frame.chapter, mode: frame.mode, kind: frame.game_kind, finished: false};
+        if (!survival) started++;
+        emit(goal('chapter_start'), frame);
         emit('room_enter', frame);
       } else if (restart) {
         run.finished = false;
-        emit('chapter_restart', frame);
-      } else if (playing && previous?.state === 'paused') emit('chapter_resume', frame);
+        emit(goal('chapter_restart'), frame);
+      } else if (playing && previous?.state === 'paused') emit(goal('chapter_resume'), frame);
       if (run) {
         if (playing && visible) {
           activeSeconds += Math.min(2, Math.max(0, delta));
@@ -138,13 +147,18 @@
           if (frame.health > 0 && previous.health === 0 && playing) emit('player_revive', frame);
           if (frame.casts > previous.casts) emit('power_use', frame, {power: 'ultimate'});
           if (frame.bursts > previous.bursts) emit('power_use', frame, {power: 'impulse'});
-          if (frame.state === 'paused' && previous.state !== 'paused') emit('chapter_pause', frame);
+          if (frame.state === 'paused' && previous.state !== 'paused') emit(goal('chapter_pause'), frame);
         }
-        if (frame.state === 'won' && !run.finished) {
+        if (survival && playing) {
+          if (frame.completed_wave > (previous?.completed_wave || 0)) emit('survival_wave_complete', frame, {wave: frame.completed_wave});
+          if (frame.stage_wave > 0 && (newChapter || restart || frame.stage_wave !== previous?.stage_wave)) emit('survival_wave_start', frame);
+        }
+        if (!survival && frame.state === 'won' && !run.finished) {
           run.finished = true; won++; emit('chapter_complete', frame, {result: 'won'});
           if (fpsCount) emit('performance_summary', frame, {fps: fpsSum / fpsCount, fps_band: fpsBand(fpsSum / fpsCount)});
         } else if (frame.state === 'lost' && previous?.state !== 'lost') {
-          emit('chapter_fail', frame, {result: 'lost'});
+          emit(survival ? 'survival_end' : 'chapter_fail', frame, {result: 'lost'});
+          if (survival) run.finished = true;
         } else if (frame.state === 'menu') finish('menu');
       }
       previous = frame;
@@ -193,7 +207,7 @@
     const status = {counter: COUNTER, sdk: 'loading', events: 0, recent};
     const publish = () => d.body?.setAttribute('data-game-analytics', JSON.stringify(status));
     d.addEventListener('yacounter' + COUNTER + 'inited', () => { status.sdk = 'initialized'; publish(); });
-    const visitKeys = ['mode', 'role', 'chapter', 'room', 'players', 'capacity', 'weapon', 'entry',
+    const visitKeys = ['mode', 'role', 'game_kind', 'wave', 'chapter', 'room', 'players', 'capacity', 'weapon', 'entry',
       'input', 'version', 'qa', 'cache', 'fps_band', 'load_band', 'result'];
     const call = (...args) => {
       try { w.ym(COUNTER, ...args); } catch (_) { status.sdk = 'unavailable'; }
@@ -205,7 +219,7 @@
       call('reachGoal', name, {game: details});
       const visit = Object.fromEntries(visitKeys.filter(key => key in details).map(key => [key, details[key]]));
       visit.milestones = {[name]: true};
-      if (['chapter_complete', 'chapter_fail', 'game_session_end'].includes(name)) {
+      if (['chapter_complete', 'chapter_fail', 'survival_end', 'game_session_end'].includes(name)) {
         Object.assign(visit, tracker.summary(), sanitize({seconds: details.seconds, kills: details.kills,
           health: details.health, deaths: details.deaths, relays: details.relays}));
       }

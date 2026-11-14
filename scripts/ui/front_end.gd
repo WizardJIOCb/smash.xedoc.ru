@@ -10,6 +10,7 @@ signal records_requested
 signal fps_requested(enabled: bool)
 signal coop_requested
 signal survival_requested
+signal survival_solo_requested
 signal survival_menu_requested
 signal survival_coop_requested
 signal survival_records_requested(board: String)
@@ -106,15 +107,20 @@ func show_home(resumable: bool) -> void:
 		"Рога на месте. Двор под карантином.\nУ Firewall сейчас будут проблемы.",
 		20
 	)
-	_button("Продолжить" if can_resume else "Войти во двор", 338, _play, true)
-	_button("По сети · 2–16 игроков", 382, func() -> void: coop_requested.emit())
-	_button("Выживание · царь района", 426, func(): survival_menu_requested.emit())
-	_button("Выбрать главу", 470, show_chapters)
-	_button("Рекорды", 514, show_records)
-	_button("Как играть", 558, show_help)
-	_button("Настройки", 602, show_settings)
+	_button("Продолжить" if can_resume else "Войти во двор", 344, _play, true)
+	_button("По сети · 2–16 игроков", 388, func() -> void: coop_requested.emit())
+	_button("Выживание · царь района", 432, func(): survival_menu_requested.emit())
+	_button("Выбрать главу", 476, show_chapters)
+	_button("Рекорды", 520, show_records)
+	_button("Как играть", 564, show_help)
+	_button("Настройки", 608, show_settings)
 	for child: Node in content.get_children():
 		if child is Button:
+			child.add_theme_font_size_override("font_size", 22)
+			for style_name in ["normal", "hover", "pressed", "focus"]:
+				var style: StyleBoxFlat = child.get_theme_stylebox(style_name)
+				style.content_margin_top = 4
+				style.content_margin_bottom = 4
 			child.size.y = 40
 
 

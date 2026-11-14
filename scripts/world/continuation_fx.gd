@@ -172,6 +172,7 @@ func sync_metrics(run) -> void:
 		else {}
 	)
 	Metrics.rig["wave"] = run.route.wave + 1
+	Metrics.rig["survival"] = run.survival.snapshot()
 	Metrics.rig["waves"] = run.rooms[run.room_index].get("waves", []).size() + 1
 	Metrics.rig["weapon"] = run.armory.stats()
 	Metrics.rig["key_turn"] = run.bindings.caption("quick_turn")

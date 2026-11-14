@@ -14,6 +14,7 @@ var players: int = 1
 var arena_index: int = -1
 var pending: Array = []
 var spawn_wait: float = 0
+var pending_count: int = 0
 
 
 func begin(party_size: int) -> void:
@@ -23,6 +24,7 @@ func begin(party_size: int) -> void:
 	players = clampi(party_size, 1, 16)
 	rest = float(tuning.opening_seconds)
 	pending.clear()
+	pending_count = 0
 	spawn_wait = 0
 
 
@@ -57,6 +59,11 @@ func enemy_tuning(base: Dictionary) -> Dictionary:
 		float(base.damage) * minf(3, 1 + (wave - 1) * float(tuning.damage_per_wave))
 	)
 	result.speed = float(base.speed) * minf(1.65, 1 + (wave - 1) * float(tuning.speed_per_wave))
+	for move: Dictionary in result.get("moves", []):
+		if move.has("damage"):
+			move.damage = roundi(
+				float(move.damage) * minf(3, 1 + (wave - 1) * float(tuning.damage_per_wave))
+			)
 	return result
 
 
@@ -71,6 +78,7 @@ func advance(run, delta: float) -> void:
 	spawn_wait -= delta
 	if not pending.is_empty() and run._remaining() < int(tuning.alive_limit) and spawn_wait <= 0:
 		var kind: String = str(pending.pop_front())
+		pending_count = pending.size()
 		var at := 110.0 if (pending.size() + wave) % 2 == 0 else 1160.0
 		if absf(at - run.moose.position.x) < 190:
 			at = 1160.0 if at < 640 else 110.0
@@ -83,7 +91,9 @@ func advance(run, delta: float) -> void:
 		run._feedback(Vector2(640, 320), "ВОЛНА %d ЗАКРЫТА" % wave, Color("e2b36e"), "relay")
 		var weapons: Array = tuning.weapon_cycle
 		var weapon: String = str(weapons[(wave - 1) % weapons.size()])
-		run.armory.spawn_pickups([[weapon, 640, float(run.rooms[arena_index].floor) - 22]])
+		run.armory.spawn_pickups(
+			[{"id": weapon, "x": 640, "y": float(run.rooms[arena_index].floor)}]
+		)
 		if is_instance_valid(run.coop) and run.coop.active:
 			for actor in run.coop.actors.values():
 				actor.armory.pickups = run.armory.pickups
@@ -97,6 +107,7 @@ func _start_wave(run) -> void:
 	run.effects.projectiles.clear()
 	wave += 1
 	pending = plan(wave, players)
+	pending_count = pending.size()
 	spawn_wait = 0
 	run._feedback(
 		Vector2(640, 300),
@@ -128,7 +139,7 @@ func snapshot() -> Dictionary:
 		"completed": completed,
 		"rest": rest,
 		"players": players,
-		"pending": pending.size()
+		"pending": pending_count
 	}
 
 
@@ -138,6 +149,7 @@ func apply_snapshot(state: Dictionary) -> void:
 	completed = int(state.get("completed", 0))
 	rest = float(state.get("rest", 0))
 	players = int(state.get("players", 1))
+	pending_count = int(state.get("pending", 0))
 
 
 func stats(run) -> Dictionary:
@@ -163,7 +175,7 @@ func sync_hud(run) -> void:
 			"Врагов: %d · подкреплений: %d · %s/%s — бой · L — блок"
 			% [
 				run._remaining(),
-				pending.size(),
+				pending_count,
 				run.bindings.caption("strike"),
 				run.bindings.caption("kick")
 			]

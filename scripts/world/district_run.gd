@@ -27,9 +27,16 @@ const CampaignRules = preload("res://scripts/world/campaign_rules.gd")
 const CampaignContact = preload("res://scripts/world/campaign_contact.gd")
 const CampaignTerrain = preload("res://scripts/world/campaign_terrain.gd")
 const GroundContact = preload("res://scripts/world/ground_contact.gd")
+const Survival = preload("res://scripts/systems/survival_run.gd")
+const SurvivalScores = preload("res://scripts/core/survival_scores.gd")
+const SurvivalMenu = preload("res://scripts/ui/survival_menu.gd")
 
 var coop: Coop
 var holiday_fx: Holiday
+var survival := Survival.new()
+var survival_menu := SurvivalMenu.new()
+var survival_scores: SurvivalScores
+var survival_records: SurvivalScores
 
 var continuation := Continuation.new()
 var route := Route.new()
@@ -98,6 +105,8 @@ func _ready() -> void:
 	)
 	holiday.chapter = route.chapters.size()
 	rooms.append(holiday)
+	survival.arena_index = rooms.size()
+	rooms.append(survival.tuning.arena.duplicate(true))
 	encounter = JSON.parse_string(FileAccess.get_file_as_string("res://data/encounters.json"))
 	super._ready()
 	route.load_progress()
@@ -150,6 +159,12 @@ func _ready() -> void:
 	add_child(scores)
 	scores.changed.connect(_records_changed)
 	scores.submitted.connect(_record_submitted)
+	survival_scores = SurvivalScores.new()
+	add_child(survival_scores)
+	survival_scores.submitted.connect(_survival_saved)
+	survival_records = SurvivalScores.new()
+	add_child(survival_records)
+	survival_records.changed.connect(_survival_records_changed)
 	front = FrontEnd.new()
 	front.muted = audio.muted
 	front.chapters = route.chapters
@@ -161,7 +176,22 @@ func _ready() -> void:
 	front.completed_chapters = route.completed
 	front.chapter_requested.connect(_request_chapter)
 	front.next_requested.connect(_continue_chapter)
-	front.start_requested.connect(_start_new_run)
+	front.start_requested.connect(func(): _select_chapter(route.chapter))
+	front.survival_requested.connect(_start_survival)
+	front.survival_solo_requested.connect(
+		func():
+			if not coop.room.is_empty():
+				coop.leave()
+			coop.lobby.hide_lobby()
+			_start_survival()
+	)
+	front.survival_menu_requested.connect(_show_survival_menu)
+	front.survival_records_requested.connect(_show_survival_records)
+	front.survival_submit_requested.connect(
+		func(name_text: String):
+			if survival.enabled and (not coop.active or coop.hosting):
+				survival_scores.finish(name_text, survival.stats(self))
+	)
 	front.resume_requested.connect(_resume_run)
 	front.records_requested.connect(
 		func() -> void:
@@ -180,6 +210,14 @@ func _ready() -> void:
 	coop = Coop.new()
 	add_child(coop)
 	front.coop_requested.connect(coop.open)
+	front.survival_coop_requested.connect(
+		func():
+			coop.open()
+			coop.lobby.prefer_survival = true
+			coop.lobby.chapter_input.select(
+				coop.lobby.chapter_input.get_item_index(Survival.ROOM_ID)
+			)
+	)
 
 
 func _build_hud() -> void:
@@ -335,7 +373,7 @@ func _load_room(index: int, spawn_x: float) -> void:
 		add_child(carrier)
 	armory.spawn_pickups(room.get("weapons", []))
 	checkpoint_gear = armory.snapshot()
-	if not cleared[index]:
+	if not cleared[index] and not survival.enabled:
 		for entry: Array in room.enemies:
 			_spawn_enemy(entry)
 	effects.projectiles.clear()
@@ -357,7 +395,9 @@ func _spawn_enemy(entry: Array) -> void:
 	enemy.kind = str(entry[0])
 	enemy.position = Vector2(entry[1], entry[2])
 	enemy.target = moose
-	enemy.tuning = encounter[enemy.kind]
+	enemy.tuning = (
+		survival.enemy_tuning(encounter[enemy.kind]) if survival.enabled else encounter[enemy.kind]
+	)
 	enemy.hit_player.connect(_enemy_hit.bind(enemy))
 	enemy.shot.connect(_projectile)
 	enemy.feedback.connect(_feedback)
@@ -489,7 +529,11 @@ func _physics_process(delta: float) -> void:
 		if Engine.get_physics_frames() % 6 == 0:
 			_sync_metrics()
 		return
-	var reinforcements := route.reinforcement(rooms[room_index], _remaining(), delta)
+	if survival.enabled:
+		survival.advance(self, delta)
+	var reinforcements := (
+		[] if survival.enabled else route.reinforcement(rooms[room_index], _remaining(), delta)
+	)
 	for entry: Array in reinforcements:
 		_spawn_enemy(entry)
 	if not reinforcements.is_empty():
@@ -540,7 +584,7 @@ func _physics_process(delta: float) -> void:
 				_stride_stop.active = false
 	_resolve_attacks()
 	_move_projectiles(delta)
-	if _transition <= 0:
+	if _transition <= 0 and not survival.enabled:
 		if (
 			moose.position.x > 1230
 			and cleared[room_index]
@@ -777,6 +821,8 @@ func _enemy_down() -> void:
 	kills += 1
 	night.gain(float(night.tuning.kill_charge))
 	Metrics.record("enemy_down")
+	if survival.enabled:
+		return
 	if _remaining() == 0 and route.waves_done(rooms[room_index]):
 		_notice = "Порядок навели. Теперь к посту справа — E."
 		_notice_left = 5
@@ -801,6 +847,8 @@ func _interact() -> void:
 			+ " — бросить"
 		)
 		_notice_left = 4
+		return
+	if survival.enabled:
 		return
 	if is_instance_valid(carrier) and carrier.activate(moose.position):
 		return
@@ -829,6 +877,9 @@ func _interact() -> void:
 
 
 func _restart() -> void:
+	if survival.enabled:
+		_start_survival()
+		return
 	if run_state == "won":
 		_start_new_run()
 		return
@@ -844,7 +895,12 @@ func _restart() -> void:
 func _start_new_run() -> void:
 	if is_instance_valid(coop) and coop.active and not coop.starting:
 		if coop.hosting:
-			coop.send({"type": "chapter", "chapter": route.chapter})
+			coop.send(
+				{
+					"type": "chapter",
+					"chapter": Survival.ROOM_ID if survival.enabled else route.chapter
+				}
+			)
 		return
 	blocked_hits = 0
 	corpse_hits = 0
@@ -866,8 +922,15 @@ func _start_new_run() -> void:
 	run_state = "playing"
 	front.hide_menu()
 	armory.reset(false)
-	_load_room(int(route.current().start), 170)
+	_load_room(
+		survival.arena_index if survival.enabled else int(route.current().start),
+		640 if survival.enabled else 170
+	)
 	front.chapter_index = route.chapter
+	if survival.enabled:
+		if not coop.active or coop.hosting:
+			survival_scores.begin("coop" if coop.active else "solo", survival.players)
+		return
 	scores.chapter = route.chapter + 1
 	scores.refresh()
 	scores.begin()
@@ -913,6 +976,46 @@ func _records_changed() -> void:
 
 func _record_submitted(shared: bool) -> void:
 	front.result_saved(shared)
+
+
+func _start_survival() -> void:
+	if coop.active and not coop.starting:
+		if coop.hosting:
+			coop.send({"type": "chapter", "chapter": Survival.ROOM_ID})
+		return
+	survival.begin(coop.room.get("players", []).size() if coop.active else 1)
+	route.chapter = 0
+	_start_new_run()
+
+
+func _show_survival_menu() -> void:
+	survival_menu.home(front, survival.enabled and front.can_resume and run_state == "paused")
+
+
+func _show_survival_records(board: String) -> void:
+	survival_records.board = board
+	survival_records.local_rows = survival_scores.local_rows.duplicate(true)
+	survival_menu.records(front, board, [], false, true)
+	survival_records.refresh()
+
+
+func _survival_records_changed() -> void:
+	if front.page == "survival_records":
+		survival_menu.records(
+			front, survival_records.board, survival_records.rows, survival_records.online
+		)
+
+
+func _survival_saved(shared: bool) -> void:
+	if front.page != "survival_finish":
+		return
+	front.score_status.text = (
+		"Результат в рейтинге сайта."
+		if shared
+		else "Сохранено на устройстве. Сервер запись не подтвердил."
+	)
+	front.submit_button.text = "Результат записан"
+	front.submit_button.disabled = true
 
 
 func _attack_started(kind: String, side: String, in_air: bool, low: bool) -> void:
@@ -961,7 +1064,9 @@ func _process(delta: float) -> void:
 	_notice_left = maxf(0, _notice_left - delta)
 	_shake = move_toward(_shake, 0, delta * 30)
 	camera.offset = Vector2(sin(clock * 123), cos(clock * 97)) * _shake
-	effects.seal = move_toward(effects.seal, 0.0 if cleared[room_index] else 1.0, delta * 1.8)
+	effects.seal = move_toward(
+		effects.seal, 0.0 if survival.enabled or cleared[room_index] else 1.0, delta * 1.8
+	)
 	health_bar.size.x = health * 2.2
 	health_label.text = "ЛОСЬ  /  " + str(health) + " HP"
 	objective.text = (
@@ -1003,6 +1108,8 @@ func _process(delta: float) -> void:
 			+ str(rooms[room_index].hint)
 		)
 	continuation.sync_hud(self)
+	if survival.enabled:
+		survival.sync_hud(self)
 	if run_state == "lost":
 		outcome.text = "РОГА ЦЕЛЫ. САМ — НЕ ОЧЕНЬ.\n\nR — с контрольной точки"
 	elif run_state == "won":
@@ -1011,6 +1118,15 @@ func _process(delta: float) -> void:
 		outcome.text = "ПЕРЕКУР\n\nEsc — вернуться во двор"
 	else:
 		outcome.text = ""
+	if survival.enabled and run_state == "lost" and not _finish_shown:
+		_finish_shown = true
+		survival_menu.finish(
+			front,
+			survival.stats(self),
+			survival_scores.player_name,
+			not coop.active or coop.hosting,
+			coop.active
+		)
 	if run_state == "won" and not _finish_shown:
 		_finish_shown = true
 		front.chapter_index = route.chapter
@@ -1022,7 +1138,8 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	super._draw()
-	continuation.draw_relay(self)
+	if not survival.enabled:
+		continuation.draw_relay(self)
 
 
 func _sync_metrics() -> void:
@@ -1038,6 +1155,7 @@ func _select_chapter(index: int) -> void:
 		return
 	if index < 0 or index >= route.chapters.size():
 		return
+	survival.enabled = false
 	route.chapter = index
 	_start_new_run()
 

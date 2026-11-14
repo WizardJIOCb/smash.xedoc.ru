@@ -18,6 +18,7 @@ var name_input: LineEdit
 var code_input: LineEdit
 var capacity_input: SpinBox
 var chapter_input: OptionButton
+var prefer_survival: bool = false
 var forms: Control
 var room: Control
 var status: Label
@@ -120,7 +121,7 @@ func _build_room() -> void:
 		entry.size = Vector2(548 if column == 1 else 524, 28)
 		entry.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		roster.append(entry)
-	_label(room, Vector2(64, 544), "С какой главы начнём?", 18, MUTED)
+	_label(room, Vector2(64, 544), "Что запускаем?", 18, MUTED)
 	chapter_input = OptionButton.new()
 	chapter_input.position = Vector2(64, 584)
 	chapter_input.size = Vector2(780, 48)
@@ -135,6 +136,7 @@ func _build_room() -> void:
 		)
 	if chapters.is_empty():
 		chapter_input.add_item("01 / Район закрыт")
+	chapter_input.add_item("ВЫЖИВАНИЕ · кто здесь царь", 255)
 	room.add_child(chapter_input)
 	start_button = _button(room, Vector2(872, 584), Vector2(344, 48), "Начать вместе", _start, true)
 	leave_button = _button(room, Vector2(64, 648), Vector2(248, 48), "Покинуть комнату", _leave)
@@ -204,13 +206,16 @@ func show_room(info: Dictionary, you: String) -> void:
 		entry.text = "%02d    %s%s" % [index + 1, str(player.get("name", "Лось")), badge]
 		entry.add_theme_color_override("font_color", GOLD if id == _you else PAPER)
 	if code != previous_code or _you != host:
-		chapter_input.select(clampi(int(_info.get("chapter", 0)), 0, chapter_input.item_count - 1))
+		var selected := chapter_input.get_item_index(int(_info.get("chapter", 0)))
+		if code != previous_code and _you == host and prefer_survival:
+			selected = chapter_input.get_item_index(255)
+		chapter_input.select(maxi(0, selected))
 	if bool(_info.get("started", false)):
 		waiting.text = "Банда отправляется во двор…"
 	elif players.size() < 2:
 		waiting.text = "Пригласи хотя бы одного друга. Начать можно от двух игроков."
 	elif _you == host:
-		waiting.text = "Банда собралась. Когда все будут готовы, выбери главу и начинайте."
+		waiting.text = "Банда собралась. Выбери главу или выживание и начинайте."
 	else:
 		waiting.text = "Ждём ведущего: он выбирает главу и начинает игру."
 	_update_controls()
@@ -283,7 +288,7 @@ func _start() -> void:
 	if start_button.disabled:
 		return
 	set_busy("Собираем банду во дворе…")
-	start_requested.emit(chapter_input.selected)
+	start_requested.emit(chapter_input.get_selected_id())
 
 
 func _copy_invite() -> void:

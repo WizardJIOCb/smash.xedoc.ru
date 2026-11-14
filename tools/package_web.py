@@ -23,6 +23,7 @@ def main():
             shutil.copy2(source, output / source.name)
     (output / 'api').mkdir()
     shutil.copy2(ROOT / 'deploy/api/scores.php', output / 'api/scores.php')
+    shutil.copy2(ROOT / 'deploy/api/survival.php', output / 'api/survival.php')
     chapters = json.loads((ROOT / 'data/chapters.json').read_text(encoding='utf-8'))
     holiday = json.loads((ROOT / 'data/holiday_chapter.json').read_text(encoding='utf-8'))
     total = len(json.loads((ROOT / 'data/district_rooms.json').read_text(encoding='utf-8')))
