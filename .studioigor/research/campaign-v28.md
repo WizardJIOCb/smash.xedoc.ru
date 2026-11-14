@@ -22,3 +22,10 @@ https://docs.godotengine.org/en/stable/tutorials/2d/2d_movement.html
 - Native full normal-input chapter routes: chapter1 5kills/3relays, chapter2 14/4, chapter3 12/4;
   both bosses' phases observed. No fake HP/enemy edits in route driver. All complete/0errors.
 - Mobile adds cycle/reload icons; physical phone still untested. Art/feel taste remains user gate.
+
+## Lift landing correction v39 — 2026-11-14
+- Rect2 end is position + size (official Rect2 documentation above); depot/tower
+  deck ends at790, bridge started810 at the same350 height: a real20px gap.
+- Extend the shared art/feet/physical ledge rect to786..1210, overlapping the deck
+  by4px. No controller tolerance or invisible floor; the lower lift stays open.
+- Campaign driver walks off without jump input and records jump delta/max drop.

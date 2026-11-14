@@ -5,6 +5,7 @@ var seen_rooms: Array[int] = []
 var seen_phases: Array[int] = []
 var death_wait: float = 0
 var pulse_wait: float = 0
+var lift_walk: Dictionary = {}
 
 
 func _ready() -> void:
@@ -74,12 +75,6 @@ func _drive() -> void:
 				_tap("interact")
 				tap_wait = 0.4
 			return
-		if is_instance_valid(carrier) and carrier.upper and moose.position.x < 820:
-			_move(1)
-			if moose.position.x > 715 and jump_wait <= 0:
-				_tap("jump")
-				jump_wait = 0.7
-			return
 		_move(signf(relay.x - moose.position.x) if absf(relay.x - moose.position.x) > 15 else 0.0)
 		if moose.position.distance_to(relay) < 105 and tap_wait <= 0:
 			_tap("interact")
@@ -88,8 +83,25 @@ func _drive() -> void:
 		_move(1, true)
 
 
+func _observe_lift_walk() -> void:
+	if not is_instance_valid(carrier) or not carrier.upper or _remaining() > 0:
+		return
+	var room := room_index + 1
+	if not lift_walk.has(room):
+		lift_walk[room] = {"jumps": jumps, "drop": 0.0, "done": false}
+	var walk: Dictionary = lift_walk[room]
+	if walk.done:
+		return
+	walk.drop = maxf(float(walk.drop), moose.position.y - float(carrier.tuning.top))
+	if moose.position.x > carrier.surface().end.x + 40:
+		walk.jumps = jumps - int(walk.jumps)
+		walk.done = true
+		Metrics.record("review_walked_off_lift")
+
+
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
+	_observe_lift_walk()
 	if run_state == "lost":
 		death_wait += delta
 		if death_wait > 2:
@@ -97,9 +109,14 @@ func _physics_process(delta: float) -> void:
 			death_wait = 0
 	Metrics.rig["review_rooms"] = seen_rooms
 	Metrics.rig["review_phases"] = seen_phases
+	Metrics.rig["review_lift_walk"] = lift_walk
 	if DisplayServer.get_name() == "headless" and (run_state == "won" or review_time > 300):
 		_sync_metrics()
 		Metrics.rig["review_rooms"] = seen_rooms
 		Metrics.rig["review_phases"] = seen_phases
+		Metrics.rig["review_lift_walk"] = lift_walk
+		var walk_ok := lift_walk.size() == 1
+		for walk: Dictionary in lift_walk.values():
+			walk_ok = walk_ok and walk.done and walk.jumps == 0 and float(walk.drop) <= 0.01
 		print("CAMPAIGN_REVIEW ", JSON.stringify(Metrics.rig))
-		get_tree().quit(0 if run_state == "won" else 1)
+		get_tree().quit(0 if run_state == "won" and walk_ok else 1)
