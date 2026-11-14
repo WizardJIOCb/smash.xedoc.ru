@@ -64,14 +64,16 @@
   }
   const fpsBand = fps => fps < 20 ? 'under_20' : fps < 40 ? '20_39' : fps < 60 ? '40_59' : '60_plus';
   function normalize(game = {}, coop = {}) {
+    const inRoom = coop.connected === true || coop.active === true;
     const multiplayer = coop.active === true && coop.world && Array.isArray(coop.world.players);
     const world = multiplayer ? coop.world : {};
     const hero = multiplayer ? world.players.find(player => String(player.id) === String(coop.you)) : null;
     const raw = {
-      mode: multiplayer ? 'coop' : 'solo', role: multiplayer ? (coop.host ? 'host' : 'guest') : 'solo',
+      mode: inRoom ? 'coop' : 'solo', role: inRoom ? (coop.host ? 'host' : 'guest') : 'solo',
       chapter: multiplayer ? Number(world.chapter) + 1 : game.chapter,
       room: multiplayer ? Number(world.room) + 1 : game.room,
-      players: multiplayer ? world.players.length : 1, capacity: multiplayer ? coop.capacity : 1,
+      players: multiplayer ? world.players.length : inRoom ? coop.players?.length : 1,
+      capacity: inRoom ? coop.capacity : 1,
       seconds: multiplayer ? world.seconds : game.seconds,
       health: multiplayer ? hero?.health : game.health,
       weapon: multiplayer ? hero?.gear?.equipped : game.weapon?.id,

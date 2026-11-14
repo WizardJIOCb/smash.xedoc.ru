@@ -60,6 +60,23 @@ test('pause, resume and repeated finish samples cannot inflate completed runs', 
   assert.equal(tracker.summary().chapters_won, 2);
 });
 
+test('first gameplay frame before a co-op snapshot cannot create a phantom solo run', () => {
+  const events = [];
+  const tracker = createTracker((name, params) => events.push({name, params}));
+  const lobby = {connected: true, active: false, host: false, you: 'guest',
+    capacity: 4, players: [{id: 'host'}, {id: 'guest'}]};
+  tracker.sample(frame({}), lobby, 0.5);
+  tracker.sample(frame({seconds: 1}), {...lobby, active: true, world: {
+    chapter: 0, room: 0, state: 'playing', seconds: 1,
+    players: [{id: 'host'}, {id: 'guest', health: 100}]
+  }}, 0.5);
+  const starts = events.filter(event => event.name === 'chapter_start');
+  assert.equal(starts.length, 1);
+  assert.equal(starts[0].params.mode, 'coop');
+  assert.equal(starts[0].params.role, 'guest');
+  assert.equal(starts[0].params.players, 2);
+});
+
 test('hidden time is excluded, defeats deduplicate, checkpoint revival is not a new run', () => {
   const events = [];
   const tracker = createTracker(name => events.push(name));
