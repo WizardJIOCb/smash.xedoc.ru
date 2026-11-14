@@ -8,6 +8,7 @@ var clock: float = 0
 var next_swing: float = 0.7
 var max_grip_gap: float = 0.0
 var max_elbow: float = 0.0
+var max_shoulder_drift: float = 0.0
 var worst_grip: Dictionary = {}
 
 
@@ -40,14 +41,15 @@ func _physics_process(delta: float) -> void:
 	if clock >= next_swing:
 		for rig: Node2D in rigs:
 			rig.combat.request("punch", rig.airborne, rig.crouch_requested)
-		next_swing += 1.3
+		next_swing += 0.66 if "--chains" in OS.get_cmdline_user_args() else 1.3
 	Metrics.rig = {
 		"clock": clock,
 		"attack_time": rigs[0].combat.elapsed,
 		"angle": rigs[0].melee_angle,
 		"max_grip_gap": max_grip_gap,
 		"worst_grip": worst_grip,
-		"max_elbow_degrees": rad_to_deg(max_elbow)
+		"max_elbow_degrees": rad_to_deg(max_elbow),
+		"max_shoulder_drift": max_shoulder_drift
 	}
 
 
@@ -56,6 +58,10 @@ func _process(_delta: float) -> void:
 		var rig: Node2D = rigs[index]
 		var spec: Dictionary = rig.bat_pose.assembly
 		for side: String in ["near", "far"]:
+			var shoulder: Bone2D = rig.bones[side + "_arm"]
+			max_shoulder_drift = maxf(
+				max_shoulder_drift, shoulder.position.distance_to(shoulder.rest.origin)
+			)
 			var wrist: Array = spec[side + "_wrist"]
 			var at := (
 				Vector2(wrist[0] - spec.pivot[0], wrist[1] - spec.pivot[1]) * float(spec.scale)
@@ -73,3 +79,4 @@ func _process(_delta: float) -> void:
 			max_elbow = maxf(max_elbow, absf(rig.bones[side + "_fore"].rotation))
 	Metrics.rig["max_grip_gap"] = max_grip_gap
 	Metrics.rig["max_elbow_degrees"] = rad_to_deg(max_elbow)
+	Metrics.rig["max_shoulder_drift"] = max_shoulder_drift

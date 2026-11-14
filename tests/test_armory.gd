@@ -216,6 +216,7 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 		armory.grant("bat")
 		var largest_gap := 0.0
 		var largest_elbow := 0.0
+		var largest_shoulder_drift := 0.0
 		for stance in [[false, false], [false, true], [true, false]]:
 			hero.airborne = stance[0]
 			hero.crouch_requested = stance[1]
@@ -227,6 +228,10 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 				armory._process(0)
 				var spec: Dictionary = hero.bat_pose.assembly
 				for side: String in ["near", "far"]:
+					var shoulder: Bone2D = hero.bones[side + "_arm"]
+					largest_shoulder_drift = maxf(
+						largest_shoulder_drift, shoulder.position.distance_to(shoulder.rest.origin)
+					)
 					largest_elbow = maxf(largest_elbow, absf(hero.bones[side + "_fore"].rotation))
 					var wrist: Array = spec[side + "_wrist"]
 					var at := (
@@ -242,6 +247,7 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 			largest_gap, 0.05, "Both painted wrists stay on their sleeves during the entire swing"
 		)
 		assert_false(hero.bones.near_hand.get_node("fist_back").visible)
+		assert_lt(largest_shoulder_drift, 0.01, "Both upper arms stay attached to the torso")
 		assert_lt(rad_to_deg(largest_elbow), 135.0, "An elbow cannot fold back onto its shoulder")
 		assert_false(hero.bones.far_hand.get_node("fist").visible)
 		armory.drop(500)
@@ -254,3 +260,54 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 		assert_false(armory.visual.visible, "No floating hand/weapon assembly over the corpse")
 		assert_true(hero.bones.near_hand.get_node("fist_back").visible)
 		assert_true(hero.bones.far_hand.get_node("fist").visible)
+
+
+func test_bat_late_return_cannot_reverse_and_buffered_swing_keeps_current_pose() -> void:
+	for facing: float in [-1.0, 1.0]:
+		for stance in [[false, false], [false, true], [true, false]]:
+			var armory = make_armory()
+			var hero: Node2D = armory.hero
+			hero.facing = facing
+			hero.airborne = stance[0]
+			hero.crouch_requested = stance[1]
+			armory.grant("bat")
+			hero._process(1.0 / 60)
+			armory._process(0)
+			hero.combat.request("punch", stance[0], stance[1])
+			var last_serial: int = hero.combat.serial
+			var previous: Vector2 = armory.visual.to_global(Vector2(100, 0))
+			var chain_jump := 0.0
+			var reversed_return := false
+			var return_samples := 0
+			var queued := false
+			for frame in range(130):
+				var timing: Dictionary = hero.combat.timings()
+				if not queued and hero.combat.elapsed >= float(timing.chain) - 0.12:
+					hero.combat.request("punch", stance[0], stance[1])
+					queued = true
+				armory.advance(1.0 / 60, [], true)
+				hero.combat.advance(1.0 / 60, stance[0], stance[1])
+				hero._process(1.0 / 60)
+				armory._process(0)
+				var tip: Vector2 = armory.visual.to_global(Vector2(100, 0))
+				if hero.combat.serial != last_serial:
+					chain_jump = maxf(chain_jump, tip.distance_to(previous))
+				last_serial = hero.combat.serial
+				previous = tip
+				var finish := lerpf(
+					float(timing.hold),
+					float(timing.duration),
+					float(hero.bat_pose.tuning.finish_at)
+				)
+				if hero.combat.elapsed >= finish:
+					var axis: Vector2 = (
+						hero.to_local(tip) - hero.to_local(armory.visual.global_position)
+					)
+					reversed_return = reversed_return or axis.x > 0
+					return_samples += 1
+			assert_gt(return_samples, 0, "The final recovery was rendered")
+			assert_false(
+				reversed_return, "Returning over the shoulder cannot swing the barrel forward again"
+			)
+			assert_eq(hero.combat.serial, 2, "Exercise a real buffered second swing")
+			assert_lt(chain_jump, 10.0, "A new swing must start from the pose already on screen")

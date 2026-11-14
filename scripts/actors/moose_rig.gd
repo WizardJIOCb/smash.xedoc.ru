@@ -139,7 +139,7 @@ func _ready() -> void:
 				"forearm_inner",
 				bones.far_fore,
 				Vector2(0.22, 0.22),
-				Vector2(0.87, 0.70),
+				Vector2(0.92, 0.78),
 				30,
 				arm_depth + 1,
 				shade

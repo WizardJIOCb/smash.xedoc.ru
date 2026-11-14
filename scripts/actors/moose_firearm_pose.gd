@@ -20,7 +20,7 @@ func apply(rig: Node2D) -> void:
 	if armed != _armed:
 		_armed = armed
 		for index in range(_far_parts.size()):
-			_far_parts[index].z_index = 17 + index if armed else 5 + index
+			_far_parts[index].z_index = 17 + index if armed and index > 0 else 5 + index
 	if rig.held_firearm.is_empty() or rig.blocking or rig.power_pose.length_squared() > 0.001:
 		return
 	if rig.strike >= 0 and rig.combat.kind == "kick":

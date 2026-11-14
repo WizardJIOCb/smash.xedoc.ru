@@ -9,16 +9,24 @@ var assembly: Dictionary = (
 	JSON.parse_string(FileAccess.get_file_as_string("res://data/weapon_grips.json")).bat
 )
 var pose: Dictionary = {}
+var _entry_pose: Dictionary = {}
+var _serial: int = -1
+var _was_held: bool = false
 
 
 func prepare(rig: Node2D) -> float:
+	var previous: Dictionary = pose if _was_held and not pose.is_empty() else tuning.rest
 	pose = tuning.rest.duplicate(true)
-	rig.bones.far_arm.position.x = 18
+	_was_held = rig.held_melee == "bat"
 	if rig.held_melee != "bat":
+		_serial = -1
 		return 0.0
 	if rig.blocking:
 		pose = tuning.guard
 	elif rig.combat.elapsed >= 0 and rig.combat.kind == "punch":
+		if _serial != rig.combat.serial:
+			_serial = rig.combat.serial
+			_entry_pose = previous.duplicate(true)
 		var timing: Dictionary = rig.combat.timings()
 		var time: float = rig.combat.elapsed
 		var drive: float = lerpf(
@@ -31,7 +39,7 @@ func prepare(rig: Node2D) -> float:
 			float(timing.hold), float(timing.duration), float(tuning.finish_at)
 		)
 		if time < float(timing.windup):
-			pose = _blend("rest", "load", smoothstep(0, float(timing.windup), time))
+			pose = _blend_pose(_entry_pose, tuning.load, smoothstep(0, float(timing.windup), time))
 		elif time < drive:
 			pose = _blend("load", "drive", smoothstep(float(timing.windup), drive, time))
 		elif time < float(timing.extension):
@@ -50,7 +58,6 @@ func prepare(rig: Node2D) -> float:
 			pose = _blend("follow", "finish", smoothstep(follow, finish, time))
 		else:
 			pose = _blend("finish", "rest", smoothstep(finish, float(timing.duration), time))
-	rig.bones.far_arm.position.x = float(pose.shoulder)
 	return float(pose.weight)
 
 
@@ -133,13 +140,15 @@ func _reachable(point: Vector2, centers: Array[Vector2], minimum: float, maximum
 
 
 func _blend(from: String, to: String, amount: float) -> Dictionary:
+	return _blend_pose(tuning[from], tuning[to], amount)
+
+
+func _blend_pose(from: Dictionary, to: Dictionary, amount: float) -> Dictionary:
 	var result := {}
-	for key: String in ["yaw", "pitch", "lean", "weight", "shoulder"]:
-		result[key] = lerpf(float(tuning[from][key]), float(tuning[to][key]), amount)
-	result.grip = [
-		lerpf(tuning[from].grip[0], tuning[to].grip[0], amount),
-		lerpf(tuning[from].grip[1], tuning[to].grip[1], amount)
-	]
+	result.yaw = lerp_angle(float(from.yaw), float(to.yaw), amount)
+	for key: String in ["pitch", "lean", "weight", "behind"]:
+		result[key] = lerpf(float(from[key]), float(to[key]), amount)
+	result.grip = [lerpf(from.grip[0], to.grip[0], amount), lerpf(from.grip[1], to.grip[1], amount)]
 	return result
 
 

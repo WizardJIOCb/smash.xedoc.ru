@@ -2,10 +2,10 @@
 
 PROJECT: Лось: район закрыт
 PHASE: 5 — Assets and look-dev
-UPDATED: 2026-11-14 13:34
+UPDATED: 2026-11-14 13:59
 
 ## Now
-Пользователь оценивает новую стойку и полный взмах биты по референсам на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен.
+Опубликовать v36 и проверить кисти, дальнее плечо и возврат биты в публичном бою. User art/feel gates открыты.
 
 ## Open questions
 - none
@@ -51,3 +51,4 @@ UPDATED: 2026-11-14 13:34
 | 2026-11-14 12:48 | 5 — Assets and look-dev | v33 опубликована3550764: fore-end/shared recoil, enemy layer split/guard/trunk and timed blows fixed.47GUT/656; public enemy4hits3blocks66HP, tower route4kills1relay then rifle12shots/12loaded/5kills100HP/errors0;18hashes/cache2hit1download/rollbackv32/scores preserved. | Пользователь оценивает хват автомата, слои и новые удары врагов на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен. |
 | 2026-11-14 13:13 | 5 — Assets and look-dev | v34 published11abd8f: distinct bat palms wrap handle; wrist anchors track sleeves; beaver/hare grips rebuilt.48GUT/672; public3swings4hits,enemy5hits3blocks70HP,drop/swap/console0 verified;18hashes,rollbackv33,scores preserved. | Пользователь оценивает новый хват и анимацию биты на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен. |
 | 2026-11-14 13:34 | 5 — Assets and look-dev | v35 published6b1e92c: real bat references studied; shoulder ready/load, weight shift, knob-led drive and wrap rebuilt; palm-down/up grips.48GUT/674; public6swings7hits2kills100HP,drop/swap/console0;18hashes,rollbackv34,scores preserved. | Пользователь оценивает новую стойку и полный взмах биты по референсам на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен. |
+| 2026-11-14 13:59 | 5 — Assets and look-dev | v36: shortest-angle bat recovery and continuous buffered entry; relaxed rear-diagonal ready, split barrel/head layers. Furry wrists skinned to forearms, cuff centered; far shoulder fixed to torso and upper arm behind chest.49GUT/700, Web clean; native126 chain frames +96 contact/3hits +23 firearm frames,0errors;390frame60FPS clip decoded. | Опубликовать v36 и проверить кисти, дальнее плечо и возврат биты в публичном бою. User art/feel gates открыты. |

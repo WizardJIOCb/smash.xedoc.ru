@@ -330,6 +330,7 @@ func _update_visual() -> void:
 	if visual.grip_active:
 		visual.global_position = hero.to_global(hero.melee_origin)
 		visual.bat_length = hero.melee_length
+		visual.bat_behind_head = float(hero.bat_pose.pose.behind) > 0.5
 	var facing: float = hero.facing
 	var angle := -0.8
 	if is_ranged():
@@ -342,6 +343,11 @@ func _update_visual() -> void:
 			angle = lerpf(-0.8, 0.08, envelope.x) - envelope.y * 0.6
 	visual.rotation = angle * facing
 	visual.scale = Vector2(facing, 1) * hero.global_scale.abs()
+	if visual.grip_active:
+		for side: String in ["near", "far"]:
+			var wrist: Vector2 = hero.bones[side + "_hand"].global_position
+			var elbow: Vector2 = hero.bones[side + "_fore"].global_position
+			visual.wrist_directions[side] = visual.to_local(elbow) - visual.to_local(wrist)
 
 
 func _swing_started(kind: String, _side: String, _air: bool, _low: bool) -> void:
