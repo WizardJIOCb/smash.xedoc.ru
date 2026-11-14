@@ -1,42 +1,36 @@
-# Public release v49
+# Public release v50
 
 - URL: https://smash.xedoc.ru/
-- Runtime source: 394b4593b46bd547ddf3e1e51f485e4e988f7896
-- Current: /var/www/smash.xedoc.ru/releases/v49-394b4593b46b
-- Rollback: /var/www/smash.xedoc.ru/releases/v48-6a252cf841e5; older releases retained.
-- Archive: 153004973 bytes; SHA256 8adecc1f1b3ef77db640a388e44ca1861f4f78ad74a3536989850f107a99a15f.
-- Installer verified all 21 files and both PHP endpoints. PCK: game-bea7d01e9f58aa126132.pck.
+- Runtime source: 5b9d6c57ca73330acfcd6dbad7ea8da1f965f336
+- Current: /var/www/smash.xedoc.ru/releases/v50-5b9d6c57ca73
+- Rollback: /var/www/smash.xedoc.ru/releases/v49-394b4593b46b.
+- Archive:153009674bytes; SHA256 0c0e71929c1e24a4d36dfecaa62ce6ed4d15b63dfe3862a593a1ee0a6716cf78.
+- All21 installed hashes verified. PCK: game-03ebfe8b7776e88bfb6a.pck.
 
-Bat motion keeps both wrists attached and the support sleeve visible above the
-jacket. The swing plane passes below the muzzle; handle and barrel keep the
-same drawing depth throughout the swing and recovery. Ordinary fist/sleeve
-layers return on drop or death. Attack damage timing is preserved.
-
-Removed the small foreground refuge doorways from every metro room, their safe
-zones and niche instructions. Crouch S/Down protects against the warned train
-wave; the physical signal and wave remain. Campaign, co-op, survival and
-analytics from v48 are included.
+Corrected the support arm itself: its fixed planar elbow branch previously
+crossed the throat during load. The actual shoulder stays anchored; a downward
+pole on a 3D elbow circle gives a continuous projected sleeve path to the bat.
+Both wrists remain on the painted handle. Unequip restores native sleeve/bone
+offsets. Existing bat timing and campaign/online/survival features remain.
 
 Validation:
-- Full GUT: 91 tests/1363 assertions. Final grip cleanup: targeted19/244 pass.
-  Format/lint and Web export pass. No export parse errors.
-- Native bat:98 frames, both facings, standing/crouched/airborne and buffered
-  swings; zero errors/warnings. Maximum wrist gap0.000193px, shoulder drift0.
-- Native metro:60 frames, chapter won52.35s/12kills/4relays/100HP/0deaths,
-  zero errors/warnings. Updated the capture harness for the new start callback.
-- Local Web49:5hits/2kills with bat; crouch survived a wave without damage.
-- Public Web49: bat equipped,8swings/2hits/91HP, both facings captured;
-  foreground doors absent, floor605 retained, browser console0errors.
-  An earlier public attempt missed the pickup and was not used as bat proof;
-  that disposable tab closed, then the complete check passed in a new tab.
-- Four small public file hashes and release metadata match the frozen build;
-  all8 campaign boards, both survival boards and relay health pass.
-- nginx configuration unchanged byte-for-byte during activation. Both campaign
-  and survival storage SHA256 values identical before/after activation; all old
-  score rows preserved. nginx/PHP/relay active, no leaderboard result submitted.
-- Verified and removed only this release's redundant upload from /dev/shm;
-  local frozen archive, installed release and v48 rollback remain.
+- Format/lint,91GUT/1381assertions and Web export pass; no export parse errors.
+- Native98frames/both facings/standing/crouched/airborne/buffered swings,
+  zero errors/warnings. Minimum support-elbow drop22.893rigpx below its shoulder;
+  maximum wrist gap0.000183px, shoulder displacement0. Native contact gym3hits.
+- Regression checks cover support-elbow clearance, continuity at240Hz, original
+  sleeve/child-offset restoration on unequip and existing wrist/chain behavior.
+- Local Web50:8swings/3hits/91HP. Ordinary loss followed by R restored100HP and
+  an upright pose; Tab switched to fists and back to bat, console0errors.
+- Public Web50:9swings/3hits/91HP, bat equipped, both facings captured and viewed,
+  console0errors. Four small public hashes and release metadata match; all8
+  campaign boards, both survival boards and relay health pass.
+- nginx site configuration unchanged. Both score stores SHA256-identical across
+  activation; all old score rows retained. PHP/nginx/relay active; no QA result sent.
+- Verified and removed only the redundant uploaded v50 archive; installed v50,
+  v49 rollback and local frozen archive retained. Temporary browser tabs closed.
 
-Evidence: .studioigor/captures/bat-metro-v49, metro-no-doors-v49;
-additional bat frames in .claude/worktrees/campaign-rules/.studioigor/captures/bat-layer-final.
-Physical-mobile, sixteen-human, overall art/feel and balance acceptance remain open.
+Evidence: .studioigor/captures/bat-elbow-v50 (screenshots, metrics, swing.mp4,
+contracts and deployment log); full native frames in
+.claude/worktrees/campaign-rules/.studioigor/captures/bat-elbow-verified.
+User art/feel acceptance, physical-mobile and sixteen-human testing remain open.
