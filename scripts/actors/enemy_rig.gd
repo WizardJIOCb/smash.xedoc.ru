@@ -94,6 +94,18 @@ func _ready() -> void:
 			Vector2(weapon_pivot[0], weapon_pivot[1]),
 			18
 		)
+		if not gun:
+			# Shaft can pass behind the head; the grip stays in front of the sleeve.
+			var handle := weapon_sprite.duplicate() as Sprite2D
+			var pixels := Vector2(weapon_sprite.texture.get_size())
+			var split := pixels.y * 0.72
+			weapon_sprite.region_enabled = true
+			weapon_sprite.region_rect = Rect2(0, 0, pixels.x, split)
+			weapon_sprite.z_index = 12
+			handle.region_enabled = true
+			handle.region_rect = Rect2(0, split, pixels.x, pixels.y - split)
+			handle.position.y += split * handle.scale.y
+			bones.weapon.add_child(handle)
 		_part("extra", bones.body, Vector2(26, 32), Vector2(0.5, 0), 11).position += Vector2(22, -7)
 	_apply_scale()
 
