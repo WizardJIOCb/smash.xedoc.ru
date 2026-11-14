@@ -1,46 +1,46 @@
-# Public release v43
+# Public release v46
 
 - URL: https://smash.xedoc.ru/
-- Runtime source: 2d9e22ae4cc3b3f48be4713e34388f48f9330089
-- Current: /var/www/smash.xedoc.ru/releases/v43-2d9e22ae4cc3
-- Rollback: /var/www/smash.xedoc.ru/releases/v41-09555709073f
-- Archive: 150315684 bytes; 19 files verified by installer.
-- SHA256: f4bbe14489e1ffb960942a7db2189fe3ac73aea61bec3e4a6d12ca6b893ebfc3
-- PCK: game-e71ffcb3dee7dc44f07e.pck
+- Runtime source: af41454685132aa6aee060b244e52546472ce749
+- Current: /var/www/smash.xedoc.ru/releases/v46-af4145468513
+- Rollback: /var/www/smash.xedoc.ru/releases/v44-0613d279dc22; v43 also retained.
+- Archive: 152961728 bytes, SHA256 331fbb2442ff9b05e39f1abdd756b7f93a004f6b07846a49af0772f2207ee2db.
+- Installer verified all 20 manifest files. PCK: game-36163552265d508dac96.pck.
 
-Main game now includes online host-authoritative cooperative rooms for 2-16 players,
-create/join/invitation links, all seven campaign chapters and the holiday chapter.
-The snowy courtyard adds three waves/seven enemies and a tree to light.
-Campaign v41 mechanics/terrain/story fixes are preserved. Native invitations use
-https://smash.xedoc.ru/?room=CODE; browsers preserve their current page path.
-Relay: wss://smash.xedoc.ru/coop, los-coop.service, loopback127.0.0.1:18791.
+Ten original painted props replace flat mechanic scenery: alcoves, signal,
+cargo deck, lift staging, vines, cover, supports, bridge and gap surfaces.
+Thirteen room floors corrected individually; all sixteen new rooms reviewed.
+Persistent cyan frontal-guard arc removed; guard mechanics retained.
+Holiday effects use five instanced/static draws instead of 536 AA primitive draws.
+Winter chapter preview now uses its dedicated background. Prepared Metrika
+integration is included; QA browser visits used analytics_qa.
 
 Validation:
-- Final full suite77GUT/1121assertions, format/lint and Web export passed.
-  Regression checks cover interleaved barrier strikes and faded-rig revival for both roles.
-- Real two-instance normal-input co-op completed IV-VII:12kills/4relays each.
-  Final terrain port replay58.82s; final barrier fix garden49.75s/roofs48.73s,
-  both clients won. Original I-III and holiday were verified in the preview run.
-- Public WSS host plus15scripted guests:16slots,119-124snapshots per guest over8.26s,
-  every guest moved/attacked;0errors. Native renderer16frames/0errors.
-  This is a connection/load check, not sixteen human players.
-- Public release metadata, manifest and four served file hashes match. All8score
-  endpoints return isolated chapter rows. Heavy PCK is immutable. Relay health ok.
-- Score-file SHA256 before/after activation identical:
-  833468eee8ac8ad200b112c32c0dbaea1877f0bb5c1ece20434396c9b1848f54.
-- nginx, PHP and relay active. Only this task's redundant temporary archives were
-  removed for disk space. Audited superseded v42 (our temporary buggy release) retired
-  after v43 passed; healthy v41 rollback and all prior installed releases preserved.
-  About420MiB free remains on the production disk.
-- Public two-browser v43: create4/join-by-code/start chapter8, guest moved234->316px
-  and kick serial2000001 reached host; both rigs visible, both consoles0errors.
-  Host exit returned guest to lobby with the expected explanation,0errors.
-- Public WSS two native clients completed the final holiday7kills/1relay19.10s.
-  Final native capture17frames/0errors. Faded-rig revival and readable mirrored labels fixed.
-- Copy button showed success; automated clipboard returned empty, so browser join was
-  tested through the visible room code rather than claiming clipboard contents verified.
+- 77 GUT /1121 assertions, six analytics checks, format/lint and Web export pass.
+- Native IV-VII: 296 captured frames, each chapter completion recorded, zero
+  renderer/script errors or warnings. Additional 17-frame floor gallery clean.
+  Lift6.3 walk-off: zero jumps/drop; rain/blood use the same sole planes.
+- Controlled native2180x1316, RTX4070Ti, two rendered heroes: idle637->106 calls;
+  six sleeping corpses699->168 calls. Mean frame6.200->1.431ms in the latter
+  fixture, P957.310->1.787ms. All six corpses sleep; FX alone536->5 calls.
+  A separate ordinary-input holiday run won7kills/100HP/0deaths. One isolated
+  unattributed52ms peak was observed; these native timings are not a browser guarantee.
+- Public Web46: correct winter preview and metro alcoves/floor605, console0errors.
+  Solo holiday reached wave2:6hits/2kills/2corpses/57HP,132calls, sampled156FPS
+  at1280x720. This is not directly comparable to the user's larger screenshot.
+- Two hidden-IAB session disconnected; direct nativeWSS did not enter a room.
+  Replacement test: headless authoritative host through an encrypted SSH tunnel
+  to the same relay plus a publicWSS browser guest. Host won7kills/1relay/100HP
+  in19.48s, no engine errors; guest rendered both heroes and two bodies, then
+  showed the expected host-exit message after the review host closed itself.
+- Four public file hashes and release metadata match. All8 score endpoints and
+  chapter metadata valid; isolated PHP10checks plus8chapter contracts passed.
+- Active nginx configuration preserved byte-for-byte. Score-file SHA256 before/
+  after activation identical:65574a8b92aae43a12a45e5bbadf7ac27d7a24141d5d600f0d83127bd7cda65d.
+  nginx, PHP and relay active. No QA leaderboard entry submitted.
+- Removed only redundant uploaded archives after SHA256/local-copy verification;
+  every installed release/rollback preserved. Cleanup audit saved with evidence.
 
-Evidence: .studioigor/captures/public-main-v43, coop-main-validation,
-coop-main-sixteen and coop-main-holiday-v43.
-Known limit: host departure closes the room; guests can join a new room.
-Physical mobile and sixteen-human playtests remain open.
+Evidence: .studioigor/captures/props-v44, holiday-performance-report,
+holiday-final, release-v44 and public-props-v46. Source art/prompts: art/props.
+Physical-mobile, sixteen-human and overall art/feel acceptance remain open.
