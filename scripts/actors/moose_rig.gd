@@ -34,6 +34,8 @@ var firearm_pose := FirearmPose.new()
 var bat_pose := BatPose.new()
 var held_melee: String = ""
 var melee_angle: float = -1.05
+var melee_origin := Vector2.ZERO
+var bat_grip_active: bool = false
 var held_firearm: String = ""
 var firearm_reloading: bool = false
 var firearm_recoil: float = 0.0
@@ -314,7 +316,6 @@ func _process(delta: float) -> void:
 		bones[side + "_fore"].rotation = -1.55 - absf(swing) * 0.25 - _air_blend * 0.18
 		bones[side + "_hand"].rotation = 0.0
 	attack_pose.apply(self)
-	bat_pose.apply(self)
 	firearm_pose.apply(self)
 	guard_blend = move_toward(guard_blend, float(blocking), delta * 12)
 	if guard_blend > 0:
@@ -332,6 +333,7 @@ func _process(delta: float) -> void:
 				power_pose.x + power_pose.y
 			)
 			bones[side + "_fore"].rotation = -1.9 + power_pose.y * 1.7
+	bat_pose.apply(self)
 	debug_layer.queue_redraw()
 
 

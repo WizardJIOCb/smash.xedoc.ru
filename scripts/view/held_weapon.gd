@@ -4,6 +4,11 @@ extends Node2D
 var weapon_id: String = "fists"
 var flash: float = 0.0
 var painting: Texture2D
+var grip_active: bool = false
+var bat_grip: Texture2D = load("res://assets/weapons/bat-held-v2.png")
+var grip_data: Dictionary = (
+	JSON.parse_string(FileAccess.get_file_as_string("res://data/weapon_grips.json")).bat
+)
 
 
 func equip(id: String) -> void:
@@ -14,6 +19,11 @@ func equip(id: String) -> void:
 
 
 func _draw() -> void:
+	if weapon_id == "bat" and grip_active:
+		var factor := float(grip_data.scale)
+		var pivot := Vector2(grip_data.pivot[0], grip_data.pivot[1])
+		draw_texture_rect(bat_grip, Rect2(-pivot * factor, bat_grip.get_size() * factor), false)
+		return
 	if painting != null:
 		var widths := {
 			"bat": 112.0,

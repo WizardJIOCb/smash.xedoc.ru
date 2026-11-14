@@ -206,3 +206,48 @@ func _check_empty_firearm_throw(id: String) -> void:
 	assert_eq(armory.stats().loaded, 0)
 	assert_eq(armory.stats().reserve, 11)
 	assert_true(armory.reload())
+
+
+func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death() -> void:
+	for facing: float in [-1.0, 1.0]:
+		var armory = make_armory()
+		var hero: Node2D = armory.hero
+		hero.facing = facing
+		armory.grant("bat")
+		var largest_gap := 0.0
+		for stance in [[false, false], [false, true], [true, false]]:
+			hero.airborne = stance[0]
+			hero.crouch_requested = stance[1]
+			hero.combat.request("punch", stance[0], stance[1])
+			for frame in range(70):
+				armory.advance(1.0 / 60, [], true)
+				hero.combat.advance(1.0 / 60, stance[0], stance[1])
+				hero._process(1.0 / 60)
+				armory._process(0)
+				var spec: Dictionary = hero.bat_pose.assembly
+				for side: String in ["near", "far"]:
+					var wrist: Array = spec[side + "_wrist"]
+					var at := (
+						Vector2(wrist[0] - spec.pivot[0], wrist[1] - spec.pivot[1])
+						* float(spec.scale)
+					)
+					var painted_wrist: Vector2 = armory.visual.to_global(at)
+					largest_gap = maxf(
+						largest_gap,
+						painted_wrist.distance_to(hero.bones[side + "_hand"].global_position)
+					)
+		assert_lt(
+			largest_gap, 0.05, "Both painted wrists stay on their sleeves during the entire swing"
+		)
+		assert_false(hero.bones.near_hand.get_node("fist_back").visible)
+		assert_false(hero.bones.far_hand.get_node("fist").visible)
+		armory.drop(500)
+		assert_true(hero.bones.near_hand.get_node("fist_back").visible)
+		assert_true(hero.bones.far_hand.get_node("fist").visible)
+		armory.grant("bat")
+		hero._process(0)
+		hero.ragdoll_active = true
+		armory.advance(0, [], true)
+		assert_false(armory.visual.visible, "No floating hand/weapon assembly over the corpse")
+		assert_true(hero.bones.near_hand.get_node("fist_back").visible)
+		assert_true(hero.bones.far_hand.get_node("fist").visible)

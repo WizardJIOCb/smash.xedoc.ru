@@ -1,0 +1,22 @@
+{
+  "tool": "image_gen",
+  "alpha": "native RGBA, no background removal or repaint in pipeline",
+  "selected": [
+    {
+      "source": "exec-33b6b559-dd42-4602-8039-fb4435cb8f51.png",
+      "asset": "assets/weapons/bat-held-v2.png",
+      "sha256": "5aeefa7269e07670a94b1383b7316588131eee5f8edae87c6c7b9e411865ae56"
+    },
+    {
+      "source": "exec-636f2084-2a1e-4686-89b6-4cbf84ea76d1.png",
+      "asset": "assets/enemies/beaver/weapon-held-v1.png",
+      "sha256": "0f754f0981616046b4f66bc93364829be329b28f24af20e157b694960f455da2"
+    },
+    {
+      "source": "exec-2300832f-2d0c-4a50-ad25-1dba581b1b28.png",
+      "asset": "assets/enemies/hare/weapon-held-v1.png",
+      "sha256": "f87502867bf007bb3041e8106443dc35a3a96b3f333de303ae5f61ae597ef3d6"
+    }
+  ],
+  "instructions": "Match existing weapons. Moose: distinct anatomical left/back and right/palm hands, four digits each, two-handed power grip; beaver brown furry hand on taped wrench; hare grey wrapped hand on pipe. Wrist and handle anchors defined in data/weapon_grips.json."
+}

@@ -241,6 +241,10 @@ func melee_area(base: Rect2, kind: String, tip: Vector2) -> Rect2:
 func advance(delta: float, enemies: Array, playing: bool) -> void:
 	_playing = playing
 	visual.visible = is_instance_valid(hero) and hero.visible and not hero.ragdoll_active
+	if is_instance_valid(hero) and hero.ragdoll_active:
+		hero.bat_grip_active = false
+		hero.bones.near_hand.get_node("fist_back").visible = true
+		hero.bones.far_hand.get_node("fist").visible = true
 	if not playing:
 		_held = false
 		return
@@ -315,6 +319,9 @@ func _update_visual() -> void:
 		return
 	var hand: Bone2D = hero.bones.near_hand
 	visual.global_position = hand.to_global(Vector2(0, 7))
+	visual.grip_active = equipped == "bat" and hero.bat_grip_active
+	if visual.grip_active:
+		visual.global_position = hero.to_global(hero.melee_origin)
 	var facing: float = hero.facing
 	var angle := -0.8
 	if is_ranged():
@@ -518,6 +525,10 @@ func _refresh() -> void:
 		hero.held_melee = equipped if not is_ranged() else ""
 		hero.combat.weapon = equipped
 		hero.firearm_reloading = _reload_left > 0
+		if equipped != "bat" or hero.ragdoll_active:
+			hero.bat_grip_active = false
+			hero.bones.near_hand.get_node("fist_back").visible = true
+			hero.bones.far_hand.get_node("fist").visible = true
 	if is_instance_valid(visual):
 		visual.equip(equipped)
 	changed.emit()

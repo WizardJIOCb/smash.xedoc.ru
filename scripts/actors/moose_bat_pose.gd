@@ -5,16 +5,25 @@ const ArmIK = preload("res://scripts/core/arm_ik.gd")
 var tuning: Dictionary = JSON.parse_string(
 	FileAccess.get_file_as_string("res://data/bat_pose.json")
 )
+var assembly: Dictionary = (
+	JSON.parse_string(FileAccess.get_file_as_string("res://data/weapon_grips.json")).bat
+)
 
 
 func apply(rig: Node2D) -> void:
-	if rig.held_melee != "bat" or rig.blocking or rig.power_pose.length_squared() > 0.001:
+	rig.bat_grip_active = rig.held_melee == "bat" and not rig.ragdoll_active
+	rig.bones.near_hand.get_node("fist_back").visible = not rig.bat_grip_active
+	rig.bones.far_hand.get_node("fist").visible = not rig.bat_grip_active
+	if not rig.bat_grip_active:
 		return
 	var grip := _point("rest")
 	var angle: float = tuning.angles[0]
 	var lean := 0.0
 	var attack = rig.combat
-	if attack.elapsed >= 0 and attack.kind == "punch":
+	if rig.blocking:
+		grip = _point("guard")
+		angle = float(tuning.guard_angle)
+	elif attack.elapsed >= 0 and attack.kind == "punch":
 		var timing: Dictionary = attack.timings()
 		var time: float = attack.elapsed
 		if time < float(timing.windup):
@@ -41,11 +50,13 @@ func apply(rig: Node2D) -> void:
 	rig.bones.head.rotation -= lean * 0.83
 	rig.melee_angle = angle
 	var origin: Vector2 = rig.bones.hips.position + rig.bones.body.position
-	var axis := Vector2.RIGHT.rotated(angle)
 	var at := origin + grip
-	_arm(rig, "near", at, angle)
-	var handle: Vector2 = rig.bones.near_hand.to_global(Vector2(0, 7))
-	_arm(rig, "far", rig.to_local(handle) + axis * float(tuning.hand_spacing), angle)
+	rig.melee_origin = at
+	for side: String in ["near", "far"]:
+		var wrist: Array = assembly[side + "_wrist"]
+		var pivot: Array = assembly.pivot
+		var offset := Vector2(wrist[0] - pivot[0], wrist[1] - pivot[1]) * float(assembly.scale)
+		_arm(rig, side, at + offset.rotated(angle), angle)
 
 
 func _point(id: String) -> Vector2:
@@ -54,17 +65,11 @@ func _point(id: String) -> Vector2:
 
 func _arm(rig: Node2D, side: String, target: Vector2, angle: float) -> void:
 	var body: Bone2D = rig.bones.body
-	var hand: Bone2D = rig.bones[side + "_hand"]
-	var wrist_angle := angle
-	for pass_index in range(3):
-		var wrist := target - Vector2(0, 7).rotated(wrist_angle)
-		ArmIK.solve(
-			rig.bones,
-			side,
-			body.to_local(rig.to_global(wrist)),
-			-1.0,
-			angle,
-			float(tuning.wrist_limit)
-		)
-		wrist_angle = rig.bones.body.rotation + rig.bones[side + "_arm"].rotation
-		wrist_angle += rig.bones[side + "_fore"].rotation + hand.rotation
+	ArmIK.solve(
+		rig.bones,
+		side,
+		body.to_local(rig.to_global(target)),
+		-1.0,
+		angle,
+		float(tuning.wrist_limit)
+	)

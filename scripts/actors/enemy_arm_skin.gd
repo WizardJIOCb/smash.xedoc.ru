@@ -12,8 +12,9 @@ static func upper_vector() -> Vector2:
 	return (ELBOW - SHOULDER) * SIZE
 
 
-static func lower_vector() -> Vector2:
-	return (WRIST - ELBOW) * SIZE
+static func lower_vector(kind: String = "", side: String = "near") -> Vector2:
+	var wrist := Vector2(0.35, 0.84) if kind in ["beaver", "hare"] and side == "near" else WRIST
+	return (wrist - ELBOW) * SIZE
 
 
 func setup(rig: Skeleton2D, bones: Dictionary, kind: String, side: String) -> void:
@@ -34,9 +35,14 @@ func setup(rig: Skeleton2D, bones: Dictionary, kind: String, side: String) -> vo
 	var wrist := PackedFloat32Array()
 	var faces: Array[PackedInt32Array] = []
 	var hand_faces: Array[PackedInt32Array] = []
+	var wrapped_grip := kind in ["beaver", "hare"] and side == "near"
 	for row in range(19):
 		for col in range(7):
 			var uv_point := Vector2(col / 6.0, row / 18.0)
+			if wrapped_grip:
+				# Cut across the diagonal forearm at the cuff, not across image rows.
+				# A horizontal cut removed the wrist but left the elbow-side sleeve.
+				uv_point.y *= minf(1.0, 0.84 + (uv_point.x - 0.35) * 1.6)
 			points.append(origin + uv_point * SIZE)
 			texcoords.append(uv_point * texture.get_size())
 			var fore_weight := smoothstep(0.38, 0.65, uv_point.y)
@@ -46,7 +52,9 @@ func setup(rig: Skeleton2D, bones: Dictionary, kind: String, side: String) -> vo
 			wrist.append(hand_weight)
 			if row < 18 and col < 6:
 				var index := row * 7 + col
-				var layer: Array[PackedInt32Array] = hand_faces if row >= 14 else faces
+				var layer: Array[PackedInt32Array] = (
+					hand_faces if row >= 14 and not wrapped_grip else faces
+				)
 				layer.append(PackedInt32Array([index, index + 1, index + 8]))
 				layer.append(PackedInt32Array([index, index + 8, index + 7]))
 	polygon = points

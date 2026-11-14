@@ -12,6 +12,10 @@ var fit: Dictionary = JSON.parse_string(
 var kind: String = "shield"
 var weapon_pose := WeaponPose.new()
 var weapon_sprite: Sprite2D
+var held_grip: bool = false
+var grip_art: Dictionary = JSON.parse_string(
+	FileAccess.get_file_as_string("res://data/weapon_grips.json")
+)
 var muzzle_uv := Vector2(0.02, 0.2)
 var body_scale: float = 1.0
 var recoil: float = 0.0
@@ -56,7 +60,7 @@ func _ready() -> void:
 		_bone(side + "_foot", bones[side + "_shin"], Vector2(0, 34), 16)
 		# Source art faces LEFT: the visible shoulder socket is on the RIGHT.
 		var upper := ArmSkin.upper_vector()
-		var lower := ArmSkin.lower_vector()
+		var lower := ArmSkin.lower_vector(kind if art_profile.is_empty() else art_profile, side)
 		upper_rest = upper.angle() - PI / 2
 		fore_rest = lower.angle() - upper.angle()
 		_bone(side + "_arm", bones.body, Vector2(20 if near_side else -17, -57), upper.length())
@@ -94,11 +98,20 @@ func _ready() -> void:
 			Vector2(weapon_pivot[0], weapon_pivot[1]),
 			18
 		)
+		if grip_art.has(kind) and art_profile.is_empty():
+			var spec: Dictionary = grip_art[kind]
+			var size := Vector2(spec.size[0], spec.size[1])
+			weapon_sprite.texture = load(spec.texture)
+			weapon_sprite.scale = size / Vector2(weapon_sprite.texture.get_size())
+			weapon_sprite.position = -size * Vector2(spec.pivot[0], spec.pivot[1])
+			weapon_sprite.flip_h = true
+			held_grip = true
+			arm_meshes.near.hand_mesh.visible = false
 		if not gun:
 			# Shaft can pass behind the head; the grip stays in front of the sleeve.
 			var handle := weapon_sprite.duplicate() as Sprite2D
 			var pixels := Vector2(weapon_sprite.texture.get_size())
-			var split := pixels.y * 0.72
+			var split := pixels.y * (0.65 if held_grip else 0.72)
 			weapon_sprite.region_enabled = true
 			weapon_sprite.region_rect = Rect2(0, 0, pixels.x, split)
 			weapon_sprite.z_index = 12

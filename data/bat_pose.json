@@ -1,5 +1,6 @@
 {
-  "rest": [12, -30], "wind": [-38, -37], "impact": [40, -35], "follow": [23, -16],
-  "angles": [-1.05, -3.0, 0.05, 0.85], "hand_spacing": 11.0,
+  "rest": [-15, -18], "wind": [-25, -10], "impact": [38, -32], "follow": [23, -16],
+  "guard": [-12, -18], "guard_angle": -1.2,
+  "angles": [-1.9, -3.0, 0.05, 0.85], "hand_spacing": 18.0,
   "wind_lean": -0.22, "swing_lean": 0.16, "wrist_limit": 0.7
 }

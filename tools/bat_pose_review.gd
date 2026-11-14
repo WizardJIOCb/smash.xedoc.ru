@@ -6,9 +6,13 @@ var rigs: Array[Node2D] = []
 var gears: Array[Node2D] = []
 var clock: float = 0
 var next_swing: float = 0.7
+var max_grip_gap: float = 0.0
+var max_elbow: float = 0.0
+var worst_grip: Dictionary = {}
 
 
 func _ready() -> void:
+	process_priority = 80
 	RenderingServer.set_default_clear_color(Color("14282c"))
 	for direction: float in [-1.0, 1.0]:
 		var rig := Moose.new()
@@ -38,5 +42,34 @@ func _physics_process(delta: float) -> void:
 			rig.combat.request("punch", rig.airborne, rig.crouch_requested)
 		next_swing += 1.3
 	Metrics.rig = {
-		"clock": clock, "attack_time": rigs[0].combat.elapsed, "angle": rigs[0].melee_angle
+		"clock": clock,
+		"attack_time": rigs[0].combat.elapsed,
+		"angle": rigs[0].melee_angle,
+		"max_grip_gap": max_grip_gap,
+		"worst_grip": worst_grip,
+		"max_elbow_degrees": rad_to_deg(max_elbow)
 	}
+
+
+func _process(_delta: float) -> void:
+	for index in range(rigs.size()):
+		var rig: Node2D = rigs[index]
+		var spec: Dictionary = rig.bat_pose.assembly
+		for side: String in ["near", "far"]:
+			var wrist: Array = spec[side + "_wrist"]
+			var at := (
+				Vector2(wrist[0] - spec.pivot[0], wrist[1] - spec.pivot[1]) * float(spec.scale)
+			)
+			var target: Vector2 = gears[index].visual.to_global(at)
+			var gap := target.distance_to(rig.bones[side + "_hand"].global_position)
+			if gap > max_grip_gap:
+				max_grip_gap = gap
+				worst_grip = {
+					"side": side,
+					"clock": clock,
+					"elapsed": rig.combat.elapsed,
+					"target": str(rig.to_local(target))
+				}
+			max_elbow = maxf(max_elbow, absf(rig.bones[side + "_fore"].rotation))
+	Metrics.rig["max_grip_gap"] = max_grip_gap
+	Metrics.rig["max_elbow_degrees"] = rad_to_deg(max_elbow)
