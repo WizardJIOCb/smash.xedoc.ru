@@ -35,6 +35,7 @@ var bat_pose := BatPose.new()
 var held_melee: String = ""
 var melee_angle: float = -1.05
 var melee_origin := Vector2.ZERO
+var melee_length: float = 1.0
 var bat_grip_active: bool = false
 var held_firearm: String = ""
 var firearm_reloading: bool = false
@@ -284,6 +285,7 @@ func _process(delta: float) -> void:
 			hip_shift += attack.y * float(kick_body.high_chamber_shift)
 			# The support foot changes when the high kick uses the far leg.
 			hip_shift *= 1.0 if combat.side == "near" else -0.65
+	hip_shift += bat_pose.prepare(self)
 	bones.hips.position = Vector2(hip_shift - power_pose.y * 8, _hip_spring.x + power_pose.x * 7)
 	var acceleration_lean := clampf(horizontal_acceleration * facing / 1600.0, -1, 1) * 0.13
 	var body_target := 0.035 + _travel_blend * 0.14 + acceleration_lean
@@ -295,7 +297,7 @@ func _process(delta: float) -> void:
 			body_target -= float(kick_body.high_lean) * (attack.x + attack.y * 0.85)
 		else:
 			body_target -= attack.x * lean - attack.y * 0.07
-	else:
+	elif held_melee != "bat":
 		body_target += attack.x * (0.32 if combat.side == "far" else 0.22) - attack.y * 0.12
 	body_target += preparation * 0.11 - power_pose.x * 0.18 + power_pose.y * 0.3
 	body_target += compression * 0.1 - clampf(vertical_speed / 600.0, -1, 1) * 0.06

@@ -5,6 +5,7 @@ var weapon_id: String = "fists"
 var flash: float = 0.0
 var painting: Texture2D
 var grip_active: bool = false
+var bat_length: float = 1.0
 var bat_grip: Texture2D = load("res://assets/weapons/bat-held-v2.png")
 var grip_data: Dictionary = (
 	JSON.parse_string(FileAccess.get_file_as_string("res://data/weapon_grips.json")).bat
@@ -22,7 +23,18 @@ func _draw() -> void:
 	if weapon_id == "bat" and grip_active:
 		var factor := float(grip_data.scale)
 		var pivot := Vector2(grip_data.pivot[0], grip_data.pivot[1])
-		draw_texture_rect(bat_grip, Rect2(-pivot * factor, bat_grip.get_size() * factor), false)
+		var pixels := bat_grip.get_size()
+		var split := float(grip_data.shaft_start)
+		var start := -pivot * factor
+		draw_texture_rect_region(
+			bat_grip, Rect2(start, Vector2(split, pixels.y) * factor), Rect2(0, 0, split, pixels.y)
+		)
+		start.x += split * factor
+		draw_texture_rect_region(
+			bat_grip,
+			Rect2(start, Vector2((pixels.x - split) * bat_length, pixels.y) * factor),
+			Rect2(split, 0, pixels.x - split, pixels.y)
+		)
 		return
 	if painting != null:
 		var widths := {

@@ -224,7 +224,14 @@ func melee_tip(original: Vector2, kind: String) -> Vector2:
 	if kind != "punch" or is_ranged() or equipped == "fists":
 		return original
 	_update_visual()
-	return visual.to_global(Vector2(float(tuning.weapons[equipped].reach), 0))
+	var reach := float(tuning.weapons[equipped].reach)
+	if equipped == "bat" and visual.grip_active:
+		var grip_end := (
+			(float(visual.grip_data.shaft_start) - float(visual.grip_data.pivot[0]))
+			* float(visual.grip_data.scale)
+		)
+		reach = grip_end + (reach - grip_end) * hero.melee_length
+	return visual.to_global(Vector2(reach, 0))
 
 
 func melee_area(base: Rect2, kind: String, tip: Vector2) -> Rect2:
@@ -322,6 +329,7 @@ func _update_visual() -> void:
 	visual.grip_active = equipped == "bat" and hero.bat_grip_active
 	if visual.grip_active:
 		visual.global_position = hero.to_global(hero.melee_origin)
+		visual.bat_length = hero.melee_length
 	var facing: float = hero.facing
 	var angle := -0.8
 	if is_ranged():
