@@ -8,6 +8,7 @@ signal submit_requested(name_text: String)
 signal mute_requested
 signal records_requested
 signal fps_requested(enabled: bool)
+signal coop_requested
 
 const Moose = preload("res://scripts/actors/moose_rig.gd")
 const FONT = preload("res://assets/fonts/Manrope-Semibold.tres")
@@ -99,10 +100,14 @@ func show_home(resumable: bool) -> void:
 		20
 	)
 	_button("Продолжить" if can_resume else "Войти во двор", 350, _play, true)
-	_button("Выбрать главу", 410, show_chapters)
-	_button("Рекорды", 470, show_records)
-	_button("Как играть", 530, show_help)
-	_button("Настройки", 590, show_settings)
+	_button("По сети · 2–16 игроков", 402, func() -> void: coop_requested.emit())
+	_button("Выбрать главу", 454, show_chapters)
+	_button("Рекорды", 506, show_records)
+	_button("Как играть", 558, show_help)
+	_button("Настройки", 610, show_settings)
+	for child: Node in content.get_children():
+		if child is Button:
+			child.size.y = 48
 
 
 func _page(id: String) -> void:

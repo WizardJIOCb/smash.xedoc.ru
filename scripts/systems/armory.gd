@@ -248,7 +248,7 @@ func melee_area(base: Rect2, kind: String, tip: Vector2) -> Rect2:
 	)
 
 
-func advance(delta: float, enemies: Array, playing: bool) -> void:
+func advance(delta: float, enemies: Array, playing: bool, simulate_pickups: bool = true) -> void:
 	_playing = playing
 	visual.visible = is_instance_valid(hero) and hero.visible and not hero.ragdoll_active
 	if is_instance_valid(hero) and hero.ragdoll_active:
@@ -273,7 +273,7 @@ func advance(delta: float, enemies: Array, playing: bool) -> void:
 		_fire()
 	hero.firearm_recoil = visual.flash / 0.065
 	_advance_bullets(delta, enemies)
-	for item: Dictionary in pickups:
+	for item: Dictionary in pickups if simulate_pickups else []:
 		if item.has("velocity"):
 			var previous: Vector2 = item.at
 			item.velocity.y += 720 * delta

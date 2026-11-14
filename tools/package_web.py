@@ -23,7 +23,12 @@ def main():
             shutil.copy2(source, output / source.name)
     (output / 'api').mkdir()
     shutil.copy2(ROOT / 'deploy/api/scores.php', output / 'api/scores.php')
-    shutil.copy2(ROOT / 'data/chapters.json', output / 'api/chapters.json')
+    chapters = json.loads((ROOT / 'data/chapters.json').read_text(encoding='utf-8'))
+    holiday = json.loads((ROOT / 'data/holiday_chapter.json').read_text(encoding='utf-8'))
+    total = len(json.loads((ROOT / 'data/district_rooms.json').read_text(encoding='utf-8')))
+    holiday.update(id=len(chapters) + 1, start=total, end=total)
+    chapters.append(holiday)
+    (output / 'api/chapters.json').write_text(json.dumps(chapters, ensure_ascii=False), encoding='utf-8')
     cover = ROOT / f'.studioigor/captures/menu-v{version}/frame_002.png'
     if not cover.exists():
         cover = ROOT / 'art/site/cover.png'

@@ -8,6 +8,19 @@ var wave_wait: float = -1.0
 var completed: Array = []
 
 
+func _init() -> void:
+	var holiday: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/holiday_chapter.json")
+	)
+	var total: int = (
+		JSON.parse_string(FileAccess.get_file_as_string("res://data/district_rooms.json")).size()
+	)
+	holiday.id = chapters.size() + 1
+	holiday.start = total
+	holiday.end = total
+	chapters.append(holiday)
+
+
 func current() -> Dictionary:
 	return chapters[chapter]
 

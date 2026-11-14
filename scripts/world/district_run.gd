@@ -1,4 +1,5 @@
 extends "res://scripts/gyms/rig_lab.gd"
+# gdlint: disable=max-file-lines
 ## First playable route. Keeps the accepted rig gym intact for animation reviews.
 
 const Enemy = preload("res://scripts/actors/district_enemy.gd")
@@ -19,6 +20,11 @@ const Lift = preload("res://scripts/world/district_lift.gd")
 const Continuation = preload("res://scripts/world/continuation_fx.gd")
 const Route = preload("res://scripts/core/route_state.gd")
 const KeyBindings = preload("res://scripts/core/key_bindings.gd")
+const Coop = preload("res://scripts/network/coop_session.gd")
+const Holiday = preload("res://scripts/world/holiday_fx.gd")
+
+var coop: Coop
+var holiday_fx: Holiday
 
 var continuation := Continuation.new()
 var route := Route.new()
@@ -81,6 +87,11 @@ var _notice_left: float = 3.0
 
 func _ready() -> void:
 	rooms = JSON.parse_string(FileAccess.get_file_as_string("res://data/district_rooms.json"))
+	var holiday: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/holiday_room.json")
+	)
+	holiday.chapter = route.chapters.size()
+	rooms.append(holiday)
 	encounter = JSON.parse_string(FileAccess.get_file_as_string("res://data/encounters.json"))
 	super._ready()
 	route.load_progress()
@@ -160,6 +171,9 @@ func _ready() -> void:
 	for enemy: Enemy in enemies:
 		enemy.paused = true
 	scores.refresh()
+	coop = Coop.new()
+	add_child(coop)
+	front.coop_requested.connect(coop.open)
 
 
 func _build_hud() -> void:
@@ -254,6 +268,11 @@ func _load_room(index: int, spawn_x: float) -> void:
 		scenery.queue_free()
 	scenery = Node2D.new()
 	add_child(scenery)
+	holiday_fx = null
+	if bool(rooms[index].get("holiday", false)):
+		holiday_fx = Holiday.new()
+		holiday_fx.tree_ornaments = false
+		scenery.add_child(holiday_fx)
 	ledges.clear()
 	var room: Dictionary = rooms[index]
 	for child: Node in get_children():
@@ -314,6 +333,8 @@ func _load_room(index: int, spawn_x: float) -> void:
 	_notice_left = 6
 	Metrics.record("entered_room_" + str(index + 1))
 	_sync_metrics()
+	if is_instance_valid(coop):
+		coop.room_loaded()
 
 
 func _spawn_enemy(entry: Array) -> void:
@@ -322,7 +343,7 @@ func _spawn_enemy(entry: Array) -> void:
 	enemy.position = Vector2(entry[1], entry[2])
 	enemy.target = moose
 	enemy.tuning = encounter[enemy.kind]
-	enemy.hit_player.connect(_hurt_player)
+	enemy.hit_player.connect(_enemy_hit.bind(enemy))
 	enemy.shot.connect(_projectile)
 	enemy.feedback.connect(_feedback)
 	enemy.defeated.connect(_enemy_down)
@@ -359,6 +380,8 @@ func _build_physics_surfaces(base_floor: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if is_instance_valid(coop) and coop.handle_input(event):
+		return
 	if is_instance_valid(front) and front.is_open():
 		if event.is_action_pressed("pause_run"):
 			if front.page == "controls":
@@ -404,19 +427,15 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if is_instance_valid(coop) and coop.before_step(delta):
+		return
 	if is_instance_valid(touch_controls):
 		touch_controls.set_context("menu" if front.is_open() else run_state)
 		controls_hint.visible = not touch_controls.enabled
 	var simulation_paused := run_state in ["menu", "paused", "won"]
 	rain.paused = simulation_paused or bool(rooms[room_index].get("indoor", false))
 	rain.visible = not front.is_open() and not bool(rooms[room_index].get("indoor", false))
-	armory.trigger(
-		(
-			Input.is_action_pressed("strike")
-			and night.burst_time < 0
-			and not Input.is_action_pressed("block")
-		)
-	)
+	armory.trigger(_input_held("strike") and night.burst_time < 0 and not _input_held("block"))
 	armory.ground_y = floor_y
 	armory.advance(delta, enemies, run_state == "playing")
 	continuation.advance_lift(self, delta, simulation_paused)
@@ -482,9 +501,14 @@ func _physics_process(delta: float) -> void:
 			moose.position.x > 1230
 			and cleared[room_index]
 			and room_index < int(route.current().end)
+			and (not is_instance_valid(coop) or not coop.active or coop.exit_ready())
 		):
 			_load_room(room_index + 1, 110)
-		elif moose.position.x < 45 and room_index > int(route.current().start):
+		elif (
+			moose.position.x < 45
+			and room_index > int(route.current().start)
+			and (not is_instance_valid(coop) or not coop.active)
+		):
 			_load_room(room_index - 1, 1160)
 	if moose.position.x > 1190 and not cleared[room_index]:
 		moose.position.x = 1190
@@ -528,7 +552,10 @@ func _release_impulse() -> void:
 			)
 			if corpse_at != Vector2.INF and at.distance_to(corpse_at) <= radius:
 				if enemy.receive_corpse_hit(
-					-1000 - night.bursts, corpse_at, at.direction_to(corpse_at), "super"
+					-1000 - night.bursts - int(moose.get_meta("coop_slot", 0)) * 10000,
+					corpse_at,
+					at.direction_to(corpse_at),
+					"super"
 				):
 					corpse_hits += 1
 			continue
@@ -538,7 +565,7 @@ func _release_impulse() -> void:
 		)
 		if not enemy.dead and at.distance_to(nearest) <= radius:
 			if enemy.receive_hit(
-				-1000 - night.bursts,
+				-1000 - night.bursts - int(moose.get_meta("coop_slot", 0)) * 10000,
 				"super",
 				int(night.tuning.burst_damage),
 				moose.position,
@@ -611,6 +638,13 @@ func _resolve_attacks() -> void:
 	_previous_tip = tip
 
 
+func _enemy_hit(amount: int, source: Vector2, high: bool, enemy: Enemy) -> void:
+	if is_instance_valid(coop) and coop.active and coop.hosting:
+		coop.damage_target(enemy.target, amount, source, high)
+	else:
+		_hurt_player(amount, source, high)
+
+
 func _hurt_player(
 	amount: int, source: Vector2, high: bool = false, contact: Vector2 = Vector2.INF
 ) -> void:
@@ -650,6 +684,10 @@ func _hurt_player(
 		player_corpse = Ragdoll.new()
 		moose.add_child(player_corpse)
 		player_corpse.start(moose, at, direction * 230, inherited_velocity)
+		if is_instance_valid(coop) and coop.active:
+			run_state = "playing"
+			coop.host_down()
+			return
 		for enemy: Enemy in enemies:
 			enemy.paused = not enemy.dead
 		Metrics.record("defeated")
@@ -672,7 +710,9 @@ func _move_projectiles(delta: float) -> void:
 		item.age += delta
 		item.at += item.velocity * delta
 		var swept := Rect2(before, Vector2.ZERO).expand(item.at).grow(5)
-		if swept.intersects(box):
+		if is_instance_valid(coop) and coop.active and coop.projectile_hit(swept, item, before):
+			item.age = 10
+		elif swept.intersects(box) and health > 0:
 			_hurt_player(
 				int(item.damage),
 				before,
@@ -755,6 +795,10 @@ func _restart() -> void:
 
 
 func _start_new_run() -> void:
+	if is_instance_valid(coop) and coop.active and not coop.starting:
+		if coop.hosting:
+			coop.send({"type": "chapter", "chapter": route.chapter})
+		return
 	blocked_hits = 0
 	corpse_hits = 0
 	world_night = false
@@ -783,6 +827,9 @@ func _start_new_run() -> void:
 
 
 func _resume_run() -> void:
+	if is_instance_valid(coop) and coop.active:
+		front.hide_menu()
+		return
 	scores.chapter = route.chapter + 1
 	run_state = "playing"
 	front.hide_menu()
@@ -802,6 +849,8 @@ func _run_stats() -> Dictionary:
 
 
 func _submit_record(name_text: String) -> void:
+	if is_instance_valid(coop) and coop.active:
+		return
 	scores.chapter = route.chapter + 1
 	scores.finish(name_text, _run_stats())
 
@@ -832,6 +881,9 @@ func _feedback(at: Vector2, caption: String, color: Color, sound: String) -> voi
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	if is_instance_valid(holiday_fx):
+		holiday_fx.paused = run_state in ["menu", "paused"]
+		holiday_fx.set_cleared(cleared[room_index])
 	if is_instance_valid(night_fx):
 		night_fx.update(delta, world_night, night.active())
 		# Relay state still affects the warning wash, independently of time/power.
@@ -910,6 +962,9 @@ func _process(delta: float) -> void:
 		_finish_shown = true
 		front.chapter_index = route.chapter
 		front.show_finish(Scores.calculate(_run_stats()), elapsed_run, scores.player_name)
+		if is_instance_valid(coop) and coop.active and is_instance_valid(front.submit_button):
+			front.submit_button.disabled = true
+			front.submit_button.text = "Кооператив · общий прогресс"
 
 
 func _draw() -> void:
@@ -966,6 +1021,10 @@ func _sync_metrics() -> void:
 
 
 func _select_chapter(index: int) -> void:
+	if is_instance_valid(coop) and coop.active and not coop.starting:
+		if coop.hosting:
+			coop.send({"type": "chapter", "chapter": index})
+		return
 	if index < 0 or index >= route.chapters.size():
 		return
 	route.chapter = index

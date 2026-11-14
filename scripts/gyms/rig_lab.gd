@@ -30,6 +30,10 @@ var guard_tuning: Dictionary = (
 	JSON.parse_string(FileAccess.get_file_as_string("res://data/physical_combat.json")).guard
 )
 
+var network_input: bool = false
+var held_input: Dictionary = {}
+var pressed_input: Array = []
+
 var _jump_buffer: float = 0.0
 var _preparation_time: float = -1.0
 var _dust_time: float = 1.0
@@ -43,12 +47,24 @@ var _turn_axis: float = 0.0
 var _manual_facing: bool = false
 
 
+func _input_held(action: String) -> bool:
+	return bool(held_input.get(action, false)) if network_input else Input.is_action_pressed(action)
+
+
+func _input_pressed(action: String) -> bool:
+	return pressed_input.has(action) if network_input else Input.is_action_just_pressed(action)
+
+
+func _input_axis() -> float:
+	return float(_input_held("right")) - float(_input_held("left"))
+
+
 func quick_turn() -> void:
 	if moose.ragdoll_active:
 		return
 	moose.combat.interrupt()
 	moose.facing *= -1
-	_turn_axis = Input.get_axis("left", "right")
+	_turn_axis = _input_axis()
 	_manual_facing = true
 	_stride_stop.active = false
 	_direction_was_held = false
@@ -117,9 +133,9 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Events retain quick taps between physics frames and reject keyboard repeat.
-	if Input.is_action_pressed("block") or moose.ragdoll_active:
+	if _input_held("block") or moose.ragdoll_active:
 		return
-	var low: bool = Input.is_action_pressed("crouch") and not moose.airborne
+	var low: bool = _input_held("crouch") and not moose.airborne
 	if event.is_action_pressed("strike"):
 		moose.combat.request("punch", moose.airborne, low)
 	elif event.is_action_pressed("kick"):
@@ -147,21 +163,18 @@ func _background(path: String) -> TextureRect:
 
 
 func _physics_process(delta: float) -> void:
-	var direction := Input.get_axis("left", "right")
+	var direction := _input_axis()
 	if direction == 0:
 		_turn_axis = 0
 	if _manual_facing and direction != 0 and direction != _turn_axis:
 		_manual_facing = false
-	var crouching := Input.is_action_pressed("crouch") and lift == 0
-	moose.blocking = Input.is_action_pressed("block")
+	var crouching := _input_held("crouch") and lift == 0
+	moose.blocking = _input_held("block")
 	if moose.blocking:
 		moose.combat.interrupt()
 	moose.crouch_requested = crouching
 	moose.sprinting = (
-		Input.is_action_pressed("sprint")
-		and direction != 0
-		and not crouching
-		and not moose.blocking
+		_input_held("sprint") and direction != 0 and not crouching and not moose.blocking
 	)
 	var previous_speed := speed
 	var rate: float = motion.acceleration if direction else motion.braking
@@ -209,7 +222,7 @@ func _physics_process(delta: float) -> void:
 	):
 		moose.facing = signf(speed)
 	_jump_buffer = maxf(0, _jump_buffer - delta)
-	if Input.is_action_just_pressed("jump"):
+	if _input_pressed("jump"):
 		_jump_buffer = float(motion.jump_buffer)
 	if _jump_buffer > 0 and lift == 0 and _preparation_time < 0:
 		_preparation_time = 0
@@ -239,11 +252,11 @@ func _physics_process(delta: float) -> void:
 	moose.airborne = lift < -0.01
 	moose.vertical_speed = vertical_speed
 	moose.combat.advance(delta * combat_rate, moose.airborne, crouching)
-	if Input.is_action_just_pressed("world"):
+	if _input_pressed("world"):
 		_world_pressed()
-	if Input.is_action_just_pressed("bones"):
+	if _input_pressed("bones"):
 		moose.show_bones = not moose.show_bones
-	if Input.is_action_just_pressed("closeup"):
+	if _input_pressed("closeup"):
 		closeup = not closeup
 	if Engine.get_physics_frames() % 6 == 0:
 		_sync_metrics()

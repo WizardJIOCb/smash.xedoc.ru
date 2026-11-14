@@ -9,6 +9,7 @@ func test_chapter_content_matches_score_contract_and_reinforcements_cannot_repea
 		FileAccess.get_file_as_string("res://data/district_rooms.json")
 	)
 	assert_eq(rooms.size(), 11)
+	rooms.append(JSON.parse_string(FileAccess.get_file_as_string("res://data/holiday_room.json")))
 	for chapter: Dictionary in route.chapters:
 		var kills := 0
 		for index in range(int(chapter.start), int(chapter.end) + 1):
