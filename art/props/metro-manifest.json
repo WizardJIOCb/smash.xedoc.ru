@@ -1,0 +1,37 @@
+{
+  "images": [
+    {
+      "file": "assets/environment/props/metro-car.png",
+      "size": [
+        1320,
+        440
+      ]
+    },
+    {
+      "file": "assets/environment/metro-station-clear.webp",
+      "size": [
+        1280,
+        720
+      ]
+    },
+    {
+      "file": "assets/environment/metro-train-clear.webp",
+      "size": [
+        1280,
+        720
+      ]
+    }
+  ],
+  "sounds": [
+    {
+      "file": "assets/audio/metro-rails.wav",
+      "seconds": 2,
+      "peak": 0.5797
+    },
+    {
+      "file": "assets/audio/metro-wind.wav",
+      "seconds": 2,
+      "peak": 0.444
+    }
+  ]
+}

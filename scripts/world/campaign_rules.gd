@@ -26,6 +26,7 @@ var broken: int = 0
 var cover_blocks: int = 0
 var bridge_progress: float = 0.0
 var bridge_down: bool = false
+var presentation_paused: bool = true
 
 var _view: Node2D
 var _player_states: Dictionary = {}
@@ -52,6 +53,8 @@ func configure(room: Dictionary) -> void:
 	tuning.merge(data[kind].duplicate(true), true)
 	tuning.floor = float(room.get("floor", tuning.floor))
 	tuning.merge(settings.duplicate(true), true)
+	if kind == "metro":
+		tuning["train_scene"] = str(room.get("art", "metro-station"))
 	if kind == "port":
 		deck_x = _dock_x(false)
 		dock_wait = float(tuning.dock_seconds)
@@ -78,6 +81,7 @@ func _ready() -> void:
 func advance(run, delta: float, paused: bool) -> void:
 	_run = run
 	_paused = paused
+	presentation_paused = paused
 	deck_delta = 0
 	if kind.is_empty() or paused or delta <= 0:
 		return
@@ -219,9 +223,17 @@ func metrics() -> Dictionary:
 		"falls": falls,
 		"wave_state": wave_state,
 		"wave_x": wave_x,
+		"wave_time": wave_time,
+		"wave_direction": wave_direction,
 		"waves": waves,
 		"player_wave_hits": player_wave_hits,
 		"enemy_wave_hits": enemy_wave_hits,
+		"train":
+		(
+			_view.metro_train.metrics()
+			if is_instance_valid(_view) and is_instance_valid(_view.metro_train)
+			else {}
+		),
 		"objects_remaining": remaining,
 		"object_health": healths,
 		"broken": broken,
@@ -658,7 +670,8 @@ func network_state() -> Dictionary:
 	return state
 
 
-func apply_network_state(state: Dictionary) -> void:
+func apply_network_state(state: Dictionary, paused: bool = false) -> void:
+	presentation_paused = paused
 	for key: String in state:
 		if key != "objects":
 			set(key, state[key])

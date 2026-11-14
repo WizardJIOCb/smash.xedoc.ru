@@ -1,0 +1,21 @@
+{
+  "generator": "built-in image_gen",
+  "date": "2026-11-15",
+  "assets": [
+    {
+      "id": "metro-car",
+      "source": "C:/Users/Rodion/.codex/generated_images/01a1d5b0-8c34-7ab1-bdeb-50bc7720899a/exec-0ed708bb-e5ff-4f10-821a-01c8e672e806.png",
+      "prompt": "Use case: game-asset. Generate ONE complete electric metro railcar as a production 2D game sprite, strictly orthographic side elevation, facing RIGHT. Wide canvas, the long vehicle fills the width, all wheels, both ends, roof and two small couplers visible, small transparent margins. Length:height about 4.0:1. Same richly hand-painted illustrated adventure-game style as a magical overgrown European underground railway: dark bottle teal painted steel, restrained old ivory stripe, weathered bronze trims, chipped paint, rivets, aged rounded roof, believable heavy wheel bogies and suspension, generous warm amber lit passenger windows showing empty seats and hanging handles. Right end is a modest rounded driver's cab with ONE amber headlight; left end a normal flat connecting end and black rubber accordion connector. No plants on moving vehicle, no characters, no text, no lettering, no logos, no station, no rails, no floor, no cast shadow outside the train. No perspective or foreshortening, no front three-quarter view. Polished dense painterly material detail that remains readable when drawn 680 pixels wide. GENUINELY TRANSPARENT background and soft clean alpha edges. Vehicle itself opaque including windows. Reference visual language: warm amber windows, dark teal industrial metal, slightly storybook proportions but realistic mechanical assembly. Only one long railcar in the picture, not a sheet or multiple views."
+    },
+    {
+      "id": "metro-station-clear",
+      "source": "C:/Users/Rodion/.codex/generated_images/01a1d5b0-8c34-7ab1-bdeb-50bc7720899a/exec-aeb41caa-2283-416a-87b2-289d6b116f95.png",
+      "prompt": "Use case: precise-object-edit. Edit target is the supplied 1280x720 hand-painted metro station background. Remove ONLY the entire parked green passenger TRAIN visible behind the foreground tiled parapet and pillars. Reveal in its place a dark empty railway track bed and a dim teal brick tunnel wall with restrained warm lamps in the far background. Keep all foreground arches, hanging vines, stonework, the three green tiled pillars and their lamps, the flower-patterned low parapet wall, the wet platform paving, camera, dimensions, perspective and lighting EXACTLY in their original pixel positions. Do not add new doors or openings, no new foreground objects. Preserve the existing illuminated tunnel arches above the removed train. Empty railway can be dark but textured; no rectangular blank panel. NO train, NO carriages, NO people, NO text. This is a clean plate for placing a moving train behind the original foreground architecture. Output same full scene framing and aspect ratio, opaque background."
+    },
+    {
+      "id": "metro-train-clear",
+      "source": "C:/Users/Rodion/.codex/generated_images/01a1d5b0-8c34-7ab1-bdeb-50bc7720899a/exec-e8b7e90e-d411-43b5-aee7-5337a6604a0b.png",
+      "prompt": "Use case: precise-object-edit. Preserve this hand-painted side-view 1280x720 metro depot scene, camera and layout. Remove ONLY the large parked passenger railcar on the LEFT from the tracks. Behind it reveal believable EMPTY rails, ballast and the continuation of the dark teal depot wall and machinery, a distant arched doorway with soft amber lights. Keep ALL foreground iron columns, beams, hanging clocks and lamps, vines, the barrels and crates, large RIGHT garage arch and workshop, the wet platform floor and its front lip in exactly their original positions and size. Keep the distant small train deep in the RIGHT garage unchanged. No extra people, no extra foreground train, no lettering. This is the clean background plate that will sit behind a moving train along the left track; do not change the floor or lower edge of the platform. Same whole scene composition and dimensions, opaque background."
+    }
+  ]
+}

@@ -91,6 +91,46 @@ func fixture(kind: String, overrides: Dictionary = {}) -> Array:
 	return [run, rule]
 
 
+func test_train_tail_pause_and_remote_phase_stay_on_the_wave_clock() -> void:
+	var f := fixture("metro", {"first_warning": 0.01, "warning_seconds": 0.3})
+	var run: Run = f[0]
+	var rule: Rules = f[1]
+	var train: Node2D = rule._view.metro_train
+	rule.advance(run, 0.02, false)
+	train._process(0)
+	assert_false(train.passing, "Signal precedes entry of the train")
+	rule.advance(run, 0.3, false)
+	train._process(0)
+	assert_true(train.passing)
+	assert_eq(train.direction, 1.0)
+	assert_lt(train.nose, 0.0)
+	for frame in range(92):
+		rule.advance(run, 1.0 / 60, false)
+	train._process(0)
+	assert_eq(rule.wave_state, "idle")
+	assert_true(train.passing, "The train tail must not disappear when the wind front exits")
+	var stopped: float = train.nose
+	rule.advance(run, 2, true)
+	train._process(2)
+	assert_eq(train.nose, stopped, "Paused wind and train freeze together")
+	var remote := fixture("metro", {"first_warning": 0.01, "warning_seconds": 0.3})
+	var remote_rule: Rules = remote[1]
+	remote_rule.apply_network_state(rule.network_state(), true)
+	var remote_train: Node2D = remote_rule._view.metro_train
+	remote_train._process(0)
+	assert_almost_eq(remote_train.nose, stopped, 0.001)
+	assert_true(remote_rule.presentation_paused)
+	for frame in range(100):
+		rule.advance(run, 1.0 / 60, false)
+	train._process(0)
+	assert_false(train.passing, "The last car clears the view completely")
+	while rule.waves < 2:
+		rule.advance(run, 1.0 / 60, false)
+	train._process(0)
+	assert_eq(train.direction, -1.0)
+	assert_gt(train.nose, 1280.0)
+
+
 func test_port_carry_is_exact_at_two_rates_and_jump_releases_the_deck() -> void:
 	for fps: float in [30, 144]:
 		var f := fixture("port")

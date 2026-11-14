@@ -685,7 +685,7 @@ func _apply_snapshot(state: Dictionary) -> void:
 	run.world_night = bool(state.night)
 	run.quarantine = not run.cleared[run.room_index]
 	run.run_state = str(state.state)
-	run.campaign_rules.apply_network_state(state.get("rules", {}))
+	run.campaign_rules.apply_network_state(state.get("rules", {}), run.run_state != "playing")
 	_advance_terrain(run.run_state != "playing")
 	if run.run_state == "won":
 		run.route.finish()

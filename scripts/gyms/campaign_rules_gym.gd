@@ -131,10 +131,17 @@ func _select(index: int) -> void:
 	enemies.clear()
 	var spec: Dictionary = _data.gym.scenarios[index]
 	_rules = CampaignRules.new()
-	_rules.configure({"floor": 555, "mechanic": {"kind": spec.kind, "gap_enabled": true}})
+	var base_floor := float(spec.get("floor", _data.common.floor))
+	_rules.configure(
+		{
+			"floor": base_floor,
+			"art": spec.get("train_scene", ""),
+			"mechanic": {"kind": spec.kind, "gap_enabled": true}
+		}
+	)
 	add_child(_rules)
 	_environment.texture = load("res://assets/environment/" + str(spec.art))
-	moose.position = Vector2(_data.gym.start_x, 555)
+	moose.position = Vector2(_data.gym.start_x, base_floor)
 	moose.facing = 1
 	moose.airborne = false
 	moose.combat.interrupt()
@@ -142,7 +149,7 @@ func _select(index: int) -> void:
 	speed = 0
 	lift = 0
 	vertical_speed = 0
-	floor_y = 555
+	floor_y = base_floor
 	_stride_stop.active = false
 	_direction_was_held = false
 	_jump_buffer = 0
@@ -153,7 +160,7 @@ func _select(index: int) -> void:
 	_projectile_left = float(_data.gym.projectile_interval)
 	effects.projectiles.clear()
 	effects.seal = 0
-	effects.floor_y = 555
+	effects.floor_y = base_floor
 	_notice = str(spec.goal)
 	_notice_left = 5
 	_heading.text = str(spec.title) + "  /  ПОЛИГОН"
@@ -168,7 +175,7 @@ func _select(index: int) -> void:
 	if spec.kind == "metro":
 		var enemy := Enemy.new()
 		enemy.kind = "hare"
-		enemy.position = Vector2(730, 555)
+		enemy.position = Vector2(730, base_floor)
 		enemy.target = moose
 		enemy.tuning = _encounters.hare.duplicate(true)
 		enemy.tuning.speed = 0
@@ -209,7 +216,7 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(_rules):
 		return
 	_rules.advance(self, delta, false)
-	floor_y = _rules.floor_at(self, 555)
+	floor_y = _rules.floor_at(self, float(_rules.tuning.floor))
 	lift = minf(0, moose.position.y - floor_y)
 	var previous := moose.position
 	super._physics_process(delta)

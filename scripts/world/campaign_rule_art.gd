@@ -14,8 +14,10 @@ const BRIDGE = preload(ROOT + "billboard-bridge.png")
 const WIND = preload("res://assets/shaders/campaign_wind.gdshader")
 const FONT = preload("res://assets/fonts/Manrope.ttf")
 const SoftSpot = preload("res://scripts/world/soft_spot.gd")
+const MetroTrain = preload("res://scripts/world/metro_train.gd")
 
 var rules: Node2D
+var metro_train: Node2D
 var _wind_haze: Polygon2D
 var _soft_spot: Texture2D
 
@@ -23,6 +25,10 @@ var _soft_spot: Texture2D
 func _ready() -> void:
 	_soft_spot = SoftSpot.texture()
 	if rules.kind == "metro":
+		metro_train = MetroTrain.new()
+		metro_train.rules = rules
+		metro_train.z_index = -1
+		add_child(metro_train)
 		_wind_haze = Polygon2D.new()
 		_wind_haze.polygon = PackedVector2Array(
 			[Vector2(-230, -110), Vector2(230, -110), Vector2(230, 110), Vector2(-230, 110)]

@@ -1184,6 +1184,9 @@ func _request_chapter(index: int, gear: Dictionary = {}) -> void:
 
 func _room_art(room: Dictionary) -> String:
 	var base := "res://assets/environment/" + str(room.art)
+	if room.get("mechanic", {}).get("kind", "") == "metro":
+		if ResourceLoader.exists(base + "-clear.webp"):
+			return base + "-clear.webp"
 	return base + (".webp" if ResourceLoader.exists(base + ".webp") else ".png")
 
 

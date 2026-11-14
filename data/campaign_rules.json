@@ -38,7 +38,7 @@
     "projectile_y_offset": 103, "attack_radius": 24,
     "scenarios": [
       {"kind": "port", "title": "IV · ЧЁРНАЯ ВОДА", "art": "depot-yard.webp", "goal": "Дождись грузовой платформы, переправься и дойди до накладных справа."},
-      {"kind": "metro", "title": "V · ПОСЛЕДНЯЯ ВЕТКА", "art": "depot-train.webp", "goal": "По сигналу присядь S/↓ и пережди воздушную волну. Она заденет и охрану."},
+      {"kind": "metro", "title": "V · ПОСЛЕДНЯЯ ВЕТКА", "art": "metro-station-clear.webp", "train_scene": "metro-station", "floor": 605, "goal": "По сигналу присядь S/↓ и пережди воздушную волну. Она заденет и охрану."},
       {"kind": "vines", "title": "VI · ЗЕЛЁНЫЙ КОНТУР", "art": "courtyard-alive-clean.png", "goal": "J/K — проруби заросли. Обязательный проход останется открытым."},
       {"kind": "roofs", "title": "VII · НЕБО НАД РАЙОНОМ", "art": "tower-entry.webp", "goal": "Укрытие держит выстрелы. Разбей опору J/K, урони щит-мост и пройди вправо."}
     ],
