@@ -2,6 +2,8 @@ extends RefCounted
 
 const Enemy = preload("res://scripts/actors/district_enemy.gd")
 
+var build: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/build.json"))
+
 
 func advance_lift(run, delta: float, paused: bool) -> void:
 	if not is_instance_valid(run.carrier):
@@ -104,8 +106,10 @@ func sync_hud(run) -> void:
 	)
 	run.boss_label.text = ""
 	run.boss_bar.size.x = 0
+	run.boss_bar.get_parent().visible = false
 	for enemy: Enemy in run.enemies:
 		if enemy.boss and not enemy.dead:
+			run.boss_bar.get_parent().visible = true
 			run.boss_label.text = (
 				"%s · ФАЗА %d/%d" % [enemy.tuning.name, enemy.phase, enemy.phase_count]
 			)
@@ -116,7 +120,7 @@ func sync_metrics(run) -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 41,
+			"revision": int(build.version),
 			"room": run.room_index + 1,
 			"health": run.health,
 			"run_state": run.run_state,

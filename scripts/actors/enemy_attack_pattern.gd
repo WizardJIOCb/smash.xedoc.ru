@@ -200,17 +200,6 @@ func _recover(delta: float) -> void:
 func draw_warning() -> void:
 	var color := Color("e44a42")
 	var center := Vector2(actor.facing * 30, -105)
-	if _guarding():
-		actor.draw_arc(
-			center,
-			24,
-			-PI / 2 if actor.facing > 0 else PI / 2,
-			PI / 2 if actor.facing > 0 else PI * 1.5,
-			16,
-			Color("a9cfcb"),
-			3,
-			true
-		)
 	if actor.state == "windup":
 		var charge: float = clampf(actor.elapsed / float(value("windup")), 0, 1)
 		actor.draw_arc(

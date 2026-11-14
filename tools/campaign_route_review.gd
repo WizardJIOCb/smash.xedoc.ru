@@ -1,5 +1,6 @@
 extends "res://tools/district_route_review.gd"
 ## Bounded normal-input route for either continuation. Never changes HP or enemies.
+# gdlint: disable=max-returns
 
 var seen_rooms: Array[int] = []
 var seen_phases: Array[int] = []
@@ -8,6 +9,7 @@ var pulse_wait: float = 0
 var lift_walk: Dictionary = {}
 var rule_history: Dictionary = {}
 var boss_history: Dictionary = {}
+var _native_finished: bool = false
 
 
 func _ready() -> void:
@@ -154,6 +156,8 @@ func _observe_lift_walk() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if _native_finished:
+		return
 	super._physics_process(delta)
 	_observe_lift_walk()
 	if run_state == "lost":
@@ -168,6 +172,15 @@ func _physics_process(delta: float) -> void:
 		rule_history[room_index + 1] = campaign_rules.metrics()
 	Metrics.rig["review_rules"] = rule_history
 	Metrics.rig["review_bosses"] = boss_history
+	if run_state == "won" and DisplayServer.get_name() != "headless":
+		# Leave the victory available for capture, without held review inputs
+		# activating a finish-menu button and resetting the completion metrics.
+		_native_finished = true
+		for action: String in review_inputs:
+			_hold(action, false)
+		_sync_metrics()
+		front.next_requested.disconnect(_continue_chapter)
+		front.start_requested.disconnect(_start_new_run)
 	var deadline := 480 if route.chapter >= 3 else 300
 	if DisplayServer.get_name() == "headless" and (run_state == "won" or review_time > deadline):
 		_sync_metrics()

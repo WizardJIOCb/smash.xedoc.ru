@@ -1,16 +1,38 @@
 extends Node2D
-## Bounded paint-only geometry. The room controller owns every collision and timer.
+## Painted mechanic props. Geometry and timing stay in CampaignRules.
 
-const DECK = preload("res://assets/environment/service-ledge.png")
-const RIVER = preload("res://assets/environment/port-embankment.webp")
-const CARGO = preload("res://assets/enemies/otter/extra.png")
+const ROOT := "res://assets/environment/props/"
+const DECK = preload(ROOT + "port-carrier.png")
+const WATER = preload(ROOT + "river-opening.png")
+const ALLEY = preload(ROOT + "roof-opening.png")
+const BANK = preload(ROOT + "masonry-bank.png")
+const REFUGE = preload(ROOT + "metro-refuge.png")
+const SIGNAL = preload(ROOT + "metro-signal.png")
+const COVER = preload(ROOT + "roof-cover.png")
+const VINES = preload(ROOT + "garden-thicket.png")
+const SUPPORT = preload(ROOT + "bridge-support.png")
+const BRIDGE = preload(ROOT + "billboard-bridge.png")
+const WIND = preload("res://assets/shaders/campaign_wind.gdshader")
+const FONT = preload("res://assets/fonts/Manrope.ttf")
+const SoftSpot = preload("res://scripts/world/soft_spot.gd")
 
 var rules: Node2D
-var _font: Font
+var _wind_haze: Polygon2D
+var _soft_spot: Texture2D
 
 
 func _ready() -> void:
-	_font = ThemeDB.fallback_font
+	_soft_spot = SoftSpot.texture()
+	if rules.kind == "metro":
+		_wind_haze = Polygon2D.new()
+		_wind_haze.polygon = PackedVector2Array(
+			[Vector2(-230, -110), Vector2(230, -110), Vector2(230, 110), Vector2(-230, 110)]
+		)
+		var material := ShaderMaterial.new()
+		material.shader = WIND
+		_wind_haze.material = material
+		_wind_haze.visible = false
+		add_child(_wind_haze)
 
 
 func _draw() -> void:
@@ -28,129 +50,86 @@ func _draw() -> void:
 				_draw_object(item)
 
 
+func _sole() -> float:
+	return float(rules.tuning.floor) + float(rules.tuning.foot_offset)
+
+
 func _draw_gap(water: bool) -> void:
 	var t: Dictionary = rules.tuning
 	if not bool(t.gap_enabled):
 		return
 	var left := float(t.gap[0])
 	var right := float(t.gap[1])
-	var y := float(t.floor)
-	draw_rect(Rect2(left, y - 3, right - left, 720 - y + 3), Color("101f2c"))
-	if water:
-		draw_texture_rect_region(
-			RIVER,
-			Rect2(left, y + 3, right - left, 720 - y),
-			Rect2(800, 410, 300, 70),
-			Color(0.58, 0.75, 0.8)
-		)
-		for row in range(9):
-			var line_y := y + 23 + row * 18
-			for col in range(5):
-				var x := (
-					left
-					+ fmod(
-						col * 91 + sin(rules.elapsed * 1.4 + row) * 12 + row * 21, right - left - 42
-					)
-				)
-				draw_line(Vector2(x, line_y), Vector2(x + 32, line_y), Color("52766f", 0.38), 2)
-	else:
-		for row in range(4):
-			for col in range(7):
-				var window := Vector2(left + 18 + col * 37, y + 40 + row * 35)
-				draw_rect(Rect2(window, Vector2(8, 16)), Color("866e3e", 0.22))
-	for x: float in [left, right]:
-		draw_line(Vector2(x, y - 3), Vector2(x, 720), Color("0b171c"), 8)
-		draw_line(
-			Vector2(x + (-6 if x == left else 6), y + 9),
-			Vector2(x + (-6 if x == left else 6), 720),
-			Color("66756a"),
-			3
-		)
+	var top := _sole()
+	var void_rect := Rect2(left, top, right - left, 720 - top)
+	draw_texture_rect(
+		WATER if water else ALLEY,
+		void_rect,
+		false,
+		Color.WHITE if water else Color(0.73, 0.79, 0.8)
+	)
+	var wall_height := 726 - top
+	draw_texture_rect(BANK, Rect2(left - 24, top - 5, 34, wall_height), false)
+	draw_texture_rect(BANK, Rect2(right + 24, top - 5, -34, wall_height), false)
 
 
 func _draw_port() -> void:
 	_draw_gap(true)
-	var t: Dictionary = rules.tuning
 	var deck: Rect2 = rules.deck_rect()
-	var y := deck.position.y + float(t.foot_offset)
-	var left := deck.position.x
-	var right := deck.end.x
-	var rail := Color("253d3f")
-	draw_line(
-		Vector2(t.gap[0] - 100, y + 38), Vector2(t.gap[1] + 100, y + 38), Color("97a69b", 0.42), 2
-	)
-	draw_texture_rect(DECK, Rect2(left - 6, y - 4, deck.size.x + 12, 42), false)
-	for x in range(int(left) + 10, int(right), 26):
-		draw_line(Vector2(x, y + 10), Vector2(x + 12, y + 22), Color("9b8350", 0.5), 4)
-	for side: float in [-1, 1]:
-		var x: float = rules.deck_x + side * (deck.size.x / 2 - 14)
-		draw_rect(Rect2(x - 4, y - 28, 8, 27), rail)
-		draw_circle(Vector2(x, y - 28), 4, Color("e2c684"))
-	var cargo := Rect2(rules.deck_x + 20, y - 49, 48, 47)
-	draw_texture_rect(CARGO, cargo, false)
-	_text(
-		Vector2(left + 16, y + 51),
-		"E · ГРУЗ" if rules.dock_wait > 0 else "→" if rules.deck_right else "←",
-		15
-	)
-	if bool(t.gap_enabled):
-		_text(Vector2(t.gap[0] + 12, 697), "ЧЁРНАЯ ВОДА · ЖДИ ГРУЗ", 15, Color("a2bcb0"))
+	var sole := deck.position.y + float(rules.tuning.foot_offset)
+	# The front edge of the painted planks is the physical sole plane.
+	draw_texture_rect(DECK, Rect2(deck.position.x - 6, sole - 16, deck.size.x + 12, 38), false)
 
 
 func _draw_metro() -> void:
 	var t: Dictionary = rules.tuning
-	var floor_y := float(t.floor)
-	for niche: Array in t.niches:
-		var box := Rect2(niche[0], floor_y - 198, niche[1], 210)
-		draw_style_box(_box(Color("122d2b"), Color("73aa81")), box)
-		draw_rect(
-			Rect2(box.position + Vector2(8, 8), box.size - Vector2(16, 12)), Color("091e23", 0.78)
-		)
-		_text(box.position + Vector2(17, 28), "НИША", 19, Color("9dcc9d"))
-		_text(Vector2(box.position.x + 20, floor_y + 4), "УКРЫТИЕ", 13, Color("94ba99"))
-	draw_line(Vector2(0, floor_y + 35), Vector2(1280, floor_y + 35), Color("e3b05e"), 4)
-	for x in range(5, 1280, 38):
-		draw_line(Vector2(x, floor_y + 39), Vector2(x + 18, floor_y + 55), Color("89724b"), 5)
+	var floor_y := _sole()
 	var warning: bool = rules.wave_state == "warning"
-	var lamp := Color("ec9160") if warning else Color("7fae95")
-	draw_style_box(_box(Color("11252a"), lamp), Rect2(502, floor_y - 249, 276, 47))
+	var wave: bool = rules.wave_state == "wave"
+	var pulse := 0.58 + sin(rules.elapsed * 10) * 0.42
+	for niche: Array in t.niches:
+		var width := float(niche[1]) + 26
+		var box := Rect2(float(niche[0]) - 13, floor_y - 224, width, 226)
+		_shadow(Vector2(box.get_center().x, floor_y + 2), width * 0.44, 5, 0.16)
+		draw_texture_rect(REFUGE, box, false)
+		if warning or wave:
+			_glow(
+				Vector2(box.get_center().x, floor_y - 161),
+				Color(0.85, 0.72, 0.33),
+				10,
+				0.65 + pulse * 0.35
+			)
+	var sign := Rect2(967, floor_y - 286, 268, 87)
+	draw_texture_rect(SIGNAL, sign, false)
+	var lens := 0 if wave else 1 if warning else 2
+	var signal_color := Color("ef6848") if wave else Color("efb44f") if warning else Color("8bc7a2")
+	_glow(sign.position + Vector2(28 + lens * 28, 41), signal_color, 10, pulse if warning else 0.7)
 	var caption := (
-		"ПОЕЗД · %.1f с" % rules.wave_time
+		"ПОЕЗД %.1f с" % rules.wave_time
 		if warning
-		else "ВОЗДУШНАЯ ВОЛНА" if rules.wave_state == "wave" else "ЛИНИЯ ОТКРЫТА"
+		else "ПРИЖМИСЬ К СТЕНЕ" if wave else "ПУТЬ СВОБОДЕН"
 	)
-	_text(Vector2(520, floor_y - 219), caption, 20, lamp)
-	if warning:
-		for x in range(35, 1280, 92):
-			var a := Vector2(x, floor_y - 173)
-			draw_polyline(
-				PackedVector2Array([a, a + Vector2(10, -10), a + Vector2(20, 0)]),
-				Color(lamp, 0.5 + sin(rules.elapsed * 12) * 0.3),
-				3
-			)
-	if rules.wave_state == "wave":
-		var center := float(rules.wave_x)
-		for row in range(8):
-			var y := floor_y - float(t.wave_top) + row * 10
-			var shift: float = (row % 3) * 13
-			draw_line(
-				Vector2(center - 115 + shift, y),
-				Vector2(center + 83 - shift, y),
-				Color("b5dfd9", 0.13 + (row % 3) * 0.1),
-				3,
-				true
-			)
-		for row in range(3):
-			draw_arc(
-				Vector2(center - 30 * rules.wave_direction, floor_y - 120),
-				23 + row * 15,
-				-1.0,
-				1.0,
-				16,
-				Color("c3e6df", 0.28),
-				2,
-				true
-			)
+	_text(sign.position + Vector2(115, 48), caption, 11, signal_color)
+	if is_instance_valid(_wind_haze):
+		_wind_haze.visible = wave
+		_wind_haze.position = Vector2(float(rules.wave_x), floor_y - 82)
+		_wind_haze.material.set_shader_parameter("clock", float(rules.elapsed))
+		_wind_haze.material.set_shader_parameter("direction", float(rules.wave_direction))
+	if wave:
+		_draw_wind_leaves(floor_y)
+
+
+func _draw_wind_leaves(floor_y: float) -> void:
+	for index in range(5):
+		var offset := fposmod(rules.elapsed * 127 + index * 53, 255) - 127
+		var at := Vector2(
+			rules.wave_x + offset, floor_y - 24 - index * 19 + sin(rules.elapsed * 6 + index) * 9
+		)
+		draw_set_transform(at, rules.elapsed * 7 + index)
+		draw_texture_rect_region(
+			VINES, Rect2(-5, -4, 10, 8), Rect2(24, 33, 35, 28), Color(0.8, 0.83, 0.64, 0.6)
+		)
+	draw_set_transform(Vector2.ZERO)
 
 
 func _draw_roofs() -> void:
@@ -158,111 +137,84 @@ func _draw_roofs() -> void:
 	var t: Dictionary = rules.tuning
 	if not bool(t.gap_enabled) or t.supports.is_empty():
 		return
-	var start := Vector2(
-		float(t.gap[0]) - float(t.bridge_overlap), float(t.floor) + float(t.foot_offset)
-	)
+	var start := Vector2(float(t.gap[0]) - float(t.bridge_overlap), _sole())
 	var length := float(t.gap[1]) - float(t.gap[0]) + float(t.bridge_overlap) * 2
 	var progress := smoothstep(0, 1, float(rules.bridge_progress))
 	draw_set_transform(start, lerpf(-PI / 2, 0, progress))
-	draw_style_box(_box(Color("354742"), Color("d1b473")), Rect2(0, 0, length, 36))
-	for x in range(8, int(length) - 10, 32):
-		draw_line(Vector2(x, 3), Vector2(x + 14, 17), Color("c2a163"), 5)
-	_text(Vector2(37, 29), "ГОРОДУ — ГРУЗ", 17, Color("ead7a4"))
+	draw_texture_rect(BRIDGE, Rect2(-6, -3, length + 12, 76), false)
 	draw_set_transform(Vector2.ZERO)
-	if not rules.bridge_down:
-		_text(Vector2(float(t.supports[0].x) - 25, float(t.floor) - 178), "J / K · ОПОРА", 17)
 
 
 func _draw_object(item: Dictionary) -> void:
 	var rect: Rect2 = item.rect
-	if item.health > 0:
-		if item.type == "vine":
-			_draw_vines(rect, float(item.flash))
-		elif item.type == "cover":
-			draw_style_box(
-				_box(Color("42534b") if item.flash <= 0 else Color("b9a06a"), Color("84917b")), rect
-			)
-			for y in range(int(rect.position.y) + 12, int(rect.end.y) - 4, 19):
-				draw_line(
-					Vector2(rect.position.x + 7, y), Vector2(rect.end.x - 7, y), Color("243b38"), 5
-				)
-			draw_line(rect.position + Vector2(8, 8), rect.end - Vector2(8, 8), Color("b2a477"), 5)
-			_text(rect.position + Vector2(-4, -14), "УКРЫТИЕ", 15)
-		else:
-			draw_rect(rect, Color("3f514c") if item.flash <= 0 else Color("d6bc7e"))
-			draw_line(rect.position + Vector2(4, 3), rect.end - Vector2(4, 3), Color("b1a875"), 6)
-			draw_line(
-				Vector2(rect.end.x - 4, rect.position.y + 3),
-				Vector2(rect.position.x + 4, rect.end.y - 3),
-				Color("879c89"),
-				5
-			)
-			for side: float in [0.15, 0.85]:
-				draw_circle(rect.position.lerp(rect.end, side), 4, Color("e0b56b"))
-		var health_width := rect.size.x * float(item.health) / float(item.maximum)
-		draw_rect(Rect2(rect.position.x, rect.position.y - 7, rect.size.x, 3), Color("132927"))
-		draw_rect(Rect2(rect.position.x, rect.position.y - 7, health_width, 3), Color("b4ce83"))
-	else:
-		for index in range(5):
-			var x := rect.position.x + index * rect.size.x / 5
-			draw_line(
-				Vector2(x, rect.end.y - 4),
-				Vector2(x + 12, rect.end.y - 11 + index % 2 * 5),
-				Color("5e7852") if item.type == "vine" else Color("75816a"),
-				5
-			)
-		if item.type == "vine" and item.required:
-			_text(
-				Vector2(rect.position.x - 30, rect.end.y + 28), "ПРОХОД ОТКРЫТ", 13, Color("aad29a")
-			)
-	if item.debris > 0:
-		var progress := 1 - float(item.debris) / float(rules.tuning.debris_seconds)
-		for index in range(8):
-			var offset := Vector2(
-				(index - 3.5) * 12 * progress, -sin(progress * PI) * (25 + index % 3 * 12)
-			)
-			_leaf(
-				Vector2(rect.get_center().x, rect.end.y - 6) + offset,
-				index + progress * 3,
-				Color("abc287", 1 - progress)
-			)
-
-
-func _draw_vines(rect: Rect2, flash: float) -> void:
-	for stem in range(5):
-		var x := rect.position.x + 8 + stem * (rect.size.x - 16) / 4
-		var points := PackedVector2Array()
-		for step in range(8):
-			var progress := step / 7.0
-			var at := Vector2(
-				x + sin(step * 1.8 + stem) * 11, lerpf(rect.end.y, rect.position.y, progress)
-			)
-			points.append(at)
-			if step > 0:
-				_leaf(at + Vector2(-8, 0), -0.6, Color("638b58") if flash <= 0 else Color("e0c277"))
-				_leaf(at + Vector2(9, -6), 0.7, Color("8ba663"))
-		draw_polyline(points, Color("263f31"), 7, true)
-		draw_polyline(points, Color("739052"), 2, true)
-	_text(rect.position + Vector2(-1, -18), "J / K", 18)
-
-
-func _leaf(at: Vector2, angle: float, color: Color) -> void:
-	var axis := Vector2.from_angle(angle) * 14
-	var side := axis.orthogonal().normalized() * 5
-	draw_colored_polygon(PackedVector2Array([at - axis, at + side, at + axis, at - side]), color)
-
-
-func _text(at: Vector2, caption: String, size: int, color: Color = Color("e6d6b0")) -> void:
-	if _font != null:
-		draw_string_outline(
-			_font, at, caption, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 4, Color("10222a")
+	var texture: Texture2D = (
+		VINES if item.type == "vine" else COVER if item.type == "cover" else SUPPORT
+	)
+	var base := rect.end.y + float(rules.tuning.foot_offset)
+	if item.health <= 0:
+		_draw_broken(item, texture, base)
+		return
+	var anchor := Vector2(rect.get_center().x, base)
+	_shadow(anchor + Vector2(0, 2), rect.size.x * 0.65, 5, 0.19)
+	var flash := float(item.flash) / float(rules.tuning.flash_seconds)
+	var tint := Color(1 + flash * 0.35, 1 + flash * 0.16, 1)
+	if item.type == "vine":
+		draw_set_transform(anchor, sin(rules.elapsed * 1.2 + rect.position.x) * 0.012)
+		draw_texture_rect(
+			texture,
+			Rect2(-rect.size.x / 2 - 14, -rect.size.y - 8, rect.size.x + 28, rect.size.y + 8),
+			false,
+			tint
 		)
-		draw_string(_font, at, caption, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
+		draw_set_transform(Vector2.ZERO)
+	else:
+		var padding := 6.0 if item.type == "cover" else 5.0
+		var shake := sin(rules.elapsed * 91) * flash * 2
+		draw_texture_rect(
+			texture,
+			Rect2(
+				rect.position.x - padding + shake,
+				base - rect.size.y - 4,
+				rect.size.x + padding * 2,
+				rect.size.y + 4
+			),
+			false,
+			tint
+		)
 
 
-func _box(fill: Color, edge: Color) -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.bg_color = fill
-	box.border_color = edge
-	box.set_border_width_all(2)
-	return box
+func _draw_broken(item: Dictionary, texture: Texture2D, base: float) -> void:
+	var rect: Rect2 = item.rect
+	var airborne := float(item.debris) > 0
+	var progress := 1 - float(item.debris) / float(rules.tuning.debris_seconds)
+	var size := texture.get_size()
+	for index in range(5):
+		var arc := sin(progress * PI) * (24 + index * 5) if airborne else 0.0
+		var at := Vector2(rect.position.x + rect.size.x * (index + 0.5) / 5, base + 3 - arc)
+		var angle := (index - 2) * 0.17 + (progress * 3 if airborne else 0.0)
+		draw_set_transform(at, angle)
+		draw_texture_rect_region(
+			texture,
+			Rect2(-11, -7, 22, 14),
+			Rect2(size.x * index / 5, size.y * 0.78, size.x / 5, size.y * 0.2),
+			Color(0.76, 0.8, 0.71, 0.85)
+		)
+	draw_set_transform(Vector2.ZERO)
+
+
+func _shadow(at: Vector2, width: float, height: float, opacity: float) -> void:
+	draw_texture_rect(
+		_soft_spot,
+		Rect2(at - Vector2(width, height), Vector2(width, height) * 2),
+		false,
+		Color(0.025, 0.05, 0.045, opacity)
+	)
+
+
+func _glow(at: Vector2, color: Color, radius: float, strength: float) -> void:
+	var half := Vector2.ONE * radius * 1.5
+	draw_texture_rect(_soft_spot, Rect2(at - half, half * 2), false, Color(color, strength * 0.3))
+
+
+func _text(at: Vector2, caption: String, size: int, color: Color) -> void:
+	draw_string(FONT, at, caption, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
