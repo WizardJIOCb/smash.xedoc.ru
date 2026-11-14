@@ -111,3 +111,22 @@ func test_interleaved_player_strikes_damage_a_shared_barrier_once_each() -> void
 	for serial: int in [101, 202, 101, 202]:
 		rules.attack(run, serial, area, 10)
 	assert_eq(rules.objects[0].health, 980, "Other players must not reset swing deduplication")
+
+
+func test_party_revival_restores_artwork_after_corpse_fade() -> void:
+	var run = party()
+	var actor = run.coop.actors["2"]
+	actor.hurt(200, actor.moose.position, run)
+	actor.corpse.age = actor.corpse.lifetime - 0.001
+	actor.corpse._process(0)
+	assert_lt(actor.moose.skeleton.modulate.a, 0.01)
+	actor.reset_at(Vector2(200, 555))
+	assert_eq(actor.moose.skeleton.modulate, Color.WHITE)
+	assert_true(actor.moose.visible)
+	run._hurt_player(200, run.moose.position)
+	run.player_corpse.age = run.player_corpse.lifetime - 0.001
+	run.player_corpse._process(0)
+	assert_lt(run.moose.skeleton.modulate.a, 0.01)
+	run.coop._revive_host()
+	assert_eq(run.moose.skeleton.modulate, Color.WHITE)
+	assert_true(run.moose.visible)

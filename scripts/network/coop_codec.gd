@@ -62,6 +62,8 @@ static func apply_hero(data: Dictionary, moose, gear, night) -> void:
 	for key: String in POWER:
 		night.set(key, data.power[key])
 	moose.visible = int(data.health) > 0
+	if moose.visible:
+		moose.skeleton.modulate = Color.WHITE
 
 
 static func enemy(actor) -> Dictionary:
