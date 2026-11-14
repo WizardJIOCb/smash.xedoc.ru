@@ -493,9 +493,6 @@ func show_chapters() -> void:
 	var last_page := maxi(0, ceili(float(chapters.size()) / CHAPTERS_PER_PAGE) - 1)
 	chapter_page = clampi(chapter_page, 0, last_page)
 	var first := chapter_page * CHAPTERS_PER_PAGE
-	var rooms: Array = JSON.parse_string(
-		FileAccess.get_file_as_string("res://data/district_rooms.json")
-	)
 	for index in range(first, mini(first + CHAPTERS_PER_PAGE, chapters.size())):
 		var x := 64.0 + (index - first) * 386
 		var frame := ColorRect.new()
@@ -507,10 +504,7 @@ func show_chapters() -> void:
 		preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		preview.stretch_mode = TextureRect.STRETCH_SCALE
 		preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var image := "res://assets/environment/" + str(rooms[int(chapters[index].start)].art)
-		preview.texture = load(
-			image + (".webp" if ResourceLoader.exists(image + ".webp") else ".png")
-		)
+		preview.texture = _chapter_art(index)
 		preview.position = Vector2(x, 190)
 		preview.size = Vector2(350, 197)
 		content.add_child(preview)
