@@ -1,46 +1,61 @@
-# Public release v46
+# Public release v48
 
 - URL: https://smash.xedoc.ru/
-- Runtime source: af41454685132aa6aee060b244e52546472ce749
-- Current: /var/www/smash.xedoc.ru/releases/v46-af4145468513
-- Rollback: /var/www/smash.xedoc.ru/releases/v44-0613d279dc22; v43 also retained.
-- Archive: 152961728 bytes, SHA256 331fbb2442ff9b05e39f1abdd756b7f93a004f6b07846a49af0772f2207ee2db.
-- Installer verified all 20 manifest files. PCK: game-36163552265d508dac96.pck.
+- Runtime source: 6a252cf841e5e9341ce8aedb2a842dadc98624f0
+- Current: /var/www/smash.xedoc.ru/releases/v48-6a252cf841e5
+- Immediate rollback: /var/www/smash.xedoc.ru/releases/v47-0d4fe28f7dd9.
+- Previous feature release v46-af4145468513 and older rollback releases retained.
+- Archive: 153011052 bytes; SHA256 45d22e3d26fe2a9dd5ad5c6280f7fcdac65f1632a1792a9c0034c00e71c86fe1.
+- Installer verified all 21 manifest files and both PHP endpoints before activation.
+- PCK: game-d5bda545eece655ab9b6.pck.
 
-Ten original painted props replace flat mechanic scenery: alcoves, signal,
-cargo deck, lift staging, vines, cover, supports, bridge and gap surfaces.
-Thirteen room floors corrected individually; all sixteen new rooms reviewed.
-Persistent cyan frontal-guard arc removed; guard mechanics retained.
-Holiday effects use five instanced/static draws instead of 536 AA primitive draws.
-Winter chapter preview now uses its dedicated background. Prepared Metrika
-integration is included; QA browser visits used analytics_qa.
+Endless survival has its own home-menu entry, solo and 2-16-player cooperative
+starts, escalating waves, every-fifth-wave bosses, short rests, health and weapons.
+Downed teammates wait for a wave clear; a total wipe ends the run. Results use
+separate solo/team boards and separate storage from all eight campaign chapters.
+Only the host submits a team result. The scoreboard shows fixed starting party
+size and ranks wave descending, kills descending, time ascending.
+
+Metrika counter 114255834 is live with supplied initialization options. Safe game
+parameters and 36 event identifiers cover loading, campaign, cooperative rooms,
+combat, performance and survival. Invitation codes are extracted and removed
+before loading the SDK; player names, room codes and raw errors are excluded.
+Blocking analytics does not block the game. Dashboard JavaScript goals require
+manual creation in the counter cabinet; instructions are in deploy/METRIKA.md.
+No dashboard goal creation is claimed.
 
 Validation:
-- 77 GUT /1121 assertions, six analytics checks, format/lint and Web export pass.
-- Native IV-VII: 296 captured frames, each chapter completion recorded, zero
-  renderer/script errors or warnings. Additional 17-frame floor gallery clean.
-  Lift6.3 walk-off: zero jumps/drop; rain/blood use the same sole planes.
-- Controlled native2180x1316, RTX4070Ti, two rendered heroes: idle637->106 calls;
-  six sleeping corpses699->168 calls. Mean frame6.200->1.431ms in the latter
-  fixture, P957.310->1.787ms. All six corpses sleep; FX alone536->5 calls.
-  A separate ordinary-input holiday run won7kills/100HP/0deaths. One isolated
-  unattributed52ms peak was observed; these native timings are not a browser guarantee.
-- Public Web46: correct winter preview and metro alcoves/floor605, console0errors.
-  Solo holiday reached wave2:6hits/2kills/2corpses/57HP,132calls, sampled156FPS
-  at1280x720. This is not directly comparable to the user's larger screenshot.
-- Two hidden-IAB session disconnected; direct nativeWSS did not enter a room.
-  Replacement test: headless authoritative host through an encrypted SSH tunnel
-  to the same relay plus a publicWSS browser guest. Host won7kills/1relay/100HP
-  in19.48s, no engine errors; guest rendered both heroes and two bodies, then
-  showed the expected host-exit message after the review host closed itself.
-- Four public file hashes and release metadata match. All8 score endpoints and
-  chapter metadata valid; isolated PHP10checks plus8chapter contracts passed.
-- Active nginx configuration preserved byte-for-byte. Score-file SHA256 before/
-  after activation identical:65574a8b92aae43a12a45e5bbadf7ac27d7a24141d5d600f0d83127bd7cda65d.
-  nginx, PHP and relay active. No QA leaderboard entry submitted.
-- Removed only redundant uploaded archives after SHA256/local-copy verification;
-  every installed release/rollback preserved. Cleanup audit saved with evidence.
+- 91 GUT tests /1365 assertions; seven analytics checks; isolated PHP survival
+  integration (isolation, ranking, token binding/replay/expiry, rate, validation)
+  pass. Format/lint and final Web export pass. v48 only fixes numeric display and
+  neutral party-size wording after the v47 full gameplay test run.
+- Normal-input native solo and two-instance relay runs reached wave3, then
+  intentionally stopped fighting to verify defeat. Co-op matched wave3/7kills/
+  69.87s. Host exited cleanly; the original guest review driver required stopping
+  after the host closed; driver shutdown timing was subsequently corrected.
+- Public v47: genuine solo defeat wave1/0kills/18.12s saved and displayed in solo
+  board. Two IAB clients through public WSS showed the same authoritative loss
+  wave4/11kills/71.70s; host saved, guest submission/retry disabled; team row
+  displayed separately with two players. Both browser consoles had zero errors.
+  Browser combat inputs were not a controlled benchmark; native review inputs
+  provide the controlled wave-clear evidence.
+- Public v48: both persisted rows render whole wave/kill numbers correctly;
+  board switching and party count verified. Another genuine solo defeat loaded
+  cleanly; survival_start, survival_wave_start, survival_end plus related events
+  returned HTTP200 from the actual Metrika watch endpoint. Safe event proof
+  contains no QA player names or room code. SDK initialized, revision48 confirmed.
+- Public PCK, index and analytics SHA256 match manifest. All eight campaign score
+  endpoints and both survival endpoints return200. Coop health:0rooms/0clients
+  after QA. Only the two exact QA rows were removed under a storage lock, with
+  their row-only recovery copy saved outside the web root; both boards rechecked.
+- Campaign score SHA256 stayed identical during each activation. Final activation:
+  9c86b1770fab6c33628f94aba06ccb9a5cc661f6a5373f208ef48bf5f987b991.
+  nginx config test passes; nginx, PHP8.3-FPM and relay active. Existing relay
+  process and routes preserved; room255 uses the existing accepted chapter range.
+- Task upload archives/helpers removed from /dev/shm after verified installation.
+  Installed releases and campaign player data preserved.
 
-Evidence: .studioigor/captures/props-v44, holiday-performance-report,
-holiday-final, release-v44 and public-props-v46. Source art/prompts: art/props.
-Physical-mobile, sixteen-human and overall art/feel acceptance remain open.
+Evidence in the implementation worktree los-firewall-coop:
+.studioigor/captures/public-metrika-v46, public-survival-v47, public-survival-v48;
+.tools/tests-survival-release.log and native survival review JSON/log files.
+Physical-mobile, sixteen-human, overall art/feel and balance acceptance remain open.
