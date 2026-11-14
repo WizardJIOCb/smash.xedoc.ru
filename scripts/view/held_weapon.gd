@@ -6,7 +6,7 @@ var flash: float = 0.0
 var painting: Texture2D
 var grip_active: bool = false
 var bat_length: float = 1.0
-var bat_grip: Texture2D = load("res://assets/weapons/bat-held-v2.png")
+var bat_grip: Texture2D = load("res://assets/weapons/bat-held-v3.png")
 var grip_data: Dictionary = (
 	JSON.parse_string(FileAccess.get_file_as_string("res://data/weapon_grips.json")).bat
 )

@@ -73,12 +73,63 @@ func apply(rig: Node2D) -> void:
 	rig.melee_length = maxf(float(tuning.min_projection), projected.length())
 	var origin: Vector2 = rig.bones.hips.position + rig.bones.body.position
 	var at := origin + Vector2(pose.grip[0], pose.grip[1])
+	# The shared grip must lie within BOTH arms' reach, including their minimum bend.
+	var centers: Array[Vector2] = []
+	for side: String in ["near", "far"]:
+		var shoulder: Vector2 = rig.to_local(
+			rig.bones.body.to_global(rig.bones[side + "_arm"].position)
+		)
+		centers.append(shoulder - _wrist_offset(side).rotated(angle))
+	at = _fit_grip(at, centers)
 	rig.melee_origin = at
 	for side: String in ["near", "far"]:
-		var wrist: Array = assembly[side + "_wrist"]
-		var pivot: Array = assembly.pivot
-		var offset := Vector2(wrist[0] - pivot[0], wrist[1] - pivot[1]) * float(assembly.scale)
-		_arm(rig, side, at + offset.rotated(angle), angle)
+		_arm(rig, side, at + _wrist_offset(side).rotated(angle), angle)
+
+
+func _wrist_offset(side: String) -> Vector2:
+	var wrist: Array = assembly[side + "_wrist"]
+	return (
+		Vector2(wrist[0] - assembly.pivot[0], wrist[1] - assembly.pivot[1]) * float(assembly.scale)
+	)
+
+
+func _fit_grip(desired: Vector2, centers: Array[Vector2]) -> Vector2:
+	var minimum := float(tuning.min_arm_reach)
+	var maximum := float(tuning.max_arm_reach)
+	if _reachable(desired, centers, minimum, maximum):
+		return desired
+	var candidates: Array[Vector2] = []
+	var span := centers[1] - centers[0]
+	var distance := span.length()
+	var axis := span.normalized()
+	for radius: float in [minimum, maximum]:
+		for center: Vector2 in centers:
+			candidates.append(center + (desired - center).normalized() * radius)
+		for other: float in [minimum, maximum]:
+			if distance < 0.001 or distance > radius + other or distance < absf(radius - other):
+				continue
+			var along := (distance * distance + radius * radius - other * other) / (2 * distance)
+			var height := sqrt(maxf(0, radius * radius - along * along))
+			var base := centers[0] + axis * along
+			candidates.append(base + axis.orthogonal() * height)
+			candidates.append(base - axis.orthogonal() * height)
+	var best := desired
+	var closest := INF
+	for candidate: Vector2 in candidates:
+		if _reachable(candidate, centers, minimum, maximum):
+			var error := candidate.distance_squared_to(desired)
+			if error < closest:
+				closest = error
+				best = candidate
+	return best
+
+
+func _reachable(point: Vector2, centers: Array[Vector2], minimum: float, maximum: float) -> bool:
+	for center: Vector2 in centers:
+		var distance := point.distance_to(center)
+		if distance < minimum - 0.001 or distance > maximum + 0.001:
+			return false
+	return true
 
 
 func _blend(from: String, to: String, amount: float) -> Dictionary:

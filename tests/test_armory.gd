@@ -215,6 +215,7 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 		hero.facing = facing
 		armory.grant("bat")
 		var largest_gap := 0.0
+		var largest_elbow := 0.0
 		for stance in [[false, false], [false, true], [true, false]]:
 			hero.airborne = stance[0]
 			hero.crouch_requested = stance[1]
@@ -226,6 +227,7 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 				armory._process(0)
 				var spec: Dictionary = hero.bat_pose.assembly
 				for side: String in ["near", "far"]:
+					largest_elbow = maxf(largest_elbow, absf(hero.bones[side + "_fore"].rotation))
 					var wrist: Array = spec[side + "_wrist"]
 					var at := (
 						Vector2(wrist[0] - spec.pivot[0], wrist[1] - spec.pivot[1])
@@ -240,6 +242,7 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 			largest_gap, 0.05, "Both painted wrists stay on their sleeves during the entire swing"
 		)
 		assert_false(hero.bones.near_hand.get_node("fist_back").visible)
+		assert_lt(rad_to_deg(largest_elbow), 135.0, "An elbow cannot fold back onto its shoulder")
 		assert_false(hero.bones.far_hand.get_node("fist").visible)
 		armory.drop(500)
 		assert_true(hero.bones.near_hand.get_node("fist_back").visible)

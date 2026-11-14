@@ -1,0 +1,12 @@
+{
+  "tool": "image_gen",
+  "source": "exec-76a5eec7-e1e4-4725-ad57-69e493bdd041.png",
+  "asset": "assets/weapons/bat-held-v3.png",
+  "references": [
+    "assets/weapons/bat-held-v2.png",
+    "Little League coach grip photograph, private research capture"
+  ],
+  "alpha": "native RGBA unchanged",
+  "correction": "Bottom hand palm down/back visible; top hand palm up/fingers visible. Adjacent hands above knob; wrists trail LEFT in opposite diagonal directions toward their forearms, following the coach photograph.",
+  "sha256": "d0e8788e458ffc0f56b24e21b551c64831552b01773405317616b51674a1c517"
+}

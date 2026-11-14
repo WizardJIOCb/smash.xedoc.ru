@@ -16,7 +16,7 @@ func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color("14282c"))
 	for direction: float in [-1.0, 1.0]:
 		var rig := Moose.new()
-		rig.position = Vector2(360 if direction < 0 else 920, 610)
+		rig.position = Vector2(420 if direction < 0 else 860, 610)
 		rig.power_scale = 2.1
 		rig.facing = direction
 		add_child(rig)
