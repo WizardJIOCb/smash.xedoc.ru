@@ -1,45 +1,43 @@
-# Public release v28
+# Public release v29
 
 - Domain: https://smash.xedoc.ru/
 - Fresh load: https://smash.xedoc.ru/?cache=clear
-- Runtime source: 374fd893bf59d4430061f5f67690a1757f157393
-- Current: /var/www/smash.xedoc.ru/releases/v28-374fd893bf59
-- Previous/rollback: /var/www/smash.xedoc.ru/releases/v27-04838e2f3646
-- Archive SHA256: 86d283ac0183094e9b8f8dfef200a4eb4edc7b1a2c7ac436d43d3c8f8201c913
-- Archive: 120,866,060 bytes; 18 verified manifest files.
+- Runtime source: be6292e9acf6248db6f0773f308e959b17492112
+- Gameplay source: 028950796f5a (packing-only cover preservation follows it).
+- Current: /var/www/smash.xedoc.ru/releases/v29-be6292e9acf6
+- Previous/rollback: /var/www/smash.xedoc.ru/releases/v28-374fd893bf59
+- Archive:125,762,760bytes;18verified manifest files.
+- SHA256:f8f8abe99c5b215a8c37f6a50fc28a7f74a3c0cd0ef0ae044ac3f10a394f54ba
 
 Changes:
-- Two continuation chapters of four rooms each: Rust Depot and Firewall Tower.
-  Eight original backdrops, four ordinary enemy types, Foreman and Firewall bosses
-  with two/three phases; all three chapters can be selected from the menu.
-- Six weapons: knuckles, bat, shovel, hockey stick, seven-round pistol and rifle.
-  E pickup/use, Tab cycle, F reload, J weapon, K kick. Gear carries to next chapter.
-- Physical cargo lifts with return calls, reinforcements, checkpoints and separate
-  per-chapter records. Original first chapter retained.
-- Built-in image_gen originals, exact prompts and processed paths retained in
-  art/campaign/prompts.json and generated-manifest.json.
+- G drops current weapon, E recovers it with exact magazine/reserve. Next attack with
+  an empty pistol throws it for18damage, one hit, leaving a recoverable pickup.
+- I instantly turns facing; held movement permits backpedalling until a new movement
+  input. Settings > key controls edits18actions with conflict/cancel/reset and native
+  ConfigFile/Web localStorage persistence. Prompts follow saved physical keys.
+- Two-hand extended pistol/shouldered rifle pose with wrist IK, recoil/reload and front
+  support arm layers. Enemy guns and heavy hammer use actual two-hand grip targets.
+- Individual neck sockets for beaver, hare, Foreman, fox and lynx. Intact neutral hare
+  trouser leg replaces the torn pre-bent painting. Source/prompt in art/campaign/hare-leg-v29.json.
+- Social share cover preserved in every package; PHP realpath release config retained.
 
 Validation:
-- 42 GUT tests / 589 assertions, format/lint; clean Web export.
-- Full normal-input native routes: chapter1 35frames/5kills/3relays; chapter2
-  46frames/14kills/4relays; chapter3 46frames/12kills/4relays. All completed with
-  zero script errors. Both boss phase sequences observed and frames reviewed.
-- Native menu input selects tower, picks pistol, fires seven and reloads seven.
-  Actual PHP isolated tests pass all three finish contracts, token chapter binding,
-  replay rejection and legacy preservation. Disposable storage only.
-- Public revision28 ready and muted. Chapter2 selects/picks bat; chapter3 selects,
-  picks pistol, fires7/loaded0/bullet_hits7/kills2, F reloads7/reserve70->63.
-  Reinforcement wave2 observed. Console errors0. Screenshots public-v28.
-- Cache upgrade2hits/1download preserves JS/WASM; repeat3hits/0downloads,100% ready.
-- Live records: original two rows retained in chapter1, chapter2/3 empty at check.
-  No public score submitted. PHP SCRIPT_FILENAME now uses $realpath_root so symlink
-  releases cannot retain the previous API in FPM caches; nginx -t passed.
-- All18 archive hashes verified by installer; HTTPS/public release.json confirmed;
-  nginx and php8.3-fpm active. Scores SHA unchanged during activation:
-  a581415790bdf837110ec7ab20b9fb45188a3e75eeaca1e1b98b5384215bb746.
-  Subsequent QA creates ordinary run tokens, not leaderboard rows.
-- Physical phone and user art/feel acceptance remain open. Full boss routes were
-  verified natively; public browser review covered chapter selection and first rooms.
-
-Operational config closure is committed after the frozen runtime source; it changes
-nginx configuration and release notes, not the v28 game archive.
+-45GUT/620assertions; format/lint, clean Web export. Throw contact once, ammo conservation,
+  paused discard rejection, held-move turn, key conflict/reserved Esc and default reset.
+- Native tower full route32frames/0errors/completed12kills4relays. Enemy anatomy36frames,
+  grip gallery26frames, Moose guns30frames; both facings visually reviewed.
+- Local Web actual-key remap conflict/save/reload/turn; G/E keeps7/70, next empty attack
+  throws/hits1, pickup1/fists; errors0. Capture driver strips InputMap, so native menu
+  capture is flow/visual evidence only; actual persistence verified in browser.
+- Public revision29 ready/muted, settings I/G; I turns1->-1, G/E keeps7/70. Seven shots
+  away then next attack: throws1/thrown_hits1/hits_landed1/pickups1/fists,86HP.
+  Screenshots and metrics: .studioigor/captures/public-v29. No score submitted.
+- Cache update2hits/1download preserves engine; repeated3hits/0downloads/ready.
+  Public I->U persists across reload; reset restores I. Enemy depot art/grips viewed;
+  browser errors0 and QA tab closed.
+- Installer verifies18hashes/archive; PHP syntax/nginx config pass, services active,
+  HTTPS/release.json/cover200 and separate chapter2/3score tables confirmed.
+- Score storage unchanged across activation:
+  dc9e431264cb13335d4c349a4914d3725a30ad53b220ed7120d1595a508413ad.
+- Physical phone and user art/feel acceptance remain open. Public browser checks first
+  rooms; full tower route verified natively. Frozen v29 runtime archive stays immutable.

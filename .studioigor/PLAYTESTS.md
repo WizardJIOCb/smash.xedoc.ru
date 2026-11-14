@@ -153,3 +153,7 @@ One session — one section. The user's feedback — verbatim. The first questio
   not remap persistence evidence. Browser above supplies real-key/save evidence.
 - Hare leg original edit source/prompt retained in art/campaign/hare-leg-v29.json.
   Native artist/feel gates remain open; physical phone untested.
+- Public v29: I facing1->-1; G/E keeps7/70; shots7 then throw1/hit1/pickup1,86HP.
+  I->U persists across reload; reset I restored. Cache2/1->3/0,errors0,QA tab closed.
+  New enemy grips/neck/legs seen in depot/tower.18manifest hashes,rollbackv28,scores
+  unchanged during activation; no public score submitted.
