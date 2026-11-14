@@ -18,10 +18,17 @@ Validation:
 - Relay6/6, including16slots/full rejection, host-only snapshots, late join, disconnect.
 - Two real native game instances, ordinary input: first chapter5kills/3relays and
   winter level7kills/1relay both completed on both instances.
+- Continuation regression: both instances won depot14kills/4relays/50.93s and
+  tower12kills/4relays/43.78s. No errors in either process; lifts/shared exits traversed.
 - Real rendered host with15WebSocket clients: each guest received133+snapshots/8seconds,
   all moved/attacked; capture13frames/0errors. This is a controlled load test, not16humans.
 - Public two-browser WSS create/join/start winter level, guest attack serial observed
   at host. GET release/health/chapter8scores200, unknown API script404.
+- Final public source4292eaf: nativeWSS host + browser guest, guest x234→332.09 and
+  kick serial2000001 observed; winter host won7kills/1relay, browser correctly returned
+  to lobby on host exit with0console errors. Public relay empty after QA cleanup.
+- Added the same Nginx include to the main checkout's otherwise unchanged deployment
+  template so its upcoming campaign release retains the isolated preview routes.
 - Evidence: .studioigor/captures/coop-validation, coop-sixteen, holiday-coop.
 
 The concurrent new campaign chapters were merged as source data; their full cooperative

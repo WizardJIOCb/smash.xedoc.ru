@@ -9,6 +9,7 @@ var role: String = "host"
 var joined: bool = false
 var selected: bool = false
 var review_chapter: int = 0
+var review_run: String = ""
 
 
 func _ready() -> void:
@@ -18,6 +19,8 @@ func _ready() -> void:
 			role = arg.trim_prefix("--review-role=")
 		if arg.begins_with("--review-chapter="):
 			review_chapter = int(arg.trim_prefix("--review-chapter="))
+		if arg.begins_with("--review-run="):
+			review_run = arg.trim_prefix("--review-run=")
 	_wait_for_party.call_deferred()
 
 
@@ -27,10 +30,8 @@ func _wait_for_party() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if role == "guest" and not joined and FileAccess.file_exists("res://.tools/coop-host.json"):
-		var host_state = JSON.parse_string(
-			FileAccess.get_file_as_string("res://.tools/coop-host.json")
-		)
+	if role == "guest" and not joined and FileAccess.file_exists(_report_path("host")):
+		var host_state = JSON.parse_string(FileAccess.get_file_as_string(_report_path("host")))
 		if host_state is Dictionary and not str(host_state.get("code", "")).is_empty():
 			coop.endpoint = "ws://127.0.0.1:8791/coop"
 			coop.join_room("Гость", str(host_state.code))
@@ -57,7 +58,7 @@ func _physics_process(delta: float) -> void:
 			"players": coop._snapshot().players,
 			"wave": route.wave
 		}
-		var file = FileAccess.open("res://.tools/coop-" + role + ".json", FileAccess.WRITE)
+		var file = FileAccess.open(_report_path(role), FileAccess.WRITE)
 		file.store_string(JSON.stringify(info))
 	if run_state == "won":
 		done_clock += delta
@@ -163,3 +164,12 @@ func _drive() -> void:
 			tap_wait = 0.4
 	else:
 		_move(1, true)
+
+
+func _report_path(member: String) -> String:
+	return (
+		"res://.tools/coop-"
+		+ (review_run + "-" if not review_run.is_empty() else "")
+		+ member
+		+ ".json"
+	)
