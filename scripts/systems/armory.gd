@@ -25,6 +25,7 @@ var visual: Node2D
 var interact_caption: String = "E"
 var ground_y: float = 555.0
 var throws: int = 0
+var draw_pickups: bool = true
 var thrown_hits: int = 0
 
 var _reload_left: float = 0.0
@@ -593,7 +594,7 @@ func _draw() -> void:
 		draw_line(tail, at, Color(1, 0.69, 0.29, 0.8), 2, true)
 		draw_circle(at, 2, Color("ffe7b0"))
 	var font := ThemeDB.fallback_font
-	for item: Dictionary in pickups:
+	for item: Dictionary in pickups if draw_pickups else []:
 		var at: Vector2 = item.at
 		draw_ellipse_shadow(at + Vector2(18, 18))
 		var nearby := (

@@ -31,6 +31,7 @@ func _ready() -> void:
 	armory = Armory.new()
 	add_child(armory)
 	armory.configure(moose)
+	armory.draw_pickups = false
 	caption = Label.new()
 	caption.position = Vector2(-85, -232)
 	caption.size = Vector2(170, 28)
