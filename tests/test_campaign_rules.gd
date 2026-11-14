@@ -149,8 +149,8 @@ func test_fall_uses_damage_callback_once_preserves_facing_and_resets_captured_st
 	assert_eq(run.health, 1, "Water recovery can never instantly end a run")
 
 
-func test_metro_warns_first_then_hits_each_exposed_actor_once_and_shelters_both_sides() -> void:
-	for protection: String in ["none", "crouch", "niche"]:
+func test_metro_warns_first_then_hits_exposed_actors_once_and_only_crouching_is_safe() -> void:
+	for protection: String in ["none", "crouch", "former_refuge"]:
 		var f := fixture(
 			"metro",
 			{
@@ -164,7 +164,7 @@ func test_metro_warns_first_then_hits_each_exposed_actor_once_and_shelters_both_
 		var rule: Rules = f[1]
 		if protection == "crouch":
 			run.moose.crouch_requested = true
-		elif protection == "niche":
+		elif protection == "former_refuge":
 			run.moose.position.x = 350
 		var guards: Array[Guard] = []
 		for x: float in [730, 350]:
@@ -176,14 +176,14 @@ func test_metro_warns_first_then_hits_each_exposed_actor_once_and_shelters_both_
 		rule.advance(run, 0.1, false)
 		assert_eq(rule.wave_state, "warning")
 		assert_eq(run.health, 100)
-		assert_true(run._notice.contains("ниша"))
+		assert_true(run._notice.contains("присядь"))
 		for frame in range(100):
 			rule.advance(run, 1.0 / 60, false)
 			rule.after_move(run, run.moose.position, 1.0 / 60)
-		assert_eq(run.hurts, 1 if protection == "none" else 0)
+		assert_eq(run.hurts, 0 if protection == "crouch" else 1)
 		assert_eq(guards[0].contacts, 1)
 		assert_eq(guards[0].health, 62)
-		assert_eq(guards[1].contacts, 0, "A niche shelters enemies too")
+		assert_eq(guards[1].contacts, 1, "Removed doors cannot leave invisible safe zones")
 		assert_gt(guards[0].push, 0.0)
 
 

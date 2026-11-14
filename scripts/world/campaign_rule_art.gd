@@ -6,7 +6,6 @@ const DECK = preload(ROOT + "port-carrier.png")
 const WATER = preload(ROOT + "river-opening.png")
 const ALLEY = preload(ROOT + "roof-opening.png")
 const BANK = preload(ROOT + "masonry-bank.png")
-const REFUGE = preload(ROOT + "metro-refuge.png")
 const SIGNAL = preload(ROOT + "metro-signal.png")
 const COVER = preload(ROOT + "roof-cover.png")
 const VINES = preload(ROOT + "garden-thicket.png")
@@ -82,23 +81,10 @@ func _draw_port() -> void:
 
 
 func _draw_metro() -> void:
-	var t: Dictionary = rules.tuning
 	var floor_y := _sole()
 	var warning: bool = rules.wave_state == "warning"
 	var wave: bool = rules.wave_state == "wave"
 	var pulse := 0.58 + sin(rules.elapsed * 10) * 0.42
-	for niche: Array in t.niches:
-		var width := float(niche[1]) + 26
-		var box := Rect2(float(niche[0]) - 13, floor_y - 224, width, 226)
-		_shadow(Vector2(box.get_center().x, floor_y + 2), width * 0.44, 5, 0.16)
-		draw_texture_rect(REFUGE, box, false)
-		if warning or wave:
-			_glow(
-				Vector2(box.get_center().x, floor_y - 161),
-				Color(0.85, 0.72, 0.33),
-				10,
-				0.65 + pulse * 0.35
-			)
 	var sign := Rect2(967, floor_y - 286, 268, 87)
 	draw_texture_rect(SIGNAL, sign, false)
 	var lens := 0 if wave else 1 if warning else 2
@@ -107,7 +93,7 @@ func _draw_metro() -> void:
 	var caption := (
 		"ПОЕЗД %.1f с" % rules.wave_time
 		if warning
-		else "ПРИЖМИСЬ К СТЕНЕ" if wave else "ПУТЬ СВОБОДЕН"
+		else "ПРИСЯДЬ · S / ↓" if wave else "ПУТЬ СВОБОДЕН"
 	)
 	_text(sign.position + Vector2(115, 48), caption, 11, signal_color)
 	if is_instance_valid(_wind_haze):

@@ -250,15 +250,6 @@ func wave_rect() -> Rect2:
 	)
 
 
-func sheltered(feet: Vector2) -> bool:
-	if absf(feet.y - float(tuning.floor)) > float(tuning.niche_tolerance):
-		return false
-	for niche: Array in tuning.niches:
-		if feet.x >= float(niche[0]) and feet.x <= float(niche[0]) + float(niche[1]):
-			return true
-	return false
-
-
 func _advance_port(run, delta: float) -> void:
 	var old_deck := deck_rect()
 	var feet: Vector2 = run.moose.position
@@ -329,8 +320,8 @@ func _advance_metro(run, delta: float) -> void:
 	if wave_state == "idle" and wave_time <= 0:
 		wave_state = "warning"
 		wave_time += float(tuning.warning_seconds)
-		_feedback(run, Vector2(640, 295), "ПОЕЗД · ПРИСЯДЬ ИЛИ В НИШУ", "warn")
-		_notice(run, "Воздушная волна: S/↓ или зелёная ниша. Она заденет и охрану.")
+		_feedback(run, Vector2(640, 295), "ПОЕЗД · ПРИСЯДЬ S / ↓", "warn")
+		_notice(run, "Воздушная волна: присядь S/↓. Она заденет и охрану.")
 	elif wave_state == "warning" and wave_time <= 0:
 		waves += 1
 		wave_direction = 1 if waves % 2 else -1
@@ -351,7 +342,7 @@ func _advance_metro(run, delta: float) -> void:
 			lerpf(start, finish, progress) if wave_direction > 0 else lerpf(finish, start, progress)
 		)
 		for enemy in run.enemies:
-			if not is_instance_valid(enemy) or enemy.dead or sheltered(enemy.position):
+			if not is_instance_valid(enemy) or enemy.dead:
 				continue
 			var id: int = enemy.get_instance_id()
 			if _enemy_wave.has(id) or not wave_rect().intersects(enemy.hurtbox()):
@@ -386,7 +377,7 @@ func _hit_player_wave(run) -> void:
 		not run.moose.airborne
 		and (run.moose.crouch_requested or run.moose.crouch >= float(tuning.crouch_threshold))
 	)
-	if crouching or sheltered(feet):
+	if crouching:
 		return
 	var body := Rect2(
 		feet - Vector2(tuning.body_half_width, tuning.body_height),

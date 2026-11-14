@@ -26,3 +26,13 @@ Images are private reference evidence only, excluded from the game export.
   hands before bringing the barrel behind the head and back to the ready pose.
 - Preserve distinct hand artwork, native wrist/shoulder attachment, timing and
   active damage window. Review isolated/queued swings in both facings/three stances.
+
+## v49 visibility correction — 2026-11-15
+- User capture: the support sleeve vanishes inside the torso and the barrel is
+  clipped by the face. Reviewed a before/after native swing in both facings.
+- Keep both sleeves readable above the jacket while holding the bat, restore
+  their usual depth when unequipped. Lower the swing plane below the muzzle.
+- Hands, handle and barrel share a stable depth throughout recovery; no layer
+  threshold switches. Preserve attached shoulders/wrists and the damage window.
+- Engine painter order checked against the primary CanvasItem documentation:
+  https://docs.godotengine.org/en/stable/classes/class_canvasitem.html#class-canvasitem-property-z-as-relative

@@ -61,10 +61,18 @@ func prepare(rig: Node2D) -> float:
 	return float(pose.weight)
 
 
+func set_grip(rig: Node2D, active: bool) -> void:
+	rig.bat_grip_active = active
+	rig.bones.near_hand.get_node("fist_back").visible = not active
+	rig.bones.far_hand.get_node("fist").visible = not active
+	# The support arm reaches around the chest; its sleeve must clear the jacket.
+	var depth: int = rig.DEPTH_HEAD - 3 if active else rig.DEPTH_FAR_ARM
+	rig.bones.far_arm.get_node("upper_arm_inner").z_index = depth
+	rig.bones.far_fore.get_node("forearm_inner").z_index = depth + 1
+
+
 func apply(rig: Node2D) -> void:
-	rig.bat_grip_active = rig.held_melee == "bat" and not rig.ragdoll_active
-	rig.bones.near_hand.get_node("fist_back").visible = not rig.bat_grip_active
-	rig.bones.far_hand.get_node("fist").visible = not rig.bat_grip_active
+	set_grip(rig, rig.held_melee == "bat" and not rig.ragdoll_active)
 	if not rig.bat_grip_active:
 		return
 	var lean: float = pose.lean
@@ -146,7 +154,7 @@ func _blend(from: String, to: String, amount: float) -> Dictionary:
 func _blend_pose(from: Dictionary, to: Dictionary, amount: float) -> Dictionary:
 	var result := {}
 	result.yaw = lerp_angle(float(from.yaw), float(to.yaw), amount)
-	for key: String in ["pitch", "lean", "weight", "behind"]:
+	for key: String in ["pitch", "lean", "weight"]:
 		result[key] = lerpf(float(from[key]), float(to[key]), amount)
 	result.grip = [lerpf(from.grip[0], to.grip[0], amount), lerpf(from.grip[1], to.grip[1], amount)]
 	return result

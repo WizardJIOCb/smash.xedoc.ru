@@ -8,7 +8,6 @@ var flash: float = 0.0
 var painting: Texture2D
 var grip_active: bool = false
 var bat_length: float = 1.0
-var bat_behind_head: bool = true
 var wrist_directions: Dictionary = {}
 var knuckles_worn: bool = false
 var knuckle_width: float = 320
@@ -28,7 +27,6 @@ func _ready() -> void:
 	_barrel.texture = bat_grip
 	_barrel.centered = false
 	_barrel.region_enabled = true
-	_barrel.z_as_relative = false
 	add_child(_barrel)
 	_shaft = Sprite2D.new()
 	_shaft.texture = bat_grip
@@ -60,8 +58,8 @@ func _process(_delta: float) -> void:
 	_barrel.region_rect = Rect2(depth_split, 0, pixels.x - depth_split, pixels.y)
 	_barrel.position = _shaft.position + Vector2((depth_split - split) * factor * bat_length, 0)
 	_barrel.scale = Vector2(factor * bat_length, factor)
-	_barrel.z_as_relative = not bat_behind_head
-	_barrel.z_index = 12 if bat_behind_head else 0
+	# Hands, handle and barrel share one plane throughout the swing and recovery.
+	_barrel.z_index = 0
 
 
 func equip(id: String) -> void:

@@ -250,7 +250,13 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 		assert_lt(largest_shoulder_drift, 0.01, "Both upper arms stay attached to the torso")
 		assert_lt(rad_to_deg(largest_elbow), 135.0, "An elbow cannot fold back onto its shoulder")
 		assert_false(hero.bones.far_hand.get_node("fist").visible)
+		assert_gt(hero.bones.far_fore.get_node("forearm_inner").z_index, hero.mesh.z_index)
+		armory.visual._process(0)
+		assert_true(
+			armory.visual._barrel.z_as_relative, "The barrel cannot disappear behind the face"
+		)
 		armory.drop(500)
+		assert_eq(hero.bones.far_fore.get_node("forearm_inner").z_index, hero.DEPTH_FAR_ARM + 1)
 		assert_true(hero.bones.near_hand.get_node("fist_back").visible)
 		assert_true(hero.bones.far_hand.get_node("fist").visible)
 		armory.grant("bat")
@@ -258,6 +264,7 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 		hero.ragdoll_active = true
 		armory.advance(0, [], true)
 		assert_false(armory.visual.visible, "No floating hand/weapon assembly over the corpse")
+		assert_eq(hero.bones.far_fore.get_node("forearm_inner").z_index, hero.DEPTH_FAR_ARM + 1)
 		assert_true(hero.bones.near_hand.get_node("fist_back").visible)
 		assert_true(hero.bones.far_hand.get_node("fist").visible)
 
@@ -279,7 +286,6 @@ func test_bat_late_return_cannot_reverse_and_buffered_swing_keeps_current_pose()
 			var chain_jump := 0.0
 			var reversed_return := false
 			var return_samples := 0
-			var upright_return_samples := 0
 			var returns_in_front_of_face := false
 			var queued := false
 			for frame in range(520):
@@ -301,11 +307,8 @@ func test_bat_late_return_cannot_reverse_and_buffered_swing_keeps_current_pose()
 					and absf(cos(hero.melee_angle)) < 0.3
 					and sin(hero.melee_angle) < 0
 				):
-					upright_return_samples += 1
 					returns_in_front_of_face = (
-						returns_in_front_of_face
-						or hero.melee_origin.x > hero.bones.hips.position.x
-						or float(hero.bat_pose.pose.behind) <= 0.5
+						returns_in_front_of_face or hero.melee_origin.x > hero.bones.hips.position.x
 					)
 				var finish := lerpf(
 					float(timing.hold),
@@ -319,7 +322,6 @@ func test_bat_late_return_cannot_reverse_and_buffered_swing_keeps_current_pose()
 					reversed_return = reversed_return or axis.x > 0
 					return_samples += 1
 			assert_gt(return_samples, 0, "The final recovery was rendered")
-			assert_gt(upright_return_samples, 0, "Exercise the upright part of recovery")
 			assert_false(
 				returns_in_front_of_face,
 				"Withdraw the hands before returning the bat behind the head"

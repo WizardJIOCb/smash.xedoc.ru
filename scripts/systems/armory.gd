@@ -253,9 +253,7 @@ func advance(delta: float, enemies: Array, playing: bool, simulate_pickups: bool
 	_playing = playing
 	visual.visible = is_instance_valid(hero) and hero.visible and not hero.ragdoll_active
 	if is_instance_valid(hero) and hero.ragdoll_active:
-		hero.bat_grip_active = false
-		hero.bones.near_hand.get_node("fist_back").visible = true
-		hero.bones.far_hand.get_node("fist").visible = true
+		hero.bat_pose.set_grip(hero, false)
 	if not playing:
 		_held = false
 		return
@@ -349,7 +347,6 @@ func _update_visual() -> void:
 	if visual.grip_active:
 		visual.global_position = hero.to_global(hero.melee_origin)
 		visual.bat_length = hero.melee_length
-		visual.bat_behind_head = float(hero.bat_pose.pose.behind) > 0.5
 	var facing: float = hero.facing
 	var angle := -0.8
 	if is_ranged():
@@ -578,9 +575,7 @@ func _refresh() -> void:
 		hero.combat.weapon = equipped
 		hero.firearm_reloading = _reload_left > 0
 		if equipped != "bat" or hero.ragdoll_active:
-			hero.bat_grip_active = false
-			hero.bones.near_hand.get_node("fist_back").visible = true
-			hero.bones.far_hand.get_node("fist").visible = true
+			hero.bat_pose.set_grip(hero, false)
 	if is_instance_valid(visual):
 		visual.equip(equipped)
 	changed.emit()
