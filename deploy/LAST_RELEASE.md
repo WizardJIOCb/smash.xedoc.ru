@@ -1,29 +1,28 @@
-# Public release v39
+# Public release v40
 
 - Domain:https://smash.xedoc.ru/
-- Runtime source:0467d8267168d24fa03ed54ad8b56243b5a21631
-- Current:/var/www/smash.xedoc.ru/releases/v39-0467d8267168
-- Rollback:/var/www/smash.xedoc.ru/releases/v38-541ed783a16a
-- Archive:93,547,638bytes;18verified files.
-- SHA256:484860ef14077d024b3742c632241dd7496ad32750765158bac09284900f0f8b
+- Runtime source:d73e2117475bb2834480f6f862848b6335f18bb4
+- Current:/var/www/smash.xedoc.ru/releases/v40-d73e2117475b
+- Rollback:/var/www/smash.xedoc.ru/releases/v39-0467d8267168
+- Archive:93,547,752bytes;18verified files.
+- SHA256:af69b68b526478c2ae4e84827f8721a11422e45ba0fca10639d4e866888c6bd9
 
-Depot and tower upper walkways extend to786, overlapping the lift edge790 by4px.
-The visible ledge, custom feet surface and physical terrain share the same rect;
-both exits can be walked across without jumping. Updated hints describe walking.
-The native campaign driver no longer jumps off lifts and checks zero jump delta
-and zero downward drift during each transfer.
+Bat load pulls the hands farther back; early drive stays behind the shoulder
+before accelerating into contact with the weight transfer. Recovery withdraws
+the hands before raising the barrel behind the head. Distinct palms, wrist/shoulder
+attachments, attack timing and active damage interval are preserved.
 
 Validation:
--51GUT/722assertions, format/lint, clean Web export.
-- Native ordinary-input routes won: depot58.77s/14kills and tower51.97s/12kills,
-  both4relays/100HP/0deaths. Lift transfers each jumps0/drop0.0px; scores offline.
-  Native depot capture71frames/0errors, walk across the seam reviewed.
-- Public revision39: ordinary inputs cleared13enemies/2relays and rode the lift.
-  Walked right714.75->899.85, back741.88, then stopped at seam809.48; feet350
-  throughout, jumps0/100HP. Console0errors,cache2hits/1download; QA tab closed
-  before victory, no score sent.
+-51GUT/734assertions, format/lint, clean Web export. Regression samples the return
+  at240Hz to catch the brief upright phase in all stances and both facings.
+- Native126frames/0errors, queued swings in both facings/standing/low/air reviewed;
+  grip gap0.00019px, shoulder drift0px, maxelbow133.70deg. Native contact48frames,
+  three hits/0errors; 3.2s motion clip encoded and decoded.
+- Public revision40: left/right load, hit and recovery viewed;7swings/7hits/2kills/
+  100HP. G restores fists/one plain bat pickup. Console0errors,cache2hits/1download;
+  QA tab closed before victory, no score sent.
 - HTTPS/release.json200,18manifest hashes verified, PHP/nginx valid, services active.
   Scores unchanged during activation:
-  42a8acc7f1ba5320a61479249c63adce86a479e88682a7d3ae8a92f87986fa40.
-- Evidence:.studioigor/captures/lift-walk-v39,public-v39;
-  .tools/depot-route-v39.log,.tools/tower-route-v39.log. Overall art/feel gates open.
+  d6f928b45f98499c442a69bf5f6fd36486e0d7e2e9a15d10a29e7ae0997897d6.
+- Evidence:.studioigor/captures/bat-return-final-v40,bat-contact-final-v40,public-v40.
+  User appearance/feel acceptance remains open.
