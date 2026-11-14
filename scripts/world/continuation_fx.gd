@@ -116,7 +116,7 @@ func sync_metrics(run) -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 40,
+			"revision": 41,
 			"room": run.room_index + 1,
 			"health": run.health,
 			"run_state": run.run_state,
@@ -159,6 +159,9 @@ func sync_metrics(run) -> void:
 	Metrics.rig["blood_drops"] = run.blood.drops.size() if is_instance_valid(run.blood) else 0
 	Metrics.rig["corpse_hits"] = run.corpse_hits
 	Metrics.rig["chapter"] = run.route.chapter + 1
+	Metrics.rig["campaign_rules"] = (
+		run.campaign_rules.metrics() if is_instance_valid(run.campaign_rules) else {}
+	)
 	Metrics.rig["wave"] = run.route.wave + 1
 	Metrics.rig["waves"] = run.rooms[run.room_index].get("waves", []).size() + 1
 	Metrics.rig["weapon"] = run.armory.stats()
@@ -210,4 +213,56 @@ func sync_metrics(run) -> void:
 				+ ");"
 			),
 			true
+		)
+
+
+func draw_relay(run) -> void:
+	if not is_instance_valid(run.effects):
+		return
+	var available: bool = (
+		run._remaining() == 0
+		and run.route.waves_done(run.rooms[run.room_index])
+		and not run.cleared[run.room_index]
+	)
+	var color := Color("e2b36e") if available or run.cleared[run.room_index] else Color("e44a42")
+	# Painted intercom housing, with a live lens and a visibly powered cable.
+	run.draw_texture_rect(
+		run.RELAY_TEXTURE, Rect2(run.relay - Vector2(23, 40), Vector2(46, 80)), false
+	)
+	run.draw_line(
+		run.relay + Vector2(0, 35),
+		Vector2(run.relay.x, float(run.rooms[run.room_index].floor)),
+		Color("132630"),
+		6,
+		true
+	)
+	for ring in range(4):
+		run.draw_circle(
+			run.relay + Vector2(3, -20),
+			9 + ring * 4,
+			Color(color, 0.09 if not run.cleared[run.room_index] else 0.025)
+		)
+	run.draw_circle(run.relay + Vector2(3, -20), 5, color)
+	if available:
+		run.draw_arc(
+			run.relay, 51 + sin(run.clock * 3) * 2, 0, TAU, 36, Color(color, 0.65), 1, true
+		)
+		run.draw_string(
+			ThemeDB.fallback_font,
+			run.relay + Vector2(-37, -57),
+			"E · РЕЛЕ",
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			17,
+			color
+		)
+	if run.cleared[run.room_index] and run.room_index < int(run.route.current().end):
+		run.draw_string(
+			ThemeDB.fallback_font,
+			Vector2(1185, float(run.rooms[run.room_index].floor) - 90),
+			"→",
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			40,
+			color
 		)

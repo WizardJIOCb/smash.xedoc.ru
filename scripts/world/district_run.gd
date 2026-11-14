@@ -23,6 +23,9 @@ const KeyBindings = preload("res://scripts/core/key_bindings.gd")
 const Coop = preload("res://scripts/network/coop_session.gd")
 const Holiday = preload("res://scripts/world/holiday_fx.gd")
 
+const CampaignRules = preload("res://scripts/world/campaign_rules.gd")
+const CampaignContact = preload("res://scripts/world/campaign_contact.gd")
+
 var coop: Coop
 var holiday_fx: Holiday
 
@@ -31,6 +34,7 @@ var route := Route.new()
 var bindings := KeyBindings.new()
 var armory: Armory
 var carrier: Lift
+var campaign_rules: CampaignRules
 var weapon_label: Label
 var boss_label: Label
 var boss_bar: ColorRect
@@ -241,6 +245,10 @@ func _label(parent: Node, at: Vector2, size: int, caption: String) -> Label:
 func _load_room(index: int, spawn_x: float) -> void:
 	checkpoint_kills = kills
 	route.enter()
+	if is_instance_valid(campaign_rules):
+		remove_child(campaign_rules)
+		campaign_rules.queue_free()
+		campaign_rules = null
 	if is_instance_valid(carrier):
 		remove_child(carrier)
 		carrier.queue_free()
@@ -275,6 +283,9 @@ func _load_room(index: int, spawn_x: float) -> void:
 		scenery.add_child(holiday_fx)
 	ledges.clear()
 	var room: Dictionary = rooms[index]
+	campaign_rules = CampaignRules.new()
+	campaign_rules.configure(room)
+	add_child(campaign_rules)
 	for child: Node in get_children():
 		if child is TextureRect and child != dark:
 			child.texture = load(_room_art(room))
@@ -348,6 +359,12 @@ func _spawn_enemy(entry: Array) -> void:
 	enemy.feedback.connect(_feedback)
 	enemy.defeated.connect(_enemy_down)
 	enemy.wounded.connect(blood.spill)
+	enemy.forced_player_motion.connect(
+		func(displacement: float) -> void:
+			if run_state == "playing":
+				moose.position.x = clampf(moose.position.x + displacement, 28, 1190)
+				_stride_stop.active = false
+	)
 	add_child(enemy)
 	enemies.append(enemy)
 
@@ -442,8 +459,11 @@ func _physics_process(delta: float) -> void:
 	rain.visible = not front.is_open() and not dry
 	armory.trigger(_input_held("strike") and night.burst_time < 0 and not _input_held("block"))
 	armory.ground_y = floor_y
-	armory.advance(delta, enemies, run_state == "playing")
 	continuation.advance_lift(self, delta, simulation_paused)
+	campaign_rules.advance(self, delta, run_state != "playing")
+	if run_state == "playing":
+		CampaignContact.intercept_player_fire(self, campaign_rules, delta)
+	armory.advance(delta, enemies, run_state == "playing")
 	blood.paused = simulation_paused
 	if is_instance_valid(player_corpse):
 		player_corpse.paused = simulation_paused
@@ -481,12 +501,15 @@ func _physics_process(delta: float) -> void:
 			and moose.position.y <= deck.position.y + 1
 		):
 			surface = minf(surface, deck.position.y)
+	surface = campaign_rules.floor_at(self, surface)
 	floor_y = surface
 	if vertical_speed == 0 and absf(moose.position.y - surface) < 0.01:
 		moose.position.y = surface
 	lift = minf(0, moose.position.y - surface)
 	var before_x := moose.position.x
+	var before := moose.position
 	super._physics_process(delta)
+	campaign_rules.after_move(self, before, delta)
 	for enemy: Enemy in enemies:
 		if (
 			not enemy.dead
@@ -606,6 +629,7 @@ func _resolve_attacks() -> void:
 	)
 	if night.active():
 		amount = roundi(amount * float(night.tuning.damage_multiplier))
+	campaign_rules.attack(self, attack.serial, area, amount)
 	for enemy: Enemy in enemies:
 		if enemy.dead and is_instance_valid(enemy.corpse):
 			var corpse_at := enemy.corpse.contact(area, tip)
@@ -763,6 +787,8 @@ func _interact() -> void:
 		_notice_left = 4
 		return
 	if is_instance_valid(carrier) and carrier.activate(moose.position):
+		return
+	if campaign_rules.interact(self):
 		return
 	if cleared[room_index] or moose.position.distance_to(relay) > 110:
 		return
@@ -980,49 +1006,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	super._draw()
-	if not is_instance_valid(effects):
-		return
-	var available := (
-		_remaining() == 0 and route.waves_done(rooms[room_index]) and not cleared[room_index]
-	)
-	var color := Color("e2b36e") if available or cleared[room_index] else Color("e44a42")
-	# Painted intercom housing, with a live lens and a visibly powered cable.
-	draw_texture_rect(RELAY_TEXTURE, Rect2(relay - Vector2(23, 40), Vector2(46, 80)), false)
-	draw_line(
-		relay + Vector2(0, 35),
-		Vector2(relay.x, float(rooms[room_index].floor)),
-		Color("132630"),
-		6,
-		true
-	)
-	for ring in range(4):
-		draw_circle(
-			relay + Vector2(3, -20),
-			9 + ring * 4,
-			Color(color, 0.09 if not cleared[room_index] else 0.025)
-		)
-	draw_circle(relay + Vector2(3, -20), 5, color)
-	if available:
-		draw_arc(relay, 51 + sin(clock * 3) * 2, 0, TAU, 36, Color(color, 0.65), 1, true)
-		draw_string(
-			ThemeDB.fallback_font,
-			relay + Vector2(-37, -57),
-			"E · РЕЛЕ",
-			HORIZONTAL_ALIGNMENT_LEFT,
-			-1,
-			17,
-			color
-		)
-	if cleared[room_index] and room_index < int(route.current().end):
-		draw_string(
-			ThemeDB.fallback_font,
-			Vector2(1185, float(rooms[room_index].floor) - 90),
-			"→",
-			HORIZONTAL_ALIGNMENT_LEFT,
-			-1,
-			40,
-			color
-		)
+	continuation.draw_relay(self)
 
 
 func _sync_metrics() -> void:
