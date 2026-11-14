@@ -152,13 +152,24 @@ func test_drop_and_repickup_keep_exact_rounds_and_cancel_reload() -> void:
 	assert_false(armory.drop(500), "A paused game cannot discard gear")
 
 
-func test_empty_pistol_next_attack_throws_once_and_can_be_recovered() -> void:
+func test_every_empty_firearm_next_attack_throws_once_and_can_be_recovered() -> void:
+	var definitions: Dictionary = make_armory().tuning.weapons
+	for id: String in definitions:
+		if definitions[id].mode == "ranged":
+			_check_empty_firearm_throw(id)
+
+
+func _check_empty_firearm_throw(id: String) -> void:
 	var armory = make_armory()
-	armory.grant("pistol", 11)
-	armory.ammunition.pistol.loaded = 0
+	armory.grant(id, 11)
+	armory.ammunition[id].loaded = 0
 	var target := Target.new()
 	add_child_autofree(target)
 	watch_signals(armory)
+	armory.trigger(true)
+	armory.advance(0.5, [], true)
+	assert_eq(armory.equipped, id, "Holding fire does not discard an empty " + id)
+	assert_eq(armory.stats().throws, 0)
 	assert_false(armory.before_attack("punch"))
 	assert_eq(armory.equipped, "fists")
 	assert_eq(armory.stats().throws, 1)
@@ -172,6 +183,7 @@ func test_empty_pistol_next_attack_throws_once_and_can_be_recovered() -> void:
 	assert_signal_emit_count(armory, "projectile_hit", 1)
 	armory.hero.position = item.at
 	assert_true(armory.interact())
+	assert_eq(armory.equipped, id)
 	assert_eq(armory.stats().loaded, 0)
 	assert_eq(armory.stats().reserve, 11)
 	assert_true(armory.reload())

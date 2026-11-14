@@ -13,8 +13,9 @@ func apply(rig: Node2D) -> void:
 	rig.arm_meshes.far.z_index = 15 if rig.kind in ["fox", "lynx", "firewall", "foreman"] else 5
 	if rig.kind in ["fox", "lynx", "firewall"]:
 		var grip := _point("gun_grip") + Vector2(rig.recoil * 2, 0)
+		var support: Array = tuning.gun_support_by_kind.get(rig.kind, tuning.gun_support)
 		_arm(rig, "near", origin + grip)
-		_arm(rig, "far", origin + grip + _point("gun_support"))
+		_arm(rig, "far", origin + grip + Vector2(support[0], support[1]))
 		rig.bones.weapon.rotation = rig._grip_rotation("near") - rig.recoil * 0.08
 		return
 	var heavy: bool = rig.kind in ["foreman", "beaver"]

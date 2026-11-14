@@ -1,7 +1,8 @@
 {
-  "beaver": {"head_socket": [0, -57], "head_pivot": [0.49, 0.87]},
-  "hare": {"head_socket": [0, -57], "head_pivot": [0.47, 0.87]},
-  "foreman": {"head_socket": [0, -57], "head_pivot": [0.40, 0.87]},
-  "fox": {"head_socket": [0, -57], "head_pivot": [0.50, 0.87]},
-  "lynx": {"head_socket": [0, -57], "head_pivot": [0.50, 0.87]}
+  "beaver": {"head_socket": [0, -57], "head_pivot": [0.49, 0.87], "weapon_size": [36, 92]},
+  "hare": {"head_socket": [0, -57], "head_pivot": [0.47, 0.87], "weapon_size": [34, 90]},
+  "foreman": {"head_socket": [0, -57], "head_pivot": [0.4, 0.87], "weapon_size": [39, 100]},
+  "fox": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [88, 34]},
+  "lynx": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [102, 38]},
+  "firewall": {"weapon_size": [110, 40]}
 }

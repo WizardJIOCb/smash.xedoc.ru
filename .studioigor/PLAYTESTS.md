@@ -157,3 +157,12 @@ One session — one section. The user's feedback — verbatim. The first questio
   I->U persists across reload; reset I restored. Cache2/1->3/0,errors0,QA tab closed.
   New enemy grips/neck/legs seen in depot/tower.18manifest hashes,rollbackv28,scores
   unchanged during activation; no public score submitted.
+
+## PT-13 — 2026-11-14 — all empty firearms throw; enemy weapon scale v30
+- Removed pistol-only restriction. Throw happens on a new attack press; holding automatic
+  fire stops at an empty magazine. F still reloads before discard. Exact reserve survives.
+- Enemy gun sizes: fox88x34,lynx102x38,Firewall110x40; melee props moderately enlarged.
+  Support hand targets adjusted to each fore-end. Both facing directions reviewed.
+-45GUT/636assertions cover every ranged weapon, hold-versus-new-press, one throw contact,
+  exact ammo/recovery/reload. Rifle native range20frames/0errors:24shots/24hits, then
+  new press throws1/hits1,25contacts total,rifle removed/1pickup. Enemy gallery18/0errors.

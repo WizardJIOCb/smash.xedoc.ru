@@ -199,7 +199,10 @@ func reload() -> bool:
 func before_attack(kind: String) -> bool:
 	if kind != "punch" or tuning.weapons[equipped].mode != "ranged":
 		return true
-	_fire()
+	if int(ammunition[equipped].loaded) <= 0 and _can_use() and _reload_left <= 0:
+		_throw_empty_weapon()
+	else:
+		_fire()
 	return false
 
 
@@ -334,21 +337,22 @@ func _can_use() -> bool:
 	return _playing and is_instance_valid(hero) and not hero.ragdoll_active and not hero.blocking
 
 
+func _throw_empty_weapon() -> void:
+	drop(ground_y)
+	var item: Dictionary = pickups.back()
+	item.velocity = Vector2(hero.facing * 520, -90)
+	item["thrown"] = true
+	_serial -= 1
+	item["serial"] = _serial
+	throws += 1
+	hero.combat.request("punch", hero.airborne, hero.crouch_requested)
+	hero.combat.side = "near"
+
+
 func _fire() -> bool:
 	if not _can_use() or _cooldown > 0 or _reload_left > 0 or not is_ranged():
 		return false
 	var ammo: Dictionary = ammunition[equipped]
-	if int(ammo.loaded) <= 0 and equipped == "pistol":
-		drop(ground_y)
-		var item: Dictionary = pickups.back()
-		item.velocity = Vector2(hero.facing * 520, -90)
-		item["thrown"] = true
-		_serial -= 1
-		item["serial"] = _serial
-		throws += 1
-		hero.combat.request("punch", hero.airborne, hero.crouch_requested)
-		hero.combat.side = "near"
-		return false
 	if int(ammo.loaded) <= 0 or bullets.size() >= int(tuning.bullet_limit):
 		return false
 	var spec: Dictionary = tuning.weapons[equipped]

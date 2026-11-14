@@ -81,10 +81,11 @@ func _ready() -> void:
 	else:
 		_bone("weapon", bones.near_hand, Vector2.ZERO, 24)
 		var gun := kind in ["fox", "lynx", "firewall"]
+		var weapon_size: Array = anatomy.get("weapon_size", [62, 25] if gun else [30, 77])
 		_part(
 			"weapon",
 			bones.weapon,
-			Vector2(62, 25) if gun else Vector2(30, 77),
+			Vector2(weapon_size[0], weapon_size[1]),
 			Vector2(0.82, 0.5) if gun else Vector2(0.5, 0.8),
 			16
 		)
