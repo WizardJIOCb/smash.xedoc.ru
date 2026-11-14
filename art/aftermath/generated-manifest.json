@@ -1,0 +1,114 @@
+[
+  {
+    "id": "port-embankment",
+    "source": "art/aftermath/sources/port-embankment.png"
+  },
+  {
+    "id": "port-wharf",
+    "source": "art/aftermath/sources/port-wharf.png"
+  },
+  {
+    "id": "port-crane",
+    "source": "art/aftermath/sources/port-crane.png"
+  },
+  {
+    "id": "port-barge",
+    "source": "art/aftermath/sources/port-barge.png"
+  },
+  {
+    "id": "metro-station",
+    "source": "art/aftermath/sources/metro-station.png"
+  },
+  {
+    "id": "metro-tunnel",
+    "source": "art/aftermath/sources/metro-tunnel.png"
+  },
+  {
+    "id": "metro-train",
+    "source": "art/aftermath/sources/metro-train.png"
+  },
+  {
+    "id": "metro-terminal",
+    "source": "art/aftermath/sources/metro-terminal.png"
+  },
+  {
+    "id": "garden-service",
+    "source": "art/aftermath/sources/garden-service.png"
+  },
+  {
+    "id": "garden-pumps",
+    "source": "art/aftermath/sources/garden-pumps.png"
+  },
+  {
+    "id": "garden-glass",
+    "source": "art/aftermath/sources/garden-glass.png"
+  },
+  {
+    "id": "garden-heart",
+    "source": "art/aftermath/sources/garden-heart.png"
+  },
+  {
+    "id": "roofs-attic",
+    "source": "art/aftermath/sources/roofs-attic.png"
+  },
+  {
+    "id": "roofs-wires",
+    "source": "art/aftermath/sources/roofs-wires.png"
+  },
+  {
+    "id": "roofs-radio",
+    "source": "art/aftermath/sources/roofs-radio.png"
+  },
+  {
+    "id": "roofs-dawn",
+    "source": "art/aftermath/sources/roofs-dawn.png"
+  },
+  {
+    "id": "enemy-otter",
+    "source": "art/aftermath/sources/enemy-otter.png"
+  },
+  {
+    "id": "enemy-seal",
+    "source": "art/aftermath/sources/enemy-seal.png"
+  },
+  {
+    "id": "enemy-skipper",
+    "source": "art/aftermath/sources/enemy-skipper.png"
+  },
+  {
+    "id": "enemy-mole",
+    "source": "art/aftermath/sources/enemy-mole.png"
+  },
+  {
+    "id": "enemy-ferret",
+    "source": "art/aftermath/sources/enemy-ferret.png"
+  },
+  {
+    "id": "enemy-dispatcher",
+    "source": "art/aftermath/sources/enemy-dispatcher.png"
+  },
+  {
+    "id": "enemy-raccoon",
+    "source": "art/aftermath/sources/enemy-raccoon.png"
+  },
+  {
+    "id": "enemy-hedgehog",
+    "source": "art/aftermath/sources/enemy-hedgehog.png"
+  },
+  {
+    "id": "enemy-agronomist",
+    "source": "art/aftermath/sources/enemy-agronomist.png"
+  },
+  {
+    "id": "enemy-crow",
+    "source": "art/aftermath/sources/enemy-crow.png"
+  },
+  {
+    "id": "enemy-owl",
+    "source": "art/aftermath/sources/enemy-owl.png"
+  },
+  {
+    "id": "enemy-manager",
+    "source": "art/aftermath/sources/enemy-manager.png"
+  }
+]

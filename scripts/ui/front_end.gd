@@ -22,6 +22,7 @@ var chapter_index: int = 0
 var chapter_page: int = 0
 var completed_chapters: Array = []
 var root: Control
+var background: TextureRect
 var content: Control
 var portrait: Node2D
 var contact_shadow: Node2D
@@ -48,7 +49,7 @@ func _ready() -> void:
 	root.theme.default_font = FONT
 	root.theme.default_font_size = 20
 	add_child(root)
-	var background := TextureRect.new()
+	background = TextureRect.new()
 	background.texture = load("res://assets/environment/menu-ground-v1.webp")
 	background.size = Vector2(1280, 720)
 	background.modulate = Color(0.86, 0.91, 0.89)
@@ -112,6 +113,7 @@ func show_home(resumable: bool) -> void:
 
 func _page(id: String) -> void:
 	page = id
+	background.texture = load("res://assets/environment/menu-ground-v1.webp")
 	for child: Node in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
@@ -283,6 +285,51 @@ func show_finish(score: int, seconds: float, previous_name: String) -> void:
 	else:
 		_button("Ещё раз", 526, func() -> void: start_requested.emit())
 	_button("Главное меню", 590, func() -> void: show_home(false))
+	if not chapters.is_empty() and chapters[chapter_index].has("epilogue"):
+		portrait.hide()
+		contact_shadow.hide()
+		background.texture = _chapter_art(chapter_index, true)
+		var panel := ColorRect.new()
+		panel.position = Vector2(650, 174)
+		panel.size = Vector2(566, 420)
+		panel.color = Color(0.025, 0.065, 0.075, 0.91)
+		content.add_child(panel)
+		_label(content, Vector2(678, 202), "ПОСЛЕ БОЯ", 16, Color("e2b36e"))
+		var ending := _label(content, Vector2(678, 244), str(chapters[chapter_index].epilogue), 23)
+		ending.size = Vector2(510, 310)
+		ending.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+
+func show_intro(index: int, begin: Callable) -> void:
+	_page("intro")
+	chapter_index = index
+	background.texture = _chapter_art(index)
+	var veil := ColorRect.new()
+	veil.position = Vector2.ZERO
+	veil.size = Vector2(1280, 720)
+	veil.color = Color(0.025, 0.065, 0.075, 0.43)
+	content.add_child(veil)
+	_label(content, Vector2(68, 84), "ГЛАВА %02d" % (index + 1), 18, Color("e2b36e"))
+	var title := _label(content, Vector2(64, 120), str(chapters[index].title), 48)
+	title.size = Vector2(970, 82)
+	var story := _label(content, Vector2(72, 230), str(chapters[index].intro), 25)
+	story.size = Vector2(610, 188)
+	story.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var quote := _label(content, Vector2(72, 452), str(chapters[index].quote), 23, Color("e2b36e"))
+	quote.size = Vector2(900, 64)
+	quote.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_button("Начать главу →", 544, begin, true).grab_focus()
+	_button("← Выбор главы", 614, show_chapters)
+
+
+func _chapter_art(index: int, ending: bool = false) -> Texture2D:
+	var rooms: Array = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/district_rooms.json")
+	)
+	var chapter: Dictionary = chapters[index]
+	var room: Dictionary = rooms[int(chapter.end if ending else chapter.start)]
+	var path := "res://assets/environment/" + str(room.art)
+	return load(path + (".webp" if ResourceLoader.exists(path + ".webp") else ".png"))
 
 
 func result_saved(shared: bool) -> void:

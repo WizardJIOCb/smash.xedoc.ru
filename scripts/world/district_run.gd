@@ -153,7 +153,7 @@ func _ready() -> void:
 	add_child(front)
 	front.bindings = bindings
 	front.completed_chapters = route.completed
-	front.chapter_requested.connect(_select_chapter)
+	front.chapter_requested.connect(_request_chapter)
 	front.next_requested.connect(_continue_chapter)
 	front.start_requested.connect(_start_new_run)
 	front.resume_requested.connect(_resume_run)
@@ -433,8 +433,9 @@ func _physics_process(delta: float) -> void:
 		touch_controls.set_context("menu" if front.is_open() else run_state)
 		controls_hint.visible = not touch_controls.enabled
 	var simulation_paused := run_state in ["menu", "paused", "won"]
-	rain.paused = simulation_paused or bool(rooms[room_index].get("indoor", false))
-	rain.visible = not front.is_open() and not bool(rooms[room_index].get("indoor", false))
+	var dry := bool(rooms[room_index].get("indoor", false)) or bool(rooms[room_index].get("dry", false)) or bool(rooms[room_index].get("holiday", false))
+	rain.paused = simulation_paused or dry
+	rain.visible = not front.is_open() and not dry
 	armory.trigger(_input_held("strike") and night.burst_time < 0 and not _input_held("block"))
 	armory.ground_y = floor_y
 	armory.advance(delta, enemies, run_state == "playing")
@@ -733,7 +734,7 @@ func _enemy_down() -> void:
 	night.gain(float(night.tuning.kill_charge))
 	Metrics.record("enemy_down")
 	if _remaining() == 0 and route.waves_done(rooms[room_index]):
-		_notice = "Порядок навели. Теперь к реле справа — E."
+		_notice = "Порядок навели. Теперь к посту справа — E."
 		_notice_left = 5
 
 
@@ -768,8 +769,8 @@ func _interact() -> void:
 	cleared[room_index] = true
 	quarantine = false
 	health = mini(int(encounter.player_health), health + 35)
-	_feedback(relay, "КАРАНТИН СНЯТ", Color("e2b36e"), "relay")
-	_notice = "Вот. Другое дело. Проход справа открыт →"
+	_feedback(relay, str(rooms[room_index].get("goal", "КАРАНТИН СНЯТ")), Color("e2b36e"), "relay")
+	_notice = str(rooms[room_index].get("clear_line", "Вот. Другое дело. Проход справа открыт →"))
 	_notice_left = 5
 	Metrics.record("relay_disabled_" + str(room_index + 1))
 	if room_index == int(route.current().end):
@@ -919,7 +920,9 @@ func _process(delta: float) -> void:
 	health_label.text = "ЛОСЬ  /  " + str(health) + " HP"
 	objective.text = (
 		str(rooms[room_index].title)
-		+ "    ·    УЗЛЫ "
+		+ "    ·    "
+		+ str(route.current().get("nodes", "УЗЛЫ"))
+		+ " "
 		+ str(cleared.count(true))
 		+ "/"
 		+ str(int(route.current().end) - int(route.current().start) + 1)
@@ -928,13 +931,17 @@ func _process(delta: float) -> void:
 		message.text = _notice
 	elif cleared[room_index]:
 		message.text = (
-			"Карантин снят. Иди вправо →"
+			"Проход открыт. Иди вправо →"
 			if room_index < int(route.current().end)
 			else "Глава пройдена."
 		)
 	elif _remaining() == 0:
 		message.text = (
-			bindings.caption("interact") + " — отключить реле"
+			(
+				bindings.caption("interact")
+				+ " — "
+				+ str(rooms[room_index].get("goal", "отключить реле"))
+			)
 			if moose.position.distance_to(relay) < 110
 			else "Охрана снята. Доберись до реле справа →"
 		)
@@ -953,7 +960,7 @@ func _process(delta: float) -> void:
 	if run_state == "lost":
 		outcome.text = "РОГА ЦЕЛЫ. САМ — НЕ ОЧЕНЬ.\n\nR — с контрольной точки"
 	elif run_state == "won":
-		outcome.text = "ГОРОД СВОБОДЕН" if route.chapter == 2 else "ГЛАВА ПРОЙДЕНА"
+		outcome.text = str(route.current().get("victory", "ГЛАВА ПРОЙДЕНА"))
 	elif run_state == "paused":
 		outcome.text = "ПЕРЕКУР\n\nEsc — вернуться во двор"
 	else:
@@ -1031,6 +1038,23 @@ func _select_chapter(index: int) -> void:
 	_start_new_run()
 
 
+func _request_chapter(index: int, gear: Dictionary = {}) -> void:
+	if index < 0 or index >= route.chapters.size():
+		return
+	var begin := func() -> void:
+		_select_chapter(index)
+		if not gear.is_empty():
+			armory.restore(gear)
+			checkpoint_gear = armory.snapshot()
+	if route.chapters[index].has("intro"):
+		run_state = "menu"
+		for enemy: Enemy in enemies:
+			enemy.paused = true
+		front.show_intro(index, begin)
+	else:
+		begin.call()
+
+
 func _room_art(room: Dictionary) -> String:
 	var base := "res://assets/environment/" + str(room.art)
 	return base + (".webp" if ResourceLoader.exists(base + ".webp") else ".png")
@@ -1038,6 +1062,4 @@ func _room_art(room: Dictionary) -> String:
 
 func _continue_chapter() -> void:
 	var gear := armory.snapshot()
-	_select_chapter(route.chapter + 1)
-	armory.restore(gear)
-	checkpoint_gear = armory.snapshot()
+	_request_chapter(route.chapter + 1, gear)

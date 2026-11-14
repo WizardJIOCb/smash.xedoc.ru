@@ -7,6 +7,9 @@ var tuning: Dictionary = JSON.parse_string(
 
 
 func apply(rig: Node2D) -> void:
+	if not rig.pose_style.is_empty():
+		_apply_profile(rig)
+		return
 	if rig.kind not in ["fox", "lynx", "firewall", "foreman", "beaver", "hare"]:
 		return
 	var origin: Vector2 = rig.bones.hips.position + rig.bones.body.position
@@ -43,6 +46,39 @@ func apply(rig: Node2D) -> void:
 	if rig.kind == "foreman":
 		var support := Vector2(tuning.foreman.support[0], tuning.foreman.support[1])
 		_arm(rig, "far", origin + grip + support.rotated(angle), PI / 2 + angle)
+	else:
+		_arm(rig, "far", origin + _point("free_guard"))
+	rig.bones.weapon.rotation = rig._grip_rotation("near") + angle
+
+
+func _apply_profile(rig: Node2D) -> void:
+	var profile: Dictionary = tuning.profiles[rig.pose_style]
+	var custom: Dictionary = tuning.by_kind.get(rig.kind, {})
+	var origin: Vector2 = rig.bones.hips.position + rig.bones.body.position
+	var gun: bool = rig.pose_style == "gun"
+	var both_hands: bool = profile.has("support")
+	rig.arm_meshes.far.z_index = 15 if both_hands else 5
+	rig.arm_meshes.far.hand_mesh.z_index = 19 if both_hands else 6
+	var grip: Vector2
+	var angle: float
+	if gun:
+		var hold: Array = custom.get("grip", profile.grip)
+		grip = Vector2(hold[0], hold[1]) + Vector2(rig.recoil * 2 - rig.strike * 8, 0)
+		angle = rig.aim_pitch - rig.recoil * 0.08
+	else:
+		var rest: Array = custom.get("rest", profile.rest)
+		var wind: Array = custom.get("wind", profile.wind)
+		var strike: Array = custom.get("strike", profile.strike)
+		var angles: Array = custom.get("angles", profile.angles)
+		grip = Vector2(rest[0], rest[1]).lerp(Vector2(wind[0], wind[1]), rig.wind)
+		grip = grip.lerp(Vector2(strike[0], strike[1]), rig.strike)
+		angle = lerpf(float(angles[0]), float(angles[1]), rig.wind)
+		angle = lerpf(angle, float(angles[2]), rig.strike)
+	_arm(rig, "near", origin + grip, PI / 2 + angle)
+	if both_hands:
+		var support: Array = custom.get("support", profile.support)
+		var handle: Vector2 = rig.to_local(rig.bones.near_hand.global_position)
+		_arm(rig, "far", handle + Vector2(support[0], support[1]).rotated(angle), PI / 2 + angle)
 	else:
 		_arm(rig, "far", origin + _point("free_guard"))
 	rig.bones.weapon.rotation = rig._grip_rotation("near") + angle

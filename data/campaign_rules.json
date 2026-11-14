@@ -1,0 +1,53 @@
+{
+  "common": {
+    "floor": 555, "foot_offset": 10, "body_half_width": 18,
+    "body_height": 149, "boarding_tolerance": 12, "notice_seconds": 4,
+    "fall_depth": 260, "recover_depth": 82, "fall_damage": 5,
+    "recovery_inset": 60, "recovery_cooldown": 0.8,
+    "flash_seconds": 0.16, "debris_seconds": 0.7, "projectile_radius": 5,
+    "attack_padding": 16
+  },
+  "port": {
+    "gap_enabled": true, "gap": [430, 880], "deck_width": 210, "deck_offset": 0,
+    "bank_overlap": 70, "deck_speed": 105, "dock_seconds": 1.5,
+    "interact_distance": 155
+  },
+  "metro": {
+    "first_warning": 2.3, "warning_seconds": 1.8, "interval_seconds": 5.8,
+    "wave_seconds": 1.5, "wave_width": 160, "world_width": 1280,
+    "wave_top": 160, "wave_bottom": 86, "player_damage": 9,
+    "enemy_damage": 18, "enemy_push": 210, "boss_push_multiplier": 0.2,
+    "crouch_threshold": 0.5, "niche_tolerance": 25,
+    "niches": [[310, 125], [845, 145]]
+  },
+  "vines": {
+    "barrier_health": 38, "optional_regrow_seconds": 0,
+    "barriers": [
+      {"x": 510, "width": 66, "height": 178, "required": true},
+      {"x": 825, "width": 66, "height": 150, "required": false}
+    ]
+  },
+  "roofs": {
+    "gap_enabled": false, "gap": [650, 920], "cover_health": 46, "support_health": 38,
+    "covers": [{"x": 350, "width": 85, "height": 118}],
+    "supports": [{"x": 560, "width": 32, "height": 156}],
+    "bridge_overlap": 30, "bridge_drop_seconds": 0.7
+  },
+  "gym": {
+    "start_x": 170, "goal_x": 1120, "player_health": 100,
+    "projectile_interval": 3.4, "projectile_damage": 9, "projectile_speed": 285,
+    "projectile_y_offset": 103, "attack_radius": 24,
+    "scenarios": [
+      {"kind": "port", "title": "IV · ЧЁРНАЯ ВОДА", "art": "depot-yard.webp", "goal": "Дождись грузовой платформы, переправься и дойди до накладных справа."},
+      {"kind": "metro", "title": "V · ПОСЛЕДНЯЯ ВЕТКА", "art": "depot-train.webp", "goal": "По сигналу присядь или зайди в зелёную нишу. Волну получает и охрана."},
+      {"kind": "vines", "title": "VI · ЗЕЛЁНЫЙ КОНТУР", "art": "courtyard-alive-clean.png", "goal": "J/K — проруби заросли. Обязательный проход останется открытым."},
+      {"kind": "roofs", "title": "VII · НЕБО НАД РАЙОНОМ", "art": "tower-entry.webp", "goal": "Укрытие держит выстрелы. Разбей опору J/K, урони щит-мост и пройди вправо."}
+    ],
+    "sliders": {
+      "port": [["deck_speed", "Скорость груза", 45, 180, 5]],
+      "metro": [["warning_seconds", "Предупреждение, с", 0.8, 3, 0.1]],
+      "vines": [["optional_regrow_seconds", "Возврат необязательных лоз, с", 0, 15, 1]],
+      "roofs": [["bridge_drop_seconds", "Падение щита, с", 0.3, 1.5, 0.1]]
+    }
+  }
+}
