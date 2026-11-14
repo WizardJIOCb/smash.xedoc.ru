@@ -4,5 +4,17 @@
   "foreman": {"head_socket": [0, -57], "head_pivot": [0.4, 0.87], "weapon_size": [43, 112], "weapon_pivot": [0.5, 0.65]},
   "fox": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [54, 28], "weapon_pivot": [0.78, 0.72], "muzzle": [0.02, 0.22]},
   "lynx": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [120, 58], "weapon_pivot": [0.66, 0.57], "muzzle": [0.02, 0.18]},
-  "firewall": {"weapon_size": [110, 40]}
+  "firewall": {"weapon_size": [110, 40]},
+  "otter": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [39, 137], "weapon_pivot": [0.5, 0.8], "pose_style": "pole"},
+  "seal": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [31, 80], "weapon_pivot": [0.5, 0.8], "pose_style": "light"},
+  "skipper": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [57, 137], "weapon_pivot": [0.5, 0.8], "pose_style": "heavy"},
+  "mole": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [42, 114], "weapon_pivot": [0.5, 0.8], "pose_style": "heavy"},
+  "ferret": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [25, 84], "weapon_pivot": [0.5, 0.8], "pose_style": "light"},
+  "dispatcher": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [39, 116], "weapon_pivot": [0.5, 0.8], "pose_style": "heavy"},
+  "raccoon": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [82, 41], "weapon_pivot": [0.82, 0.5], "pose_style": "gun", "muzzle": [0.02, 0.5]},
+  "hedgehog": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [30, 87], "weapon_pivot": [0.5, 0.8], "pose_style": "light"},
+  "agronomist": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [40, 121], "weapon_pivot": [0.5, 0.8], "pose_style": "heavy"},
+  "crow": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [37, 142], "weapon_pivot": [0.5, 0.8], "pose_style": "pole"},
+  "owl": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [56, 28], "weapon_pivot": [0.82, 0.5], "pose_style": "gun", "muzzle": [0.02, 0.5]},
+  "manager": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [62, 31], "weapon_pivot": [0.82, 0.5], "pose_style": "gun", "muzzle": [0.02, 0.5]}
 }
