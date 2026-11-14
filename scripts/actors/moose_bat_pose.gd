@@ -43,8 +43,9 @@ func apply(rig: Node2D) -> void:
 	var origin: Vector2 = rig.bones.hips.position + rig.bones.body.position
 	var axis := Vector2.RIGHT.rotated(angle)
 	var at := origin + grip
-	_arm(rig, "near", at - axis * 7, angle)
-	_arm(rig, "far", at + axis * (float(tuning.hand_spacing) - 7), angle)
+	_arm(rig, "near", at, angle)
+	var handle: Vector2 = rig.bones.near_hand.to_global(Vector2(0, 7))
+	_arm(rig, "far", rig.to_local(handle) + axis * float(tuning.hand_spacing), angle)
 
 
 func _point(id: String) -> Vector2:
@@ -53,4 +54,17 @@ func _point(id: String) -> Vector2:
 
 func _arm(rig: Node2D, side: String, target: Vector2, angle: float) -> void:
 	var body: Bone2D = rig.bones.body
-	ArmIK.solve(rig.bones, side, body.to_local(rig.to_global(target)), -1.0, angle - PI / 2)
+	var hand: Bone2D = rig.bones[side + "_hand"]
+	var wrist_angle := angle
+	for pass_index in range(3):
+		var wrist := target - Vector2(0, 7).rotated(wrist_angle)
+		ArmIK.solve(
+			rig.bones,
+			side,
+			body.to_local(rig.to_global(wrist)),
+			-1.0,
+			angle,
+			float(tuning.wrist_limit)
+		)
+		wrist_angle = rig.bones.body.rotation + rig.bones[side + "_arm"].rotation
+		wrist_angle += rig.bones[side + "_fore"].rotation + hand.rotation

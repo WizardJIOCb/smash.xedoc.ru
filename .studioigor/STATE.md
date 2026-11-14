@@ -2,10 +2,10 @@
 
 PROJECT: Лось: район закрыт
 PHASE: 5 — Assets and look-dev
-UPDATED: 2026-11-14 12:22
+UPDATED: 2026-11-14 12:30
 
 ## Now
-Пользователь оценивает новый замах биты и хват оружия на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен.
+Опубликовать v32 и проверить хват/попадания в публичном бою. User appearance/feel gates остаются открыты.
 
 ## Open questions
 - none
@@ -45,3 +45,4 @@ UPDATED: 2026-11-14 12:22
 | 2026-11-14 12:00 | 5 — Assets and look-dev | v30 опубликована613634c:все пустые firearms метаются новым нажатием, оружие врагов крупнее/хват подогнан.45GUT/636, native rifle24+throw1/hit1. Публично entry4kills/relay1, rifle24hold/throws0 затем newJ throw1/hit1/76HP.18хешей,errors0,rollbackv29,рекорды сохранены. | Пользователь оценивает масштаб оружия и метание пустого автомата на smash.xedoc.ru. Art/feel gates открыты, физический телефон не проверен. |
 | 2026-11-14 12:16 | 5 — Assets and look-dev | v31: бита112px с двуручным замахом/дугой/доводкой; fox pistol54x28 и lynx rifle120x58 с индивидуальным хватом и дулом.46GUT/648; native63+48frames/3hits и enemy18,errors0; Web готов. | Опубликовать v31 и проверить новую биту и хват врагов в публичном браузере. Art/feel gates открыты. |
 | 2026-11-14 12:22 | 5 — Assets and look-dev | v31 опубликована3bde584: бита с явным замахом назад и ударом вперёд; компактный pistol fox и крупный rifle lynx с нормальным хватом.46GUT/648, публично4punches/6hits/1kill/100HP/errors0;18hashes/cache2hit1download,rollbackv30,scores preserved. Исключены старые build из PCK. | Пользователь оценивает новый замах биты и хват оружия на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен. |
+| 2026-11-14 12:30 | 5 — Assets and look-dev | v32: исправлены кисти биты/ограничены запястья; кисти врагов привязаны к hand-bone; замахи кролика/бобра обходят плечо, Бригадиру оставлен достижимый двуручный хват. Bat32/enemy18frames,0errors,46GUT/648,Web ready. | Опубликовать v32 и проверить хват/попадания в публичном бою. User appearance/feel gates остаются открыты. |

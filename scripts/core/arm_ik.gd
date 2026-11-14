@@ -3,7 +3,12 @@ extends RefCounted
 
 
 static func solve(
-	bones: Dictionary, side: String, target: Vector2, bend: float, hand_angle: float
+	bones: Dictionary,
+	side: String,
+	target: Vector2,
+	bend: float,
+	hand_angle: float,
+	wrist_limit: float = -1.0
 ) -> void:
 	var arm: Bone2D = bones[side + "_arm"]
 	var fore: Bone2D = bones[side + "_fore"]
@@ -38,4 +43,7 @@ static func solve(
 			)
 		)
 	)
-	hand.rotation = hand_angle - bones.body.rotation - arm.rotation - fore.rotation
+	var desired: float = wrapf(
+		hand_angle - bones.body.rotation - arm.rotation - fore.rotation, -PI, PI
+	)
+	hand.rotation = clampf(desired, -wrist_limit, wrist_limit) if wrist_limit >= 0 else desired

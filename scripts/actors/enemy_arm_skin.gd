@@ -30,6 +30,7 @@ func setup(rig: Skeleton2D, bones: Dictionary, kind: String, side: String) -> vo
 	var texcoords := PackedVector2Array()
 	var upper := PackedFloat32Array()
 	var lower := PackedFloat32Array()
+	var wrist := PackedFloat32Array()
 	var faces: Array[PackedInt32Array] = []
 	for row in range(19):
 		for col in range(7):
@@ -37,8 +38,10 @@ func setup(rig: Skeleton2D, bones: Dictionary, kind: String, side: String) -> vo
 			points.append(origin + uv_point * SIZE)
 			texcoords.append(uv_point * texture.get_size())
 			var fore_weight := smoothstep(0.38, 0.65, uv_point.y)
+			var hand_weight := smoothstep(0.78, 0.89, uv_point.y)
 			upper.append(1 - fore_weight)
-			lower.append(fore_weight)
+			lower.append(fore_weight * (1.0 - hand_weight))
+			wrist.append(hand_weight)
 			if row < 18 and col < 6:
 				var index := row * 7 + col
 				faces.append(PackedInt32Array([index, index + 1, index + 8]))
@@ -48,3 +51,4 @@ func setup(rig: Skeleton2D, bones: Dictionary, kind: String, side: String) -> vo
 	polygons = faces
 	add_bone(rig.get_path_to(bones[side + "_arm"]), upper)
 	add_bone(rig.get_path_to(bones[side + "_fore"]), lower)
+	add_bone(rig.get_path_to(bones[side + "_hand"]), wrist)

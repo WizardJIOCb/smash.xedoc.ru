@@ -21,12 +21,13 @@ func apply(rig: Node2D) -> void:
 		return
 	var heavy: bool = rig.kind in ["foreman", "beaver"]
 	var prefix := "heavy_" if heavy else "light_"
-	var grip := _point(prefix + "rest").lerp(_point(prefix + "wind"), rig.wind)
+	var wind: Array = tuning.wind_by_kind.get(rig.kind, tuning[prefix + "wind"])
+	var grip := _point(prefix + "rest").lerp(Vector2(wind[0], wind[1]), rig.wind)
 	grip = grip.lerp(_point(prefix + "strike"), rig.strike)
-	_arm(rig, "near", origin + grip)
+	var angle: float = rig.wind * 0.8 - rig.strike * (1.4 if heavy else 1.1)
+	_arm(rig, "near", origin + grip, PI / 2 + angle)
 	if rig.kind == "foreman":
 		_arm(rig, "far", origin + grip + Vector2(0, -11).rotated(rig.wind * 0.8 - rig.strike * 1.4))
-	var angle: float = rig.wind * 0.8 - rig.strike * (1.4 if heavy else 1.1)
 	rig.bones.weapon.rotation = rig._grip_rotation("near") + angle
 
 
@@ -34,6 +35,13 @@ func _point(key: String) -> Vector2:
 	return Vector2(tuning[key][0], tuning[key][1])
 
 
-func _arm(rig: Node2D, side: String, target: Vector2) -> void:
+func _arm(rig: Node2D, side: String, target: Vector2, hand_angle: float = PI / 2) -> void:
 	var body: Bone2D = rig.bones.body
-	ArmIK.solve(rig.bones, side, body.to_local(rig.to_global(target)), 1.0, PI / 2)
+	ArmIK.solve(
+		rig.bones,
+		side,
+		body.to_local(rig.to_global(target)),
+		1.0,
+		hand_angle,
+		float(tuning.wrist_limit)
+	)
