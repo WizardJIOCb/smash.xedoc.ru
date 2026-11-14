@@ -294,6 +294,7 @@ func _copy_invite() -> void:
 	if OS.has_feature("web"):
 		base = str(JavaScriptBridge.eval("location.origin + location.pathname", true))
 	DisplayServer.clipboard_set(base + "?room=" + code.uri_encode())
+	Metrics.track("coop_invite_copy")
 	status.text = "Приглашение скопировано. Отправь ссылку друзьям."
 	status.add_theme_color_override("font_color", GOLD)
 

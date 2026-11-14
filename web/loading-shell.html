@@ -8,8 +8,8 @@
   $GODOT_HEAD_INCLUDE
   <style>__SMASH_LOADING_CSS__</style>
 </head>
-<body>
-  <canvas id="canvas" tabindex="0" aria-label="Лось: район закрыт">Для игры нужен браузер с поддержкой WebGL 2.</canvas>
+<body class="ym-disable-keys">
+  <canvas id="canvas" class="ym-disable-keys" tabindex="0" aria-label="Лось: район закрыт">Для игры нужен браузер с поддержкой WebGL 2.</canvas>
   <main id="loading-screen" aria-label="Загрузка игры">
     <div class="world" aria-hidden="true"></div>
     <div class="veil" aria-hidden="true"></div>
@@ -24,8 +24,9 @@
       <button id="retry" hidden>Попробовать ещё раз</button>
     </section>
     <div class="footer">SMASH.XEDOC.RU <span>ПЕРВЫЙ МАРШРУТ</span></div>
-    <noscript>Включи JavaScript в браузере, чтобы войти во двор.</noscript>
+    <noscript>Включи JavaScript в браузере, чтобы войти во двор.<div><img src="https://mc.yandex.ru/watch/114255834" style="position:absolute;left:-9999px" alt=""></div></noscript>
   </main>
+  <script src="metrika.js"></script>
   <script>__SMASH_LOADING_UI__</script>
   <script src="$GODOT_URL"></script>
   <script>

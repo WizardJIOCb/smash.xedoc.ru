@@ -78,7 +78,10 @@ func _ready() -> void:
 	var invitation := ""
 	if OS.has_feature("web"):
 		invitation = str(
-			JavaScriptBridge.eval("new URLSearchParams(location.search).get('room') || ''", true)
+			JavaScriptBridge.eval(
+				"window.smashInviteCode || new URLSearchParams(location.search).get('room') || ''",
+				true
+			)
 		)
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--coop-url="):
@@ -99,6 +102,7 @@ func _ready() -> void:
 
 
 func open() -> void:
+	Metrics.track("coop_open")
 	run.front.hide_menu()
 	lobby.open()
 	if not room.is_empty():
@@ -112,10 +116,12 @@ func _back() -> void:
 
 
 func create_room(player_name: String, capacity: int) -> void:
+	Metrics.track("coop_create_attempt", {"capacity": capacity})
 	_connect({"type": "create", "name": player_name, "capacity": capacity, "build": _build_id()})
 
 
 func join_room(player_name: String, code: String) -> void:
+	Metrics.track("coop_join_attempt")
 	_connect(
 		{
 			"type": "join",
@@ -199,13 +205,25 @@ func _process(delta: float) -> void:
 func _receive(packet: Dictionary) -> void:
 	match str(packet.get("type", "")):
 		"error":
+			Metrics.track("coop_error", {"reason": "server"})
 			lobby.show_error(str(packet.message))
 		"closed":
-			_fail(str(packet.reason))
+			_fail(str(packet.reason), "host_left")
 		"room":
+			var entered := room.is_empty()
 			you = str(packet.you)
 			room = packet.room
 			hosting = str(room.host) == you
+			if entered:
+				Metrics.track(
+					"coop_room_create" if hosting else "coop_room_join",
+					{
+						"mode": "coop",
+						"role": "host" if hosting else "guest",
+						"capacity": int(room.capacity),
+						"players": room.players.size()
+					}
+				)
 			_sync_members()
 			if not active or lobby.root.visible:
 				lobby.show_room(room, you)
@@ -494,16 +512,28 @@ func leave() -> void:
 	lobby.open()
 
 
-func _fail(reason: String) -> void:
+func _fail(reason: String, category: String = "connection") -> void:
+	Metrics.track("coop_error", {"reason": category})
 	if socket != null:
 		socket.close()
 	socket = null
-	_clear()
+	_clear(category)
 	lobby.open()
 	lobby.show_error(reason)
 
 
-func _clear() -> void:
+func _clear(reason: String = "client") -> void:
+	if not room.is_empty():
+		Metrics.track(
+			"coop_leave",
+			{
+				"mode": "coop",
+				"role": "host" if hosting else "guest",
+				"reason": reason,
+				"players": room.get("players", []).size(),
+				"capacity": int(room.get("capacity", 2))
+			}
+		)
 	active = false
 	_guest_epoch = -1
 	hosting = false
@@ -522,6 +552,7 @@ func _clear() -> void:
 		enemy.target = run.moose
 		enemy.paused = true
 		enemy.set_physics_process(true)
+	_sync_metrics()
 
 
 func _snapshot() -> Dictionary:

@@ -18,12 +18,14 @@
   window.smashLoading = {
     progress: (ratio, cached) => update(ratio * 90, ratio >= 1 ? 'Будим Лося…' : cached ? 'Возвращаемся в сохранённый двор…' : 'Загружаем двор…'),
     ready: () => {
+      window.smashAnalytics?.ready();
       update(100, 'Двор открыт');
       screen.classList.add('finished');
       setTimeout(() => { screen.hidden = true; }, 550);
       document.getElementById('canvas').focus();
     },
     error: error => {
+      window.smashAnalytics?.event('game_load_error', {reason: 'load'});
       phase.textContent = 'Не получилось открыть двор';
       document.getElementById('loading-hint').textContent = error.message || 'Проверь соединение и попробуй ещё раз.';
       document.getElementById('retry').hidden = false;

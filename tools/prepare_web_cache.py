@@ -26,6 +26,10 @@ def main():
     loader = loader.replace('__SMASH_ASSETS__', json.dumps(assets))
     loader = loader.replace('__SMASH_ASSET_SIZES__', json.dumps(sizes))
     (OUT / 'cache-loader.js').write_text(loader, encoding='utf-8')
+    analytics = (ROOT / 'web/metrika.js').read_text(encoding='utf-8')
+    version = json.loads((ROOT / 'data/build.json').read_text())['version']
+    analytics = analytics.replace('__GAME_BUILD_VERSION__', str(version))
+    (OUT / 'metrika.js').write_text(analytics, encoding='utf-8')
     page = (OUT / 'index.html').read_text(encoding='utf-8')
     page = page.replace('<script src="index.js"></script>', '<script src="cache-loader.js"></script>')
     page = page.replace('__SMASH_LOADING_CSS__', (ROOT / 'web/loading.css').read_text(encoding='utf-8'))

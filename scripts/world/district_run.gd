@@ -1046,6 +1046,7 @@ func _request_chapter(index: int, gear: Dictionary = {}) -> void:
 		return
 	if index < 0 or index >= route.chapters.size():
 		return
+	Metrics.track("chapter_select", {"chapter": index + 1})
 	var begin := func() -> void:
 		_select_chapter(index)
 		if not gear.is_empty():

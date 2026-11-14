@@ -14,6 +14,17 @@ func record(event: String) -> void:
 	events.append({"event": event, "ms": Time.get_ticks_msec()})
 
 
+func track(event: String, parameters: Dictionary = {}) -> void:
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval(
+			(
+				"window.smashAnalytics?.event(%s, %s);"
+				% [JSON.stringify(event), JSON.stringify(parameters)]
+			),
+			true
+		)
+
+
 func to_dict() -> Dictionary:
 	return {
 		"completed": completed,

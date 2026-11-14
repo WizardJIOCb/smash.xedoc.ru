@@ -113,6 +113,8 @@ func show_home(resumable: bool) -> void:
 
 
 func _page(id: String) -> void:
+	if page != id or not root.visible:
+		Metrics.track("menu_open", {"menu": id})
 	page = id
 	background.texture = MENU_WORLD
 	for child: Node in content.get_children():
