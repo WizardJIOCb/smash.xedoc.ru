@@ -2,6 +2,8 @@ extends RefCounted
 
 const Enemy = preload("res://scripts/actors/district_enemy.gd")
 
+var build: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/build.json"))
+
 
 func advance_lift(run, delta: float, paused: bool) -> void:
 	if not is_instance_valid(run.carrier):
@@ -118,7 +120,7 @@ func sync_metrics(run) -> void:
 	Metrics.stage = "district_playtest"
 	Metrics.rig.merge(
 		{
-			"revision": 41,
+			"revision": int(build.version),
 			"room": run.room_index + 1,
 			"health": run.health,
 			"run_state": run.run_state,

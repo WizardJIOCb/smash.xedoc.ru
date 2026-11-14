@@ -14,12 +14,15 @@ const SUPPORT = preload(ROOT + "bridge-support.png")
 const BRIDGE = preload(ROOT + "billboard-bridge.png")
 const WIND = preload("res://assets/shaders/campaign_wind.gdshader")
 const FONT = preload("res://assets/fonts/Manrope.ttf")
+const SoftSpot = preload("res://scripts/world/soft_spot.gd")
 
 var rules: Node2D
 var _wind_haze: Polygon2D
+var _soft_spot: Texture2D
 
 
 func _ready() -> void:
+	_soft_spot = SoftSpot.texture()
 	if rules.kind == "metro":
 		_wind_haze = Polygon2D.new()
 		_wind_haze.polygon = PackedVector2Array(
@@ -200,24 +203,17 @@ func _draw_broken(item: Dictionary, texture: Texture2D, base: float) -> void:
 
 
 func _shadow(at: Vector2, width: float, height: float, opacity: float) -> void:
-	for layer in range(4):
-		var scale_factor := 1 - layer * 0.16
-		draw_set_transform(at, 0, Vector2(width * scale_factor, height * scale_factor))
-		draw_circle(Vector2.ZERO, 1, Color(0.025, 0.05, 0.045, opacity * 0.25), true, -1, true)
-	draw_set_transform(Vector2.ZERO)
+	draw_texture_rect(
+		_soft_spot,
+		Rect2(at - Vector2(width, height), Vector2(width, height) * 2),
+		false,
+		Color(0.025, 0.05, 0.045, opacity)
+	)
 
 
 func _glow(at: Vector2, color: Color, radius: float, strength: float) -> void:
-	for layer in range(5):
-		var fraction := 1 - layer / 5.0
-		draw_circle(
-			at,
-			radius * (0.5 + fraction),
-			Color(color, (0.03 + layer * 0.025) * strength),
-			true,
-			-1,
-			true
-		)
+	var half := Vector2.ONE * radius * 1.5
+	draw_texture_rect(_soft_spot, Rect2(at - half, half * 2), false, Color(color, strength * 0.3))
 
 
 func _text(at: Vector2, caption: String, size: int, color: Color) -> void:
