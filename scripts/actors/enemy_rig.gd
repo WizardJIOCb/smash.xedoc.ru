@@ -10,6 +10,9 @@ var fit: Dictionary = JSON.parse_string(
 	FileAccess.get_file_as_string("res://data/enemy_rig_fit.json")
 )
 var kind: String = "shield"
+var pose_style: String = ""
+var aim_pitch: float = 0.0
+var cover_blend: float = 0.0
 var weapon_pose := WeaponPose.new()
 var weapon_sprite: Sprite2D
 var held_grip: bool = false
@@ -48,7 +51,11 @@ func _ready() -> void:
 		_part("body", bones.body, Vector2(103, 51), Vector2(0.5, 0.5), 10)
 		return
 	_part("torso", bones.body, Vector2(66, 79), Vector2(0.5, 0.94), 10)
-	var anatomy: Dictionary = fit.get(kind, {}) if art_profile.is_empty() else {}
+	var anatomy: Dictionary = fit.get(kind, {})
+	if pose_style.is_empty():
+		pose_style = anatomy.get("pose_style", "")
+	if not art_profile.is_empty() and pose_style.is_empty():
+		anatomy = {}
 	var socket: Array = anatomy.get("head_socket", [-9, -59])
 	var pivot: Array = anatomy.get("head_pivot", [0.65, 0.87])
 	_bone("head", bones.body, Vector2(socket[0], socket[1]), 30)
@@ -86,7 +93,7 @@ func _ready() -> void:
 		_part("weapon", bones.cable, Vector2(31, 30), Vector2(0.32, 0.12), 16)
 	else:
 		_bone("weapon", bones.near_hand, Vector2.ZERO, 24)
-		var gun := kind in ["fox", "lynx", "firewall"]
+		var gun := pose_style == "gun" or kind in ["fox", "lynx", "firewall"]
 		var weapon_size: Array = anatomy.get("weapon_size", [62, 25] if gun else [30, 77])
 		var weapon_pivot: Array = anatomy.get("weapon_pivot", [0.82, 0.5] if gun else [0.5, 0.8])
 		var muzzle: Array = anatomy.get("muzzle", [0.02, 0.2])
@@ -107,7 +114,7 @@ func _ready() -> void:
 			weapon_sprite.flip_h = true
 			held_grip = true
 			arm_meshes.near.hand_mesh.visible = false
-		if not gun:
+		if not gun and pose_style.is_empty():
 			# Shaft can pass behind the head; the grip stays in front of the sleeve.
 			var handle := weapon_sprite.duplicate() as Sprite2D
 			var pixels := Vector2(weapon_sprite.texture.get_size())
@@ -215,6 +222,8 @@ func _process(delta: float) -> void:
 		return
 	var walk := clampf(absf(pace) / 50, 0, 1)
 	bones.hips.position.y = -56 + sin(clock * 2.4) * 0.6 + absf(sin(phase)) * walk * 2
+	if not pose_style.is_empty():
+		bones.hips.position.y += cover_blend * 17
 	bones.body.rotation = -wind * 0.18 + strike * 0.38 - hurt * 0.24 + collapse * 1.3
 	bones.head.rotation = -bones.body.rotation * 0.65
 	for side: String in ["far", "near"]:
@@ -226,7 +235,12 @@ func _process(delta: float) -> void:
 	bones.near_fore.rotation += wind * 0.5 - strike * 0.75
 	bones.far_arm.rotation += -wind * 0.65 + strike * 0.9
 	bones.far_fore.rotation += wind * 0.35 - strike * 0.55
-	if kind in ["beaver", "foreman", "hare"]:
+	if not pose_style.is_empty():
+		if pose_style == "gun":
+			bones.body.rotation = -wind * 0.06 - recoil * 0.09 - strike * 0.12 + cover_blend * 0.08
+		else:
+			bones.body.rotation = wind * 0.1 - strike * 0.28 - hurt * 0.24
+	elif kind in ["beaver", "foreman", "hare"]:
 		# Source faces left: the trunk follows the forward blow to the left too.
 		var wind_lean := 0.0 if kind == "foreman" else 0.16
 		bones.body.rotation = wind * wind_lean - strike * 0.28 - hurt * 0.24 + collapse * 1.3

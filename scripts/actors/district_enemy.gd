@@ -5,10 +5,12 @@ signal shot(origin: Vector2, aim: Vector2, damage: int)
 signal feedback(at: Vector2, label: String, color: Color, sound: String)
 signal defeated
 signal wounded(at: Vector2, direction: Vector2, lethal: bool, mechanical: bool)
+signal forced_player_motion(displacement: float)
 
 const PaintedRig = preload("res://scripts/actors/enemy_rig.gd")
 const Contact = preload("res://scripts/core/combat_contact.gd")
 const Ragdoll = preload("res://scripts/actors/skeletal_ragdoll.gd")
+const AttackPattern = preload("res://scripts/actors/enemy_attack_pattern.gd")
 
 @export var art_profile: String = ""
 
@@ -36,6 +38,7 @@ var phase_count: int = 1
 var attacks_completed: int = 0
 var shots_fired: int = 0
 var melee_contacts: int = 0
+var pattern: AttackPattern
 var _events_fired: int = 0
 var _attack_index: int = 0
 var _phase_pause: float = 0.0
@@ -51,9 +54,14 @@ func _ready() -> void:
 	_base_y = position.y
 	boss = bool(tuning.get("boss", false))
 	phase_count = 3 if kind == "firewall" else (2 if boss else 1)
+	if tuning.has("attack_style"):
+		pattern = AttackPattern.new()
+		pattern.setup(self)
+		phase_count = tuning.get("phase_patterns", [[0]]).size()
 	rig = PaintedRig.new()
 	rig.kind = kind
 	rig.art_profile = art_profile
+	rig.pose_style = tuning.get("pose_style", "")
 	rig.body_scale = float(tuning.get("scale", 1.0))
 	add_child(rig)
 
@@ -72,6 +80,8 @@ func receive_hit(
 		return false
 	hits_received += 1
 	var frontal := (source.x - position.x) * facing > 0
+	if pattern != null and pattern.guards_hit(kind_hit, frontal):
+		return true
 	if kind == "shield" and guard_down <= 0 and state == "approach" and frontal:
 		if kind_hit == "punch":
 			flash = 0.12
@@ -150,6 +160,12 @@ func _physics_process(delta: float) -> void:
 		rig.wind = 0
 		rig.strike = 0
 		return
+	if pattern != null:
+		pattern.advance(delta)
+		rig.facing = facing
+		_separate_target()
+		queue_redraw()
+		return
 	if kind == "drone":
 		position.y = _base_y + sin(_clock * 2.4) * 12
 	if state == "approach":
@@ -172,11 +188,15 @@ func _physics_process(delta: float) -> void:
 			state = "approach"
 			elapsed = 0
 	rig.facing = facing
+	_separate_target()
+	queue_redraw()
+
+
+func _separate_target() -> void:
 	if kind != "drone" and absf(target.position.y - position.y) < 45:
 		var gap := target.position.x - position.x
 		if absf(gap) < 72:
 			position.x = target.position.x - (signf(gap) if absf(gap) > 0.1 else facing) * 72
-	queue_redraw()
 
 
 func _approach(delta: float) -> void:
@@ -230,6 +250,8 @@ func _attack(delta: float) -> void:
 
 
 func is_ranged() -> bool:
+	if pattern != null:
+		return pattern.is_ranged()
 	return kind in ["drone", "fox", "lynx", "firewall"]
 
 
@@ -237,7 +259,9 @@ func _update_phase() -> void:
 	if not boss or health <= 0:
 		return
 	var next := 1
-	if kind == "firewall":
+	if pattern != null:
+		next = mini(phase_count, 1 + int((1.0 - float(health) / maximum_health) * phase_count))
+	elif kind == "firewall":
 		next = (
 			3
 			if health <= maximum_health / 3.0
@@ -251,6 +275,8 @@ func _update_phase() -> void:
 	state = "recovery"
 	elapsed = 0
 	_phase_pause = 0.8
+	if pattern != null:
+		pattern.phase_changed()
 	feedback.emit(hurtbox().get_center(), "ФАЗА %d" % phase, Color("ffba70"), "warn")
 
 
@@ -346,6 +372,9 @@ func _draw() -> void:
 	if health < maximum_health or state == "windup":
 		draw_rect(Rect2(bar, Vector2(56, 3)), Color(0.03, 0.08, 0.1, 0.8))
 		draw_rect(Rect2(bar, Vector2(56.0 * health / maximum_health, 3)), Color("e2b36e"))
+	if pattern != null:
+		pattern.draw_warning()
+		return
 	if state == "windup":
 		var center := Vector2(facing * 30, -105 if kind != "drone" else -70)
 		var charge := elapsed / float(tuning.windup)
