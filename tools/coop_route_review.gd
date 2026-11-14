@@ -33,7 +33,6 @@ func _physics_process(delta: float) -> void:
 	if role == "guest" and not joined and FileAccess.file_exists(_report_path("host")):
 		var host_state = JSON.parse_string(FileAccess.get_file_as_string(_report_path("host")))
 		if host_state is Dictionary and not str(host_state.get("code", "")).is_empty():
-			coop.endpoint = "ws://127.0.0.1:8791/coop"
 			coop.join_room("Гость", str(host_state.code))
 			joined = true
 	if role == "host" and coop.active and not selected and review_chapter > 0:

@@ -1,3 +1,6 @@
+Main promotion: v43 is now live at https://smash.xedoc.ru/; see LAST_RELEASE.md.
+The isolated v40 preview described below is retained as historical/rollback evidence.
+
 # Cooperative preview — 2026-11-15
 
 - URL: https://smash.xedoc.ru/coop-game/

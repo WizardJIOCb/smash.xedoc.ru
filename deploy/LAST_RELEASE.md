@@ -1,37 +1,46 @@
-# Public release v41
+# Public release v43
 
-- Domain: https://smash.xedoc.ru/
-- Runtime source: 09555709073fb29095d58345f3f1d9cbcdd74890
-- Current: /var/www/smash.xedoc.ru/releases/v41-09555709073f
-- Rollback: /var/www/smash.xedoc.ru/releases/v40-d73e2117475b
-- Archive: 147,325,675 bytes; 19 verified files.
-- SHA256: 8aac43e64958fc5b58465239e16c6e60f0e57dd719e759261200b1c6028c913c
-- PCK: game-07e68dccd38485851cf1.pck
+- URL: https://smash.xedoc.ru/
+- Runtime source: 2d9e22ae4cc3b3f48be4713e34388f48f9330089
+- Current: /var/www/smash.xedoc.ru/releases/v43-2d9e22ae4cc3
+- Rollback: /var/www/smash.xedoc.ru/releases/v41-09555709073f
+- Archive: 150315684 bytes; 19 files verified by installer.
+- SHA256: f4bbe14489e1ffb960942a7db2189fe3ac73aea61bec3e4a6d12ca6b893ebfc3
+- PCK: game-e71ffcb3dee7dc44f07e.pck
 
-Four approved chapters add16 rooms,16 original backgrounds,eight ordinary
-species and four bosses. Moving cargo decks,warned train waves,breakable vines
-and billboard bridges connect the post-quarantine story. Seven chapters/27rooms.
+Main game now includes online host-authoritative cooperative rooms for 2-16 players,
+create/join/invitation links, all seven campaign chapters and the holiday chapter.
+The snowy courtyard adds three waves/seven enemies and a tree to light.
+Campaign v41 mechanics/terrain/story fixes are preserved. Native invitations use
+https://smash.xedoc.ru/?room=CODE; browsers preserve their current page path.
+Relay: wss://smash.xedoc.ru/coop, los-coop.service, loopback127.0.0.1:18791.
 
 Validation:
--70GUT/1089assertions,format/lint and clean Web export.
-- Complete ordinary-input routes II-VII:no deaths;three lift transfers require
- zero jumps/height drop. Boss phases2/2/2/3.
-- Native IV31,V29,VI32,VII34 frames complete without errors. Final ending6frames/
- 0errors;story wrapping and garden/roof endings viewed.
-- Real-rig terrain36frames/0errors:deck carries70px,pause drift0,bodies sink in
- water and rest on the lowered bridge. Water has no solid base floor.
-- PHP seven isolated chapter contracts and ten original API checks pass.
-- Public revision41:seven chapter picker,wrapped intro,shovel pickup,six hits/
- two kills/97HP,block,death/upright R recovery;console0errors,first visit3downloads/
- cache ready. No leaderboard submitted.
-- HTTPS/release metadata and four public hashes match the frozen package;
- all19hashes verified by installer,seven score endpoints return their own rows.
- Existing score state unchanged during activation:
- 849a48604e8c4fa7144e07a9630d7c768a889fe25e048c12b736ad754025f94c.
-- Active nginx preserved byte-for-byte including independent cooperative routes;
- nginx/PHP active,coop health ok. Config SHA256:
- c51e3ef792d82cfaa721e42ed6cbd9b5b55c7668e19d8741e17fbdcaf5e67d9e.
-- Evidence:.studioigor/captures/aftermath-ch4 through ch6,aftermath-ch7-final,
- aftermath-ending-final,campaign-terrain,public-v41.
+- Final full suite77GUT/1121assertions, format/lint and Web export passed.
+  Regression checks cover interleaved barrier strikes and faded-rig revival for both roles.
+- Real two-instance normal-input co-op completed IV-VII:12kills/4relays each.
+  Final terrain port replay58.82s; final barrier fix garden49.75s/roofs48.73s,
+  both clients won. Original I-III and holiday were verified in the preview run.
+- Public WSS host plus15scripted guests:16slots,119-124snapshots per guest over8.26s,
+  every guest moved/attacked;0errors. Native renderer16frames/0errors.
+  This is a connection/load check, not sixteen human players.
+- Public release metadata, manifest and four served file hashes match. All8score
+  endpoints return isolated chapter rows. Heavy PCK is immutable. Relay health ok.
+- Score-file SHA256 before/after activation identical:
+  833468eee8ac8ad200b112c32c0dbaea1877f0bb5c1ece20434396c9b1848f54.
+- nginx, PHP and relay active. Only this task's redundant temporary archives were
+  removed for disk space. Audited superseded v42 (our temporary buggy release) retired
+  after v43 passed; healthy v41 rollback and all prior installed releases preserved.
+  About420MiB free remains on the production disk.
+- Public two-browser v43: create4/join-by-code/start chapter8, guest moved234->316px
+  and kick serial2000001 reached host; both rigs visible, both consoles0errors.
+  Host exit returned guest to lobby with the expected explanation,0errors.
+- Public WSS two native clients completed the final holiday7kills/1relay19.10s.
+  Final native capture17frames/0errors. Faded-rig revival and readable mirrored labels fixed.
+- Copy button showed success; automated clipboard returned empty, so browser join was
+  tested through the visible room code rather than claiming clipboard contents verified.
 
-User appearance/feel and physical mobile acceptance remain open.
+Evidence: .studioigor/captures/public-main-v43, coop-main-validation,
+coop-main-sixteen and coop-main-holiday-v43.
+Known limit: host departure closes the room; guests can join a new room.
+Physical mobile and sixteen-human playtests remain open.

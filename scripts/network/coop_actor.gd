@@ -112,6 +112,8 @@ func step(delta: float, room_world) -> void:
 
 func reset_at(at: Vector2, heal: bool = true) -> void:
 	if is_instance_valid(corpse):
+		corpse.set_process(false)
+		corpse.set_physics_process(false)
 		moose.remove_child(corpse)
 		corpse.queue_free()
 		corpse = null
@@ -120,6 +122,7 @@ func reset_at(at: Vector2, heal: bool = true) -> void:
 	recovery = 0
 	moose.ragdoll_active = false
 	moose.visible = true
+	moose.skeleton.modulate = Color.WHITE
 	for bone: Bone2D in moose.bones.values():
 		bone.transform = bone.rest
 	moose.position = at
@@ -166,6 +169,8 @@ func hurt(amount: int, source: Vector2, world) -> void:
 
 
 func _process(_delta: float) -> void:
+	caption.scale.x = moose.facing
+	caption.position.x = -85 * moose.facing
 	caption.position.y = -232 - (int(peer_id) % 3) * 23
 	caption.text = (
 		"%02d · %d HP" % [int(peer_id), health]

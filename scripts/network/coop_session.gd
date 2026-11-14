@@ -427,10 +427,14 @@ func host_down() -> void:
 
 func _revive_host() -> void:
 	if is_instance_valid(run.player_corpse):
+		run.player_corpse.set_process(false)
+		run.player_corpse.set_physics_process(false)
 		run.moose.remove_child(run.player_corpse)
 		run.player_corpse.queue_free()
 		run.player_corpse = null
 	run.moose.ragdoll_active = false
+	run.moose.visible = true
+	run.moose.skeleton.modulate = Color.WHITE
 	for bone: Bone2D in run.moose.bones.values():
 		bone.transform = bone.rest
 	run.health = 100
