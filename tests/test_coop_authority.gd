@@ -100,3 +100,14 @@ func test_water_recovers_players_independently_to_their_own_bank() -> void:
 	assert_eq(actor.health, 95)
 	assert_lt(run.moose.position.x, float(rules.tuning.gap[0]))
 	assert_gt(actor.moose.position.x, float(rules.tuning.gap[1]))
+
+
+func test_interleaved_player_strikes_damage_a_shared_barrier_once_each() -> void:
+	var run = party()
+	var rules = run.campaign_rules
+	rules.configure({"floor": 555, "mechanic": {"kind": "vines", "barrier_health": 1000}})
+	rules.advance(run, 0, false)
+	var area: Rect2 = rules.objects[0].rect
+	for serial: int in [101, 202, 101, 202]:
+		rules.attack(run, serial, area, 10)
+	assert_eq(rules.objects[0].health, 980, "Other players must not reset swing deduplication")

@@ -100,6 +100,7 @@ func advance(run, delta: float, paused: bool) -> void:
 			if item.cleared_age >= regrow and not _occupied(run, item.rect):
 				item.health = item.maximum
 				item.last_serial = -1
+				item.contacts.clear()
 	if kind == "roofs":
 		_intercept_projectiles(run, delta)
 		if _bridge_falling:
@@ -169,7 +170,8 @@ func attack(run, serial: int, area: Rect2, damage: int) -> bool:
 		if item.health <= 0 or not area.intersects(item.rect.grow(float(tuning.attack_padding))):
 			continue
 		touched = true
-		if item.last_serial != serial:
+		if not item.contacts.has(serial):
+			item.contacts[serial] = true
 			item.last_serial = serial
 			_hit_object(run, item, damage)
 	return touched
@@ -413,6 +415,7 @@ func _add_object(spec: Dictionary, type: String, health: int) -> void:
 			"maximum": int(spec.get("health", health)),
 			"required": bool(spec.get("required", true)),
 			"last_serial": -1,
+			"contacts": {},
 			"flash": 0.0,
 			"debris": 0.0,
 			"cleared_age": 0.0
