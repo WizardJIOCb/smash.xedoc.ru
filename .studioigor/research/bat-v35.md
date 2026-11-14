@@ -36,3 +36,16 @@ Images are private reference evidence only, excluded from the game export.
   threshold switches. Preserve attached shoulders/wrists and the damage window.
 - Engine painter order checked against the primary CanvasItem documentation:
   https://docs.godotengine.org/en/stable/classes/class_canvasitem.html#class-canvasitem-property-z-as-relative
+
+## v50 anatomy correction — 2026-11-15
+- User rejected v49: the visible support sleeve crossed the throat during load.
+  Its fixed planar elbow branch was anatomically wrong; changing depth alone
+  could not fix it. Keep the actual shoulder anchor and both handle contacts.
+- Solve the far arm with shoulder depth and a downward pole on a 3D elbow
+  circle, then project its two sleeve segments. The elbow passes below the
+  chest continuously; the far wrist has no artificial planar minimum radius.
+- Restore native child offsets and sleeve transforms on unequip/death.
+  Check elbow clearance and frame continuity, plus existing wrist/shoulder tests.
+- Bone rest and local transform composition checked against primary engine docs:
+  https://docs.godotengine.org/en/stable/classes/class_bone2d.html#class-bone2d-property-rest
+  https://docs.godotengine.org/en/stable/classes/class_transform2d.html#operator-transform2d-operator-mul-transform2d

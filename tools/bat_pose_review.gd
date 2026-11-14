@@ -10,6 +10,7 @@ var max_grip_gap: float = 0.0
 var max_elbow: float = 0.0
 var max_shoulder_drift: float = 0.0
 var worst_grip: Dictionary = {}
+var min_support_drop: float = INF
 
 
 func _ready() -> void:
@@ -49,7 +50,8 @@ func _physics_process(delta: float) -> void:
 		"max_grip_gap": max_grip_gap,
 		"worst_grip": worst_grip,
 		"max_elbow_degrees": rad_to_deg(max_elbow),
-		"max_shoulder_drift": max_shoulder_drift
+		"max_shoulder_drift": max_shoulder_drift,
+		"min_support_elbow_drop": min_support_drop
 	}
 
 
@@ -57,6 +59,8 @@ func _process(_delta: float) -> void:
 	for index in range(rigs.size()):
 		var rig: Node2D = rigs[index]
 		var spec: Dictionary = rig.bat_pose.assembly
+		var support: Vector2 = rig.bones.body.to_local(rig.bones.far_fore.global_position)
+		min_support_drop = minf(min_support_drop, support.y - rig.bones.far_arm.position.y)
 		for side: String in ["near", "far"]:
 			var shoulder: Bone2D = rig.bones[side + "_arm"]
 			max_shoulder_drift = maxf(
@@ -80,3 +84,4 @@ func _process(_delta: float) -> void:
 	Metrics.rig["max_grip_gap"] = max_grip_gap
 	Metrics.rig["max_elbow_degrees"] = rad_to_deg(max_elbow)
 	Metrics.rig["max_shoulder_drift"] = max_shoulder_drift
+	Metrics.rig["min_support_elbow_drop"] = min_support_drop

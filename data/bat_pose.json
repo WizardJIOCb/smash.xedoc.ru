@@ -8,6 +8,6 @@
   "guard": {"grip": [12, -26], "yaw": 1.0, "pitch": 0.5, "lean": -0.05, "weight": -3},
   "drive_at": 0.4, "follow_at": 0.32, "finish_at": 0.68,
   "depth_slope": 0.18, "min_projection": 0.65,
-  "wrist_limit": 0.7, "near_bend": -1.0, "far_bend": -1.0,
+  "wrist_limit": 0.7, "near_bend": -1.0, "support_depth": 24.0,
   "min_arm_reach": 24.0, "max_arm_reach": 59.0
 }

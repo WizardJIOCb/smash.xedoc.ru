@@ -217,6 +217,8 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 		var largest_gap := 0.0
 		var largest_elbow := 0.0
 		var largest_shoulder_drift := 0.0
+		var minimum_support_drop := INF
+		var fore_rest: Transform2D = hero.bones.far_fore.get_node("forearm_inner").transform
 		for stance in [[false, false], [false, true], [true, false]]:
 			hero.airborne = stance[0]
 			hero.crouch_requested = stance[1]
@@ -226,13 +228,19 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 				hero.combat.advance(1.0 / 60, stance[0], stance[1])
 				hero._process(1.0 / 60)
 				armory._process(0)
+				var elbow: Vector2 = hero.bones.body.to_local(hero.bones.far_fore.global_position)
+				minimum_support_drop = minf(
+					minimum_support_drop, elbow.y - hero.bones.far_arm.position.y
+				)
 				var spec: Dictionary = hero.bat_pose.assembly
 				for side: String in ["near", "far"]:
 					var shoulder: Bone2D = hero.bones[side + "_arm"]
 					largest_shoulder_drift = maxf(
 						largest_shoulder_drift, shoulder.position.distance_to(shoulder.rest.origin)
 					)
-					largest_elbow = maxf(largest_elbow, absf(hero.bones[side + "_fore"].rotation))
+					# The support arm is foreshortened; its screen angle is not joint flexion.
+					if side == "near":
+						largest_elbow = maxf(largest_elbow, absf(hero.bones.near_fore.rotation))
 					var wrist: Array = spec[side + "_wrist"]
 					var at := (
 						Vector2(wrist[0] - spec.pivot[0], wrist[1] - spec.pivot[1])
@@ -248,6 +256,11 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 		)
 		assert_false(hero.bones.near_hand.get_node("fist_back").visible)
 		assert_lt(largest_shoulder_drift, 0.01, "Both upper arms stay attached to the torso")
+		assert_gt(
+			minimum_support_drop,
+			8.0,
+			"The support elbow stays below the throat throughout the swing"
+		)
 		assert_lt(rad_to_deg(largest_elbow), 135.0, "An elbow cannot fold back onto its shoulder")
 		assert_false(hero.bones.far_hand.get_node("fist").visible)
 		assert_gt(hero.bones.far_fore.get_node("forearm_inner").z_index, hero.mesh.z_index)
@@ -256,6 +269,9 @@ func test_bat_wrists_follow_handle_and_original_hands_return_after_drop_or_death
 			armory.visual._barrel.z_as_relative, "The barrel cannot disappear behind the face"
 		)
 		armory.drop(500)
+		assert_eq(hero.bones.far_fore.position, hero.bones.far_fore.rest.origin)
+		assert_eq(hero.bones.far_hand.position, hero.bones.far_hand.rest.origin)
+		assert_eq(hero.bones.far_fore.get_node("forearm_inner").transform, fore_rest)
 		assert_eq(hero.bones.far_fore.get_node("forearm_inner").z_index, hero.DEPTH_FAR_ARM + 1)
 		assert_true(hero.bones.near_hand.get_node("fist_back").visible)
 		assert_true(hero.bones.far_hand.get_node("fist").visible)
@@ -282,6 +298,11 @@ func test_bat_late_return_cannot_reverse_and_buffered_swing_keeps_current_pose()
 			armory._process(0)
 			hero.combat.request("punch", stance[0], stance[1])
 			var last_serial: int = hero.combat.serial
+			var previous_elbow: Vector2 = hero.bones.body.to_local(
+				hero.bones.far_fore.global_position
+			)
+			var largest_elbow_step := 0.0
+			var elbow_jump := {}
 			var previous: Vector2 = armory.visual.to_global(Vector2(100, 0))
 			var chain_jump := 0.0
 			var reversed_return := false
@@ -297,6 +318,16 @@ func test_bat_late_return_cannot_reverse_and_buffered_swing_keeps_current_pose()
 				hero.combat.advance(1.0 / 240, stance[0], stance[1])
 				hero._process(1.0 / 240)
 				armory._process(0)
+				var elbow: Vector2 = hero.bones.body.to_local(hero.bones.far_fore.global_position)
+				if elbow.distance_to(previous_elbow) > largest_elbow_step:
+					largest_elbow_step = elbow.distance_to(previous_elbow)
+					elbow_jump = {
+						"frame": frame,
+						"elapsed": hero.combat.elapsed,
+						"from": previous_elbow,
+						"to": elbow
+					}
+				previous_elbow = elbow
 				var tip: Vector2 = armory.visual.to_global(Vector2(100, 0))
 				if hero.combat.serial != last_serial:
 					chain_jump = maxf(chain_jump, tip.distance_to(previous))
@@ -331,6 +362,7 @@ func test_bat_late_return_cannot_reverse_and_buffered_swing_keeps_current_pose()
 			)
 			assert_eq(hero.combat.serial, 2, "Exercise a real buffered second swing")
 			assert_lt(chain_jump, 10.0, "A new swing must start from the pose already on screen")
+			assert_lt(largest_elbow_step, 6.0, "The support elbow cannot flip: " + str(elbow_jump))
 
 
 func test_worn_knuckles_keep_short_reach_for_either_hand_and_clear_on_drop_or_death() -> void:

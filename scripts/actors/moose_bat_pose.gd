@@ -12,6 +12,7 @@ var pose: Dictionary = {}
 var _entry_pose: Dictionary = {}
 var _serial: int = -1
 var _was_held: bool = false
+var _support_art_rest: Dictionary = {}
 
 
 func prepare(rig: Node2D) -> float:
@@ -69,6 +70,14 @@ func set_grip(rig: Node2D, active: bool) -> void:
 	var depth: int = rig.DEPTH_HEAD - 3 if active else rig.DEPTH_FAR_ARM
 	rig.bones.far_arm.get_node("upper_arm_inner").z_index = depth
 	rig.bones.far_fore.get_node("forearm_inner").z_index = depth + 1
+	if _support_art_rest.is_empty():
+		_support_art_rest.upper = rig.bones.far_arm.get_node("upper_arm_inner").transform
+		_support_art_rest.lower = rig.bones.far_fore.get_node("forearm_inner").transform
+	if not active:
+		rig.bones.far_fore.position = rig.bones.far_fore.rest.origin
+		rig.bones.far_hand.position = rig.bones.far_hand.rest.origin
+		rig.bones.far_arm.get_node("upper_arm_inner").transform = _support_art_rest.upper
+		rig.bones.far_fore.get_node("forearm_inner").transform = _support_art_rest.lower
 
 
 func apply(rig: Node2D) -> void:
@@ -109,18 +118,24 @@ func _wrist_offset(side: String) -> Vector2:
 
 
 func _fit_grip(desired: Vector2, centers: Array[Vector2]) -> Vector2:
-	var minimum := float(tuning.min_arm_reach)
-	var maximum := float(tuning.max_arm_reach)
-	if _reachable(desired, centers, minimum, maximum):
+	# The support elbow can fold through depth; only the camera-side sleeve
+	# needs the large minimum screen-space reach of a planar two-bone solve.
+	var radii := [
+		[float(tuning.min_arm_reach), float(tuning.max_arm_reach)],
+		[0.0, sqrt(pow(float(tuning.max_arm_reach), 2) - pow(float(tuning.support_depth), 2))]
+	]
+	if _reachable(desired, centers, radii):
 		return desired
 	var candidates: Array[Vector2] = []
 	var span := centers[1] - centers[0]
 	var distance := span.length()
 	var axis := span.normalized()
-	for radius: float in [minimum, maximum]:
-		for center: Vector2 in centers:
+	for index in range(2):
+		for radius: float in radii[index]:
+			var center := centers[index]
 			candidates.append(center + (desired - center).normalized() * radius)
-		for other: float in [minimum, maximum]:
+	for radius: float in radii[0]:
+		for other: float in radii[1]:
 			if distance < 0.001 or distance > radius + other or distance < absf(radius - other):
 				continue
 			var along := (distance * distance + radius * radius - other * other) / (2 * distance)
@@ -131,7 +146,7 @@ func _fit_grip(desired: Vector2, centers: Array[Vector2]) -> Vector2:
 	var best := desired
 	var closest := INF
 	for candidate: Vector2 in candidates:
-		if _reachable(candidate, centers, minimum, maximum):
+		if _reachable(candidate, centers, radii):
 			var error := candidate.distance_squared_to(desired)
 			if error < closest:
 				closest = error
@@ -139,10 +154,10 @@ func _fit_grip(desired: Vector2, centers: Array[Vector2]) -> Vector2:
 	return best
 
 
-func _reachable(point: Vector2, centers: Array[Vector2], minimum: float, maximum: float) -> bool:
-	for center: Vector2 in centers:
-		var distance := point.distance_to(center)
-		if distance < minimum - 0.001 or distance > maximum + 0.001:
+func _reachable(point: Vector2, centers: Array[Vector2], radii: Array) -> bool:
+	for index in range(2):
+		var distance := point.distance_to(centers[index])
+		if distance < float(radii[index][0]) - 0.001 or distance > float(radii[index][1]) + 0.001:
 			return false
 	return true
 
@@ -162,11 +177,55 @@ func _blend_pose(from: Dictionary, to: Dictionary, amount: float) -> Dictionary:
 
 func _arm(rig: Node2D, side: String, target: Vector2, angle: float) -> void:
 	var body: Bone2D = rig.bones.body
+	var local_target: Vector2 = body.to_local(rig.to_global(target))
+	if side == "far":
+		_support_arm(rig, local_target, angle)
+		return
 	ArmIK.solve(
 		rig.bones,
 		side,
-		body.to_local(rig.to_global(target)),
+		local_target,
 		float(tuning[side + "_bend"]),
 		angle,
 		float(tuning.wrist_limit)
 	)
+
+
+func _support_arm(rig: Node2D, target: Vector2, angle: float) -> void:
+	var upper: Bone2D = rig.bones.far_arm
+	var lower: Bone2D = rig.bones.far_fore
+	var hand: Bone2D = rig.bones.far_hand
+	var reach := Vector3(
+		target.x - upper.position.x, target.y - upper.position.y, float(tuning.support_depth)
+	)
+	var distance := reach.length()
+	var axis := reach.normalized()
+	var along: float = (
+		(distance * distance + upper.length * upper.length - lower.length * lower.length)
+		/ (2 * distance)
+	)
+	var radius := sqrt(maxf(0, upper.length * upper.length - along * along))
+	# The far shoulder lies behind the bat plane. A downward pole on its 3D
+	# elbow circle stays continuous as the hands pass in front of the chest.
+	var down := Vector3(0, 1, 0)
+	var pole := (down - axis * axis.y).normalized()
+	var joint := axis * along + pole * radius
+	var elbow: Vector2 = upper.position + Vector2(joint.x, joint.y)
+	var upper_axis: Vector2 = elbow - upper.position
+	var lower_axis: Vector2 = target - elbow
+	upper.rotation = upper_axis.angle() - PI / 2
+	lower.rotation = wrapf(lower_axis.angle() - upper_axis.angle(), -PI, PI)
+	lower.position = Vector2(0, upper_axis.length())
+	hand.position = Vector2(0, lower_axis.length())
+	var wrist := wrapf(angle - rig.bones.body.rotation - upper.rotation - lower.rotation, -PI, PI)
+	hand.rotation = clampf(wrist, -float(tuning.wrist_limit), float(tuning.wrist_limit))
+	_stretch_support(rig, upper_axis.length() / upper.length, lower_axis.length() / lower.length)
+
+
+func _stretch_support(rig: Node2D, upper: float, lower: float) -> void:
+	var upper_stretch := Transform2D(Vector2.RIGHT, Vector2.DOWN * upper, Vector2.ZERO)
+	var lower_stretch := Transform2D(Vector2.RIGHT, Vector2.DOWN * lower, Vector2.ZERO)
+	rig.bones.far_arm.get_node("upper_arm_inner").transform = (
+		upper_stretch * _support_art_rest.upper
+	)
+	rig.bones.far_fore.get_node("forearm_inner").transform = lower_stretch * _support_art_rest.lower
