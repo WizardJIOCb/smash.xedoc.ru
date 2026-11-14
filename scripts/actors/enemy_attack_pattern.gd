@@ -126,6 +126,9 @@ func _attack() -> void:
 	actor.rig.strike = forward * (1.0 - returning)
 	if float(value("stuck_time", 0)) > 0:
 		actor.rig.strike = forward
+	if is_ranged():
+		actor.rig.wind = 0
+		actor.rig.strike = 0
 	var travel := float(value("motion_distance", 0))
 	var progress := smoothstep(0, float(value("motion_end", 0.7)), actor.elapsed / duration)
 	var displacement: float = travel * (progress - _travel)
