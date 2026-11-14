@@ -166,3 +166,7 @@ One session — one section. The user's feedback — verbatim. The first questio
 -45GUT/636assertions cover every ranged weapon, hold-versus-new-press, one throw contact,
   exact ammo/recovery/reload. Rifle native range20frames/0errors:24shots/24hits, then
   new press throws1/hits1,25contacts total,rifle removed/1pickup. Enemy gallery18/0errors.
+- Public v30: normal inputs clear entry4kills/1relay, pick rifle in cooling. HoldJ24
+  rounds -> rifle0/24/reserve120/throws0; next press -> throws1/hit1/pickup1/fists,76HP.
+  Enlarged enemy guns viewed; errors0,QA tab closed. Cache2/1,18hashes,rollbackv29,
+  scores unchanged during activation; no score submitted.
