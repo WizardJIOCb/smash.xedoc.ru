@@ -133,11 +133,11 @@ func records(front, board: String, rows: Array, online: bool, loading: bool = fa
 			1,
 			(
 				str(row.get("name", "Лось"))
-				+ (" · %d игрока" % int(row.get("players", 2)) if board == "coop" else "")
+				+ (" · игроков: %d" % int(row.get("players", 2)) if board == "coop" else "")
 			)
 		)
-		item.set_text(2, str(row.wave))
-		item.set_text(3, str(row.kills))
+		item.set_text(2, str(int(row.wave)))
+		item.set_text(3, str(int(row.kills)))
 		var seconds := int(row.seconds)
 		item.set_text(4, "%02d:%02d" % [seconds / 60, seconds % 60])
 		if index == 0:
