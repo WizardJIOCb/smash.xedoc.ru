@@ -2,10 +2,10 @@
 
 PROJECT: Лось: район закрыт
 PHASE: 5 — Assets and look-dev
-UPDATED: 2026-11-15 00:28
+UPDATED: 2026-11-15 00:48
 
 ## Now
-Закончить terrainдлятел/воды в разрывах,проверить переносвступлений, native6/7,финальныеTEST/BUILD;публикация и публичная проверка. Publicпокаv40.
+Пользователь играет новые главы на smash.xedoc.ru; ждём оценку сложности,врагов и механик. Общие art/feel и физическое мобильное устройство остаются открыты.
 
 ## Open questions
 - none
@@ -63,3 +63,4 @@ UPDATED: 2026-11-15 00:28
 | 2026-11-14 20:18 | 5 — Assets and look-dev | v40 опубликованаd73e211: отвод биты назад и ранний drive за плечом, перенос веса, руки отходят назад перед возвратом биты за голову.51GUT/734 с240Hzрегрессией, native126frames/both facings/3stances0errors и contact48frames3hits0errors. Public7swings7hits2kills100HP,left/right/load/contact/recovery/G проверены,console0/cache2hit1download.18hashes,rollbackv39,scores preserved at activation,QA closed/no score sent. | Пользователь оценивает новый замах и возврат биты на smash.xedoc.ru. Видео движения сохранено в bat-return-final-v40/swing.mp4. Art/feel gates открыты. |
 | 2026-11-14 23:16 | 5 — Assets and look-dev | Предложены четыре продолжения IV–VII по 4 уровня; сюжет и масштаб ожидают ответа в карточке. Подготовлены перелистывание глав, динамический финал и таблицы рекордов без лимита трёх глав. 51 GUT/734 asserts, 10 PHP API checks и chapter contracts прошли; native menu 2 кадра/0 ошибок. | После ответа пользователя закрепить четыре истории, создать оригинальные фоны/врагов и реализовать по одному отличающему правилу каждой главы. До ответа новые идеи не реализовывать; public остаётся v40. |
 | 2026-11-15 00:28 | 5 — Assets and look-dev | Собраны16новыхуровней,16фонов,12оригинальныхскелетов,4главы со вступлениями/итогами и4механиками. Headless главыII–VII пройдены обычными inputs,12/14kills и4реле,0смертей;65GUT/1051asserts,PHP7chaptercontracts+10checks. Native4/5 завершены безошибок,Webrevision41меню7глав работает. | Закончить terrainдлятел/воды в разрывах,проверить переносвступлений, native6/7,финальныеTEST/BUILD;публикация и публичная проверка. Publicпокаv40. |
+| 2026-11-15 00:48 | 5 — Assets and look-dev | v41 опубликована0955570: четыре главы и16уровней,16фонов,8врагов и4босса;70GUT/1089. Полные прогоныII–VII безсмертей,трилифта0jump/0drop;native/terrain/Web безошибок. Public6hits2kills97HP,блок иR,console0;19hashes,7scoreAPI,rollbackv40,рекорды иcoop routes сохранены. | Пользователь играет новые главы на smash.xedoc.ru; ждём оценку сложности,врагов и механик. Общие art/feel и физическое мобильное устройство остаются открыты. |
