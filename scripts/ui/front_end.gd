@@ -13,6 +13,7 @@ const Moose = preload("res://scripts/actors/moose_rig.gd")
 const FONT = preload("res://assets/fonts/Manrope-Semibold.tres")
 const KeyMenu = preload("res://scripts/ui/key_bindings_menu.gd")
 const CHAPTERS_PER_PAGE := 3
+const MENU_BACKDROP = preload("res://assets/environment/menu-ground-v1.webp")
 
 var bindings: RefCounted
 
@@ -49,7 +50,7 @@ func _ready() -> void:
 	root.theme.default_font_size = 20
 	add_child(root)
 	background = TextureRect.new()
-	background.texture = load("res://assets/environment/menu-ground-v1.webp")
+	background.texture = MENU_BACKDROP
 	background.size = Vector2(1280, 720)
 	background.modulate = Color(0.86, 0.91, 0.89)
 	background.z_index = -50
@@ -108,7 +109,7 @@ func show_home(resumable: bool) -> void:
 
 func _page(id: String) -> void:
 	page = id
-	background.texture = load("res://assets/environment/menu-ground-v1.webp")
+	background.texture = MENU_BACKDROP
 	for child: Node in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
@@ -290,9 +291,10 @@ func show_finish(score: int, seconds: float, previous_name: String) -> void:
 		panel.color = Color(0.025, 0.065, 0.075, 0.91)
 		content.add_child(panel)
 		_label(content, Vector2(678, 202), "ПОСЛЕ БОЯ", 16, Color("e2b36e"))
-		var ending := _label(content, Vector2(678, 244), str(chapters[chapter_index].epilogue), 23)
-		ending.size = Vector2(510, 310)
+		var ending := _label(content, Vector2(678, 244), "", 23)
 		ending.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ending.size = Vector2(510, 310)
+		ending.text = str(chapters[chapter_index].epilogue)
 
 
 func show_intro(index: int, begin: Callable) -> void:
@@ -307,12 +309,14 @@ func show_intro(index: int, begin: Callable) -> void:
 	_label(content, Vector2(68, 84), "ГЛАВА %02d" % (index + 1), 18, Color("e2b36e"))
 	var title := _label(content, Vector2(64, 120), str(chapters[index].title), 48)
 	title.size = Vector2(970, 82)
-	var story := _label(content, Vector2(72, 230), str(chapters[index].intro), 25)
-	story.size = Vector2(610, 188)
+	var story := _label(content, Vector2(72, 230), "", 25)
 	story.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var quote := _label(content, Vector2(72, 452), str(chapters[index].quote), 23, Color("e2b36e"))
-	quote.size = Vector2(900, 64)
+	story.size = Vector2(610, 188)
+	story.text = str(chapters[index].intro)
+	var quote := _label(content, Vector2(72, 452), "", 23, Color("e2b36e"))
 	quote.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	quote.size = Vector2(900, 64)
+	quote.text = str(chapters[index].quote)
 	_button("Начать главу →", 544, begin, true).grab_focus()
 	_button("← Выбор главы", 614, show_chapters)
 

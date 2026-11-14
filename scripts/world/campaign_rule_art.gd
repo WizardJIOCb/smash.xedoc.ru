@@ -1,6 +1,10 @@
 extends Node2D
 ## Bounded paint-only geometry. The room controller owns every collision and timer.
 
+const DECK = preload("res://assets/environment/service-ledge.png")
+const RIVER = preload("res://assets/environment/port-embankment.webp")
+const CARGO = preload("res://assets/enemies/otter/extra.png")
+
 var rules: Node2D
 var _font: Font
 
@@ -33,6 +37,12 @@ func _draw_gap(water: bool) -> void:
 	var y := float(t.floor)
 	draw_rect(Rect2(left, y - 3, right - left, 720 - y + 3), Color("101f2c"))
 	if water:
+		draw_texture_rect_region(
+			RIVER,
+			Rect2(left, y + 3, right - left, 720 - y),
+			Rect2(800, 410, 300, 70),
+			Color(0.58, 0.75, 0.8)
+		)
 		for row in range(9):
 			var line_y := y + 23 + row * 18
 			for col in range(5):
@@ -69,20 +79,15 @@ func _draw_port() -> void:
 	draw_line(
 		Vector2(t.gap[0] - 100, y + 38), Vector2(t.gap[1] + 100, y + 38), Color("97a69b", 0.42), 2
 	)
-	draw_style_box(
-		_box(Color("11282d"), Color("577374")), Rect2(left - 6, y + 5, deck.size.x + 12, 30)
-	)
-	draw_rect(Rect2(left, y, deck.size.x, 8), Color("c8b479"))
+	draw_texture_rect(DECK, Rect2(left - 6, y - 4, deck.size.x + 12, 42), false)
 	for x in range(int(left) + 10, int(right), 26):
-		draw_line(Vector2(x, y + 8), Vector2(x + 12, y + 22), Color("9b8350"), 6)
+		draw_line(Vector2(x, y + 10), Vector2(x + 12, y + 22), Color("9b8350", 0.5), 4)
 	for side: float in [-1, 1]:
 		var x: float = rules.deck_x + side * (deck.size.x / 2 - 14)
 		draw_rect(Rect2(x - 4, y - 28, 8, 27), rail)
 		draw_circle(Vector2(x, y - 28), 4, Color("e2c684"))
 	var cargo := Rect2(rules.deck_x + 20, y - 49, 48, 47)
-	draw_style_box(_box(Color("645a40"), Color("ba9f66")), cargo)
-	draw_line(cargo.position + Vector2(9, 0), cargo.position + Vector2(9, 47), Color("222f2d"), 5)
-	draw_line(cargo.position + Vector2(37, 0), cargo.position + Vector2(37, 47), Color("222f2d"), 5)
+	draw_texture_rect(CARGO, cargo, false)
 	_text(
 		Vector2(left + 16, y + 51),
 		"E · ГРУЗ" if rules.dock_wait > 0 else "→" if rules.deck_right else "←",
