@@ -27,7 +27,9 @@ func _ready() -> void:
 	if OS.has_feature("web"):
 		var origin: String = str(JavaScriptBridge.eval("window.location.origin", true))
 		if origin.begins_with("https://"):
-			endpoint = origin + "/api/scores.php"
+			endpoint = str(
+				JavaScriptBridge.eval("new URL('api/scores.php', location.href).href", true)
+			)
 
 
 func refresh() -> void:
