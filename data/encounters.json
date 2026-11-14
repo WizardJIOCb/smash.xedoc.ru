@@ -5,10 +5,10 @@
   "shield": {"name": "ДОМОФОНЩИК", "health": 104, "speed": 42, "reach": 105, "windup": 0.85, "active": 0.23, "recovery": 1.1, "damage": 18},
   "whip": {"name": "КАБЕЛЬЩИК", "health": 78, "speed": 64, "reach": 167, "windup": 0.78, "active": 0.18, "recovery": 1.05, "damage": 15},
   "drone": {"name": "НАДЗОР", "health": 46, "speed": 55, "reach": 420, "windup": 1.0, "active": 0.14, "recovery": 1.6, "damage": 12},
-  "beaver": {"name": "КЛЮЧНИК", "health": 110, "speed": 38, "reach": 118, "windup": 1.05, "active": 0.38, "recovery": 1.25, "damage": 22},
-  "hare": {"name": "ЭКСПРЕСС", "health": 80, "speed": 92, "reach": 98, "windup": 0.75, "active": 0.56, "recovery": 1.2, "damage": 9},
+  "beaver": {"name": "КЛЮЧНИК", "health": 110, "speed": 38, "reach": 118, "windup": 1.05, "active": 0.38, "recovery": 1.25, "damage": 22, "impact": 0.42, "return_at": 0.6, "rearm": 0.18, "second_impact": 0.6},
+  "hare": {"name": "ЭКСПРЕСС", "health": 80, "speed": 92, "reach": 98, "windup": 0.75, "active": 0.56, "recovery": 1.2, "damage": 9, "impact": 0.42, "return_at": 0.6, "rearm": 0.18, "second_impact": 0.6},
   "fox": {"name": "ПРИЦЕЛ", "health": 90, "speed": 48, "reach": 410, "windup": 1.15, "active": 0.22, "recovery": 1.85, "damage": 14},
   "lynx": {"name": "ОЧЕРЕДЬ", "health": 120, "speed": 44, "reach": 430, "windup": 1.3, "active": 0.78, "recovery": 2.15, "damage": 8},
-  "foreman": {"name": "БРИГАДИР", "boss": true, "scale": 1.35, "health": 300, "speed": 35, "reach": 165, "windup": 1.15, "active": 0.8, "recovery": 1.45, "damage": 20},
+  "foreman": {"name": "БРИГАДИР", "boss": true, "scale": 1.35, "health": 300, "speed": 35, "reach": 165, "windup": 1.15, "active": 0.8, "recovery": 1.45, "damage": 20, "impact": 0.42, "return_at": 0.6, "rearm": 0.18, "second_impact": 0.6},
   "firewall": {"name": "FIREWALL", "boss": true, "scale": 1.45, "health": 450, "speed": 28, "reach": 430, "windup": 1.4, "active": 1.0, "recovery": 1.6, "damage": 12}
 }

@@ -1,6 +1,8 @@
 {
   "pistol": {"grip": [43, -52], "support": [-3, 4], "recoil": 4.0},
-  "rifle": {"grip": [16, -46], "support": [37, 6], "recoil": 3.0},
+  "rifle": {"grip": [16, -46], "support": [49, 1], "recoil": 3.0},
+  "recoil_angle": -0.1105,
+  "reload_angle": 0.65,
   "reload_grip": [20, -29],
   "reload_support": [-2, 19]
 }

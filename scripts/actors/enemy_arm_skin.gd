@@ -5,6 +5,7 @@ const SIZE = Vector2(45, 69)
 const SHOULDER = Vector2(0.77, 0.10)
 const ELBOW = Vector2(0.65, 0.52)
 const WRIST = Vector2(0.20, 0.87)
+var hand_mesh: Polygon2D
 
 
 static func upper_vector() -> Vector2:
@@ -32,6 +33,7 @@ func setup(rig: Skeleton2D, bones: Dictionary, kind: String, side: String) -> vo
 	var lower := PackedFloat32Array()
 	var wrist := PackedFloat32Array()
 	var faces: Array[PackedInt32Array] = []
+	var hand_faces: Array[PackedInt32Array] = []
 	for row in range(19):
 		for col in range(7):
 			var uv_point := Vector2(col / 6.0, row / 18.0)
@@ -44,11 +46,26 @@ func setup(rig: Skeleton2D, bones: Dictionary, kind: String, side: String) -> vo
 			wrist.append(hand_weight)
 			if row < 18 and col < 6:
 				var index := row * 7 + col
-				faces.append(PackedInt32Array([index, index + 1, index + 8]))
-				faces.append(PackedInt32Array([index, index + 8, index + 7]))
+				var layer: Array[PackedInt32Array] = hand_faces if row >= 14 else faces
+				layer.append(PackedInt32Array([index, index + 1, index + 8]))
+				layer.append(PackedInt32Array([index, index + 8, index + 7]))
 	polygon = points
 	uv = texcoords
 	polygons = faces
 	add_bone(rig.get_path_to(bones[side + "_arm"]), upper)
 	add_bone(rig.get_path_to(bones[side + "_fore"]), lower)
 	add_bone(rig.get_path_to(bones[side + "_hand"]), wrist)
+	hand_mesh = Polygon2D.new()
+	hand_mesh.name = side + "_grip"
+	hand_mesh.texture = texture
+	hand_mesh.polygon = points
+	hand_mesh.uv = texcoords
+	hand_mesh.polygons = hand_faces
+	hand_mesh.z_as_relative = false
+	hand_mesh.z_index = 19 if side == "near" else 6
+	hand_mesh.modulate = modulate
+	rig.add_child(hand_mesh)
+	hand_mesh.skeleton = hand_mesh.get_path_to(rig)
+	hand_mesh.add_bone(rig.get_path_to(bones[side + "_arm"]), upper)
+	hand_mesh.add_bone(rig.get_path_to(bones[side + "_fore"]), lower)
+	hand_mesh.add_bone(rig.get_path_to(bones[side + "_hand"]), wrist)

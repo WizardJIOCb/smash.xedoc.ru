@@ -39,6 +39,25 @@ func test_seven_round_magazine_and_reload_conserve_rounds() -> void:
 	assert_eq(armory.stats().loaded + armory.stats().reserve + armory.stats().shots, 35)
 
 
+func test_support_palm_stays_on_rifle_foreend_through_automatic_recoil() -> void:
+	for facing: float in [-1.0, 1.0]:
+		var armory = make_armory()
+		armory.grant("rifle")
+		armory.hero.facing = facing
+		armory.trigger(true)
+		var support: Array = armory.hero.firearm_pose.tuning.rifle.support
+		var largest_gap := 0.0
+		for frame in range(90):
+			armory.advance(1.0 / 60, [], true)
+			armory.hero._process(1.0 / 60)
+			armory._process(0)
+			var palm: Vector2 = armory.hero.bones.far_hand.to_global(Vector2(0, 9))
+			var foreend: Vector2 = armory.visual.to_global(Vector2(support[0], support[1]))
+			largest_gap = maxf(largest_gap, palm.distance_to(foreend))
+		assert_lt(largest_gap, 0.05, "The rendered fore-end and palm share every recoil frame")
+		assert_gt(armory.shots_fired, 5, "Check an actual burst and its return frames")
+
+
 func test_cancelled_reload_and_room_reset_never_create_ammunition() -> void:
 	var armory = make_armory()
 	armory.grant("pistol")

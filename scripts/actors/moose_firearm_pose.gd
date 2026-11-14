@@ -31,10 +31,20 @@ func apply(rig: Node2D) -> void:
 	var origin: Vector2 = rig.bones.hips.position + rig.bones.body.position
 	var at := origin + Vector2(grip[0], grip[1])
 	at.x -= rig.firearm_recoil * float(spec.recoil)
-	_arm(rig, "near", at - Vector2(7, 0))
-	_arm(rig, "far", at + Vector2(support[0], support[1]) - Vector2(7, 0))
+	rig.firearm_angle = (
+		float(tuning.reload_angle)
+		if rig.firearm_reloading
+		else rig.firearm_recoil * float(tuning.recoil_angle)
+	)
+	var hand_angle: float = -PI / 2 + (0.0 if rig.firearm_reloading else rig.firearm_angle)
+	_arm(rig, "near", at - Vector2(0, 7).rotated(hand_angle), hand_angle)
+	var handle: Vector2 = rig.to_local(rig.bones.near_hand.to_global(Vector2(0, 7)))
+	var support_at := Vector2(support[0], support[1])
+	if not rig.firearm_reloading:
+		support_at = support_at.rotated(rig.firearm_angle)
+	_arm(rig, "far", handle + support_at - Vector2(0, 9).rotated(hand_angle), hand_angle)
 
 
-func _arm(rig: Node2D, side: String, target: Vector2) -> void:
+func _arm(rig: Node2D, side: String, target: Vector2, hand_angle: float) -> void:
 	var body: Bone2D = rig.bones.body
-	ArmIK.solve(rig.bones, side, body.to_local(rig.to_global(target)), -1.0, -PI / 2)
+	ArmIK.solve(rig.bones, side, body.to_local(rig.to_global(target)), -1.0, hand_angle)

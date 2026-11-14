@@ -272,9 +272,19 @@ func _new_attack(_delta: float) -> void:
 		count = phase + 1
 	# Every beat is emitted once even if a slow frame crosses several event times.
 	var interval := duration / maxf(count, 1)
-	var next_time := _events_fired * interval
+	var melee := not is_ranged() and not _uses_pulse()
+	var impact := float(tuning.impact) if melee else 0.0
+	var next_time := _beat_time(_events_fired, interval, melee)
 	rig.wind = 0
 	rig.strike = sin(fposmod(elapsed, interval) / interval * PI)
+	if melee:
+		var beat := 1.0 if elapsed >= duration else fposmod(elapsed, interval) / interval
+		var first := elapsed < interval
+		var rearm := 0.0 if first else float(tuning.rearm)
+		var contact := impact if first else float(tuning.second_impact)
+		var forward := smoothstep(rearm, contact, beat)
+		rig.wind = (1.0 if first else smoothstep(0, rearm, beat)) * (1.0 - forward)
+		rig.strike = (forward * (1.0 - smoothstep(float(tuning.return_at), 1, beat)))
 	while _events_fired < count and elapsed >= next_time:
 		_events_fired += 1
 		if is_ranged() and not _uses_pulse():
@@ -286,7 +296,7 @@ func _new_attack(_delta: float) -> void:
 			_ground_pulse()
 		else:
 			_melee_beat()
-		next_time = _events_fired * interval
+		next_time = _beat_time(_events_fired, interval, melee)
 	if elapsed >= duration:
 		state = "recovery"
 		elapsed = 0
@@ -294,6 +304,13 @@ func _new_attack(_delta: float) -> void:
 		attacks_completed += 1
 		if kind in ["fox", "lynx"]:
 			feedback.emit(position + Vector2(0, -155), "ПЕРЕЗАРЯДКА", Color("e2b36e"), "")
+
+
+func _beat_time(index: int, interval: float, melee: bool) -> float:
+	var contact := 0.0
+	if melee:
+		contact = float(tuning.impact if index == 0 else tuning.second_impact)
+	return (index + contact) * interval
 
 
 func _melee_beat() -> void:

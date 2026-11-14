@@ -65,10 +65,18 @@ func test_hare_double_strike_and_jumpable_boss_pulse() -> void:
 	hare.facing = 1
 	watch_signals(hare)
 	hare._new_attack(0.016)
-	hare.elapsed = 0.3
+	assert_signal_emit_count(hare, "hit_player", 0, "The rear windup cannot hit")
+	hare.elapsed = 0.12
+	hare._new_attack(0.016)
+	assert_signal_emit_count(hare, "hit_player", 1, "Contact follows the first forward swing")
+	hare.elapsed = 0.46
 	hare._new_attack(0.016)
 	hare._new_attack(0.016)
 	assert_signal_emit_count(hare, "hit_player", 2)
+	hare.elapsed = float(hare.tuning.active)
+	hare._new_attack(0.016)
+	assert_eq(hare.rig.wind, 0.0, "Finished combo does not jump back into a windup")
+	assert_eq(hare.rig.strike, 0.0)
 	var boss := make_enemy("firewall")
 	boss.target = player
 	watch_signals(boss)

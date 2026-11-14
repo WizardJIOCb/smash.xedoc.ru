@@ -92,7 +92,7 @@ func _ready() -> void:
 			bones.weapon,
 			Vector2(weapon_size[0], weapon_size[1]),
 			Vector2(weapon_pivot[0], weapon_pivot[1]),
-			16
+			18
 		)
 		_part("extra", bones.body, Vector2(26, 32), Vector2(0.5, 0), 11).position += Vector2(22, -7)
 	_apply_scale()
@@ -201,14 +201,9 @@ func _process(delta: float) -> void:
 	bones.near_fore.rotation += wind * 0.5 - strike * 0.75
 	bones.far_arm.rotation += -wind * 0.65 + strike * 0.9
 	bones.far_fore.rotation += wind * 0.35 - strike * 0.55
-	if kind in ["beaver", "foreman"]:
-		# Raise the tool above the shoulder, then follow through with the trunk.
-		bones.near_arm.rotation += -wind * 1.15 + strike * 0.55
-		bones.near_fore.rotation += -wind * 0.4
-		bones.body.rotation += -wind * 0.15 + strike * 0.22
-	elif kind == "hare":
-		bones.far_arm.rotation += strike * 0.45
-		bones.body.rotation += strike * 0.1
+	if kind in ["beaver", "foreman", "hare"]:
+		# Source faces left: the trunk follows the forward blow to the left too.
+		bones.body.rotation = wind * 0.16 - strike * 0.28 - hurt * 0.24 + collapse * 1.3
 	elif kind in ["fox", "lynx", "firewall"]:
 		# Both hands stay on the gun; far arm supports the fore-end.
 		bones.near_arm.rotation = upper_rest + 0.35 + wind * 0.08 - recoil * 0.2
@@ -217,6 +212,7 @@ func _process(delta: float) -> void:
 		bones.far_fore.rotation = fore_rest - 0.8
 		bones.body.rotation = -wind * 0.06 - recoil * 0.09 + stomp * 0.22
 		bones.hips.position.y += stomp * 6
+	bones.head.rotation = -bones.body.rotation * 0.65
 	if kind == "shield":
 		bones.shield.rotation = _grip_rotation("near") + (0.45 if shield_down else 0.0)
 		bones.baton.rotation = _grip_rotation("far") - wind * 0.65 + strike * 0.3

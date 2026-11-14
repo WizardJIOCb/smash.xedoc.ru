@@ -249,7 +249,6 @@ func advance(delta: float, enemies: Array, playing: bool) -> void:
 	hero.held_melee = equipped if not is_ranged() else ""
 	hero.combat.weapon = equipped
 	hero.firearm_reloading = _reload_left > 0
-	hero.firearm_recoil = visual.flash / 0.065
 	_cooldown = maxf(0, _cooldown - delta)
 	visual.flash = maxf(0, visual.flash - delta)
 	if _reload_left > 0:
@@ -258,6 +257,7 @@ func advance(delta: float, enemies: Array, playing: bool) -> void:
 			_complete_reload()
 	if _held and is_ranged() and bool(tuning.weapons[equipped].automatic):
 		_fire()
+	hero.firearm_recoil = visual.flash / 0.065
 	_advance_bullets(delta, enemies)
 	for item: Dictionary in pickups:
 		if item.has("velocity"):
@@ -318,9 +318,7 @@ func _update_visual() -> void:
 	var facing: float = hero.facing
 	var angle := -0.8
 	if is_ranged():
-		angle = -visual.flash * 1.7
-		if _reload_left > 0:
-			angle = 0.65
+		angle = hero.firearm_angle
 	elif equipped == "bat":
 		angle = hero.melee_angle
 	else:
@@ -377,6 +375,7 @@ func _fire() -> bool:
 		}
 	)
 	visual.flash = 0.065
+	hero.firearm_recoil = 1.0
 	shot.emit(equipped, at)
 	changed.emit()
 	return true

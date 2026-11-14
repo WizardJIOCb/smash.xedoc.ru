@@ -37,6 +37,7 @@ var melee_angle: float = -1.05
 var held_firearm: String = ""
 var firearm_reloading: bool = false
 var firearm_recoil: float = 0.0
+var firearm_angle: float = 0.0
 var strike: float:
 	get:
 		return combat.elapsed
