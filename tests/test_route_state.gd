@@ -8,11 +8,15 @@ func test_chapter_content_matches_score_contract_and_reinforcements_cannot_repea
 	var rooms: Array = JSON.parse_string(
 		FileAccess.get_file_as_string("res://data/district_rooms.json")
 	)
-	assert_eq(rooms.size(), 11)
+	assert_eq(rooms.size(), 27)
+	assert_eq(route.chapters.size(), 7)
+	var next_room := 0
 	for chapter: Dictionary in route.chapters:
+		assert_eq(int(chapter.start), next_room, "Chapters partition the route without gaps")
 		var kills := 0
 		for index in range(int(chapter.start), int(chapter.end) + 1):
 			var room: Dictionary = rooms[index]
+			assert_eq(int(room.chapter), int(chapter.id))
 			kills += room.enemies.size()
 			route.enter()
 			for wave: Array in room.get("waves", []):
@@ -28,3 +32,5 @@ func test_chapter_content_matches_score_contract_and_reinforcements_cannot_repea
 				route.reinforcement(room, 0, 10).is_empty(), "The final wave is not repeated"
 			)
 		assert_eq(kills, int(chapter.kills), "Chapter kills match the server score contract")
+		next_room = int(chapter.end) + 1
+	assert_eq(next_room, rooms.size())
