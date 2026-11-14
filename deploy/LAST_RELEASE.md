@@ -1,31 +1,29 @@
-# Public release v38
+# Public release v39
 
 - Domain:https://smash.xedoc.ru/
-- Runtime source:541ed783a16a53c05ecdba46583e385497c8791d
-- Current:/var/www/smash.xedoc.ru/releases/v38-541ed783a16a
-- Rollback:/var/www/smash.xedoc.ru/releases/v37-a635d4febc0a
-- Archive:93,548,116bytes;18verified files.
-- SHA256:cad831e84732f85ae8c6fef42a3a1455b753f34e7838f19ecce90ba103bcc7ea
+- Runtime source:0467d8267168d24fa03ed54ad8b56243b5a21631
+- Current:/var/www/smash.xedoc.ru/releases/v39-0467d8267168
+- Rollback:/var/www/smash.xedoc.ru/releases/v38-541ed783a16a
+- Archive:93,547,638bytes;18verified files.
+- SHA256:484860ef14077d024b3742c632241dd7496ad32750765158bac09284900f0f8b
 
-Foreman rear sleeve renders behind the vest; diagonal wrist skin weights prevent
-the cuff folding into a hanging strip. Both hands grip the hammer at distinct
-points and follow its front lift, strike and recovery.
-Knuckle plates fit the visible knuckles on both actual fist sprites and follow
-their transforms. Unequipping, dropping and death clear both plates. Damage,
-knockback and the short six-pixel reach bonus are preserved.
+Depot and tower upper walkways extend to786, overlapping the lift edge790 by4px.
+The visible ledge, custom feet surface and physical terrain share the same rect;
+both exits can be walked across without jumping. Updated hints describe walking.
+The native campaign driver no longer jumps off lifts and checks zero jump delta
+and zero downward drift during each transfer.
 
 Validation:
 -51GUT/722assertions, format/lint, clean Web export.
-- Native boss79frames/0errors, both facings/phases; support gap0.00019px.
-  Knuckles41frames/0errors, five alternating near/far attacks; both facings viewed.
-  Native ordinary-input depot route won58.68s/14kills/4relays/100HP/phases1,2;
-  offline score service, no leaderboard entry.
-- Public revision38: ordinary inputs cleared13enemies/3relays, used the freight
-  lift/upper bridge and reached the boss. Knuckles ready right/left and two hits,
-  boss lift/contact/recovery viewed; G restores fists and removes both plates.
-  Console0errors,cache2hits/1download; QA tab closed before victory, no score sent.
+- Native ordinary-input routes won: depot58.77s/14kills and tower51.97s/12kills,
+  both4relays/100HP/0deaths. Lift transfers each jumps0/drop0.0px; scores offline.
+  Native depot capture71frames/0errors, walk across the seam reviewed.
+- Public revision39: ordinary inputs cleared13enemies/2relays and rode the lift.
+  Walked right714.75->899.85, back741.88, then stopped at seam809.48; feet350
+  throughout, jumps0/100HP. Console0errors,cache2hits/1download; QA tab closed
+  before victory, no score sent.
 - HTTPS/release.json200,18manifest hashes verified, PHP/nginx valid, services active.
   Scores unchanged during activation:
-  229c259f574a2a440e83a07dcf46dd0f7538423ea20072c441b7808c19ff4994.
-- Evidence:.studioigor/captures/foreman-final-v38,knuckles-final-v38,public-v38;
-  .tools/depot-route-v38.log. User appearance/feel acceptance remains open.
+  42a8acc7f1ba5320a61479249c63adce86a479e88682a7d3ae8a92f87986fa40.
+- Evidence:.studioigor/captures/lift-walk-v39,public-v39;
+  .tools/depot-route-v39.log,.tools/tower-route-v39.log. Overall art/feel gates open.
