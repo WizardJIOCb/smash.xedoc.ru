@@ -135,12 +135,12 @@ func _ready() -> void:
 	scores.submitted.connect(_record_submitted)
 	front = FrontEnd.new()
 	front.muted = audio.muted
+	front.chapters = route.chapters
 	fps_counter = FpsCounter.new()
 	add_child(fps_counter)
 	front.fps_enabled = fps_counter.enabled
 	add_child(front)
 	front.bindings = bindings
-	front.chapters = route.chapters
 	front.completed_chapters = route.completed
 	front.chapter_requested.connect(_select_chapter)
 	front.next_requested.connect(_continue_chapter)

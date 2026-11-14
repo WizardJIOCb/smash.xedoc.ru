@@ -59,7 +59,12 @@ func finish(name_text: String, stats: Dictionary) -> void:
 	local_rows.append(row)
 	local_rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.score > b.score)
 	var kept: Array = []
-	for group in [1, 2, 3]:
+	var groups: Array = []
+	for item: Dictionary in local_rows:
+		var group := int(item.get("chapter", 1))
+		if not groups.has(group):
+			groups.append(group)
+	for group: int in groups:
 		kept.append_array(
 			(
 				local_rows

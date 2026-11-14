@@ -41,6 +41,17 @@ if ($method === 'POST') {
     $input = [];
 }
 
+$campaignPath = __DIR__ . '/chapters.json';
+if (!is_file($campaignPath)) { $campaignPath = __DIR__ . '/../../data/chapters.json'; }
+$campaign = json_decode(file_get_contents($campaignPath), true);
+if (!is_array($campaign) || $campaign === []) { respond(503, ['error' => 'campaign_unavailable']); }
+$chapters = [];
+foreach ($campaign as $entry) {
+    $chapters[$entry['id']] = ['kills' => $entry['kills'], 'relays' => $entry['end'] - $entry['start'] + 1];
+}
+$chapter = filter_var($input['chapter'] ?? $_GET['chapter'] ?? 1, FILTER_VALIDATE_INT);
+if ($chapter === false || !isset($chapters[$chapter])) { respond(422, ['error' => 'chapter']); }
+
 $directory = getenv('SMASH_STATE_DIR') ?: '/var/lib/smash-xedoc';
 if (!is_dir($directory) || !is_writable($directory)) {
     respond(503, ['error' => 'storage_unavailable']);
@@ -58,8 +69,6 @@ $now = microtime(true);
 $state['runs'] = array_filter($state['runs'], fn(array $run): bool => $now - $run['started'] < 3600);
 $operation = $method === 'GET' ? 'list' : ($input['op'] ?? '');
 $response = [];
-$chapter = filter_var($input['chapter'] ?? $_GET['chapter'] ?? 1, FILTER_VALIDATE_INT);
-if (!in_array($chapter, [1, 2, 3], true)) { respond(422, ['error' => 'chapter']); }
 $chapterRows = function() use (&$state, $chapter): array { return array_values(array_filter($state['scores'], fn(array $row): bool => ($row['chapter'] ?? 1) === $chapter)); };
 
 if ($operation === 'list') {
@@ -91,8 +100,8 @@ if ($operation === 'list') {
     $deaths = $input['deaths'] ?? null;
     if (!is_string($name) || !is_numeric($seconds) || !is_int($health) || !is_int($deaths)
         || ($state['runs'][$key]['chapter'] ?? 1) !== $chapter
-        || ($input['kills'] ?? null) !== [1 => 5, 2 => 14, 3 => 12][$chapter]
-        || ($input['relays'] ?? null) !== ($chapter === 1 ? 3 : 4)
+        || ($input['kills'] ?? null) !== $chapters[$chapter]['kills']
+        || ($input['relays'] ?? null) !== $chapters[$chapter]['relays']
         || $health < 0 || $health > 100 || $deaths < 0 || $deaths > 100
         || (float)$seconds < 5 || (float)$seconds > 3600
         || $now - $state['runs'][$key]['started'] + 3 < (float)$seconds) {
@@ -107,7 +116,7 @@ if ($operation === 'list') {
     $state['scores'][] = $row;
     usort($state['scores'], fn(array $a, array $b): int => ($b['score'] <=> $a['score']) ?: ($a['seconds'] <=> $b['seconds']));
     $kept = [];
-    foreach ([1, 2, 3] as $group) {
+    foreach (array_keys($chapters) as $group) {
         $kept = array_merge($kept, array_slice(array_values(array_filter($state['scores'],
             fn(array $row): bool => ($row['chapter'] ?? 1) === $group)), 0, 50));
     }

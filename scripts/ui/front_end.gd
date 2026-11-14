@@ -12,11 +12,13 @@ signal fps_requested(enabled: bool)
 const Moose = preload("res://scripts/actors/moose_rig.gd")
 const FONT = preload("res://assets/fonts/Manrope-Semibold.tres")
 const KeyMenu = preload("res://scripts/ui/key_bindings_menu.gd")
+const CHAPTERS_PER_PAGE := 3
 
 var bindings: RefCounted
 
 var chapters: Array = []
 var chapter_index: int = 0
+var chapter_page: int = 0
 var completed_chapters: Array = []
 var root: Control
 var content: Control
@@ -70,8 +72,15 @@ func _ready() -> void:
 	ambience.draw.connect(_draw_ambience)
 	root.add_child(ambience)
 	_label(root, Vector2(64, 32), "ЛОСЬ В ПРОДЕ  /  ИГРОВОЙ РАЙОН", 14, Color("e2b36e"))
+	var room_count := 0
+	for chapter: Dictionary in chapters:
+		room_count += int(chapter.end) - int(chapter.start) + 1
 	_label(
-		root, Vector2(64, 672), "SMASH.XEDOC.RU    ·    3 ГЛАВЫ / 11 УРОВНЕЙ", 14, Color("b3c4b6")
+		root,
+		Vector2(64, 672),
+		"SMASH.XEDOC.RU    ·    ГЛАВ: %d / УРОВНЕЙ: %d" % [chapters.size(), room_count],
+		14,
+		Color("b3c4b6")
 	)
 	content = Control.new()
 	root.add_child(content)
@@ -139,17 +148,18 @@ func show_records(refresh: bool = true) -> void:
 		18,
 		Color("e2b36e")
 	)
+	var selector := OptionButton.new()
+	selector.position = Vector2(600, 172)
+	selector.size = Vector2(610, 44)
 	for index in range(chapters.size()):
-		var tab := Button.new()
-		tab.text = str(chapters[index].title)
-		tab.position = Vector2(64 + index * 250, 190)
-		tab.size = Vector2(238, 36)
-		tab.pressed.connect(
-			func() -> void:
-				chapter_index = index
-				records_requested.emit()
-		)
-		content.add_child(tab)
+		selector.add_item("%02d / %s" % [index + 1, chapters[index].title])
+	selector.selected = chapter_index
+	selector.item_selected.connect(
+		func(index: int) -> void:
+			chapter_index = index
+			records_requested.emit()
+	)
+	content.add_child(selector)
 	var table := Tree.new()
 	table.position = Vector2(64, 240)
 	table.size = Vector2(1152, 360)
@@ -223,7 +233,14 @@ func key(action: String) -> String:
 func show_finish(score: int, seconds: float, previous_name: String) -> void:
 	_page("finish")
 	_label(
-		content, Vector2(64, 112), "Город свободен" if chapter_index == 2 else "Глава пройдена", 36
+		content,
+		Vector2(64, 112),
+		(
+			str(chapters[chapter_index].get("victory", "Глава пройдена"))
+			if not chapters.is_empty()
+			else "Глава пройдена"
+		),
+		36
 	)
 	_label(content, Vector2(64, 168), str(score), 72, Color("e2b36e"))
 	_label(
@@ -252,7 +269,7 @@ func show_finish(score: int, seconds: float, previous_name: String) -> void:
 	content.add_child(name_input)
 	submit_button = _button("Записать результат", 422, _submit, true)
 	score_status = _label(content, Vector2(72, 486), "", 16)
-	if chapter_index < 2:
+	if chapter_index + 1 < chapters.size():
 		_button(
 			"Дальше: " + str(chapters[chapter_index + 1].title),
 			526,
@@ -404,9 +421,14 @@ func show_chapters() -> void:
 		"Начни с любой главы. Между уровнями — контрольные точки, в финале — босс.",
 		18
 	)
-	var images := ["courtyard-alive-clean.png", "depot-yard.webp", "tower-entry.webp"]
-	for index in range(chapters.size()):
-		var x := 64.0 + index * 386
+	var last_page := maxi(0, ceili(float(chapters.size()) / CHAPTERS_PER_PAGE) - 1)
+	chapter_page = clampi(chapter_page, 0, last_page)
+	var first := chapter_page * CHAPTERS_PER_PAGE
+	var rooms: Array = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/district_rooms.json")
+	)
+	for index in range(first, mini(first + CHAPTERS_PER_PAGE, chapters.size())):
+		var x := 64.0 + (index - first) * 386
 		var frame := ColorRect.new()
 		frame.color = Color("10272c")
 		frame.position = Vector2(x, 190)
@@ -416,7 +438,10 @@ func show_chapters() -> void:
 		preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		preview.stretch_mode = TextureRect.STRETCH_SCALE
 		preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		preview.texture = load("res://assets/environment/" + images[index])
+		var image := "res://assets/environment/" + str(rooms[int(chapters[index].start)].art)
+		preview.texture = load(
+			image + (".webp" if ResourceLoader.exists(image + ".webp") else ".png")
+		)
 		preview.position = Vector2(x, 190)
 		preview.size = Vector2(350, 197)
 		content.add_child(preview)
@@ -433,3 +458,18 @@ func show_chapters() -> void:
 		button.position.x = x
 		button.size.x = 350
 	_button("← Главное меню", 614, func() -> void: show_home(can_resume))
+	if last_page > 0:
+		_label(content, Vector2(816, 632), "%d / %d" % [chapter_page + 1, last_page + 1], 18)
+		var previous := _button("←", 614, func() -> void: _turn_chapter_page(-1))
+		previous.position.x = 716
+		previous.size.x = 72
+		previous.disabled = chapter_page == 0
+		var following := _button("→", 614, func() -> void: _turn_chapter_page(1))
+		following.position.x = 906
+		following.size.x = 72
+		following.disabled = chapter_page == last_page
+
+
+func _turn_chapter_page(direction: int) -> void:
+	chapter_page += direction
+	show_chapters()
