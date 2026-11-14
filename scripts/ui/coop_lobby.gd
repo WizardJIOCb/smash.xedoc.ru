@@ -290,7 +290,7 @@ func _copy_invite() -> void:
 	var code := str(_info.get("code", ""))
 	if code.is_empty():
 		return
-	var base := "https://smash.xedoc.ru/coop-game/"
+	var base := "https://smash.xedoc.ru/"
 	if OS.has_feature("web"):
 		base = str(JavaScriptBridge.eval("location.origin + location.pathname", true))
 	DisplayServer.clipboard_set(base + "?room=" + code.uri_encode())

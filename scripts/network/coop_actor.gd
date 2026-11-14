@@ -17,6 +17,9 @@ var tip_serial: int = -1
 var previous_tip := Vector2.ZERO
 var caption: Label
 var compact_tag: bool = false
+var world: Node2D
+var _notice: String = ""
+var _notice_left: float = 0
 
 
 func _ready() -> void:
@@ -47,7 +50,8 @@ func _ready() -> void:
 	last_input = Time.get_ticks_msec()
 
 
-func step(delta: float, world) -> void:
+func step(delta: float, room_world) -> void:
+	world = room_world
 	if health <= 0:
 		held_input.clear()
 		pressed_input.clear()
@@ -66,7 +70,7 @@ func step(delta: float, world) -> void:
 		if moose.position.x >= deck.position.x and moose.position.x <= deck.end.x:
 			if moose.position.y <= deck.position.y + 1:
 				base = minf(base, deck.position.y)
-	floor_y = base
+	floor_y = world.campaign_rules.floor_at(self, base)
 	lift = minf(0, moose.position.y - floor_y)
 	move_power = float(night.tuning.move_multiplier) if night.active() else 1
 	combat_rate = float(night.tuning.attack_rate) if night.active() else 1
@@ -87,8 +91,10 @@ func step(delta: float, world) -> void:
 			moose.combat.request("punch", moose.airborne, _input_held("crouch"))
 		if _input_pressed("kick"):
 			moose.combat.request("kick", moose.airborne, _input_held("crouch"))
-	var old_x := moose.position.x
+	var before := moose.position
+	var old_x := before.x
 	super._physics_process(delta)
+	world.campaign_rules.after_move(self, before, delta)
 	for enemy: Node2D in world.enemies:
 		if (
 			not enemy.dead
@@ -183,3 +189,11 @@ func _sync_metrics() -> void:
 
 func _world_pressed() -> void:
 	pass
+
+
+func _hurt_player(amount: int, source: Vector2, _high: bool = false) -> void:
+	hurt(amount, source, world)
+
+
+func _feedback(at: Vector2, text: String, color: Color, sound: String) -> void:
+	world._feedback(at, text, color, sound)

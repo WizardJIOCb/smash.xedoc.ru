@@ -362,8 +362,13 @@ func _spawn_enemy(entry: Array) -> void:
 	enemy.forced_player_motion.connect(
 		func(displacement: float) -> void:
 			if run_state == "playing":
-				moose.position.x = clampf(moose.position.x + displacement, 28, 1190)
-				_stride_stop.active = false
+				var target: Node2D = enemy.target
+				if is_instance_valid(target):
+					target.position.x = clampf(target.position.x + displacement, 28, 1190)
+					if target == moose:
+						_stride_stop.active = false
+					elif target.get_parent() != null:
+						target.get_parent()._stride_stop.active = false
 	)
 	add_child(enemy)
 	enemies.append(enemy)

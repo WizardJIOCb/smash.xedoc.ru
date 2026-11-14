@@ -56,7 +56,8 @@ func _physics_process(delta: float) -> void:
 			"relays": cleared.count(true),
 			"seconds": elapsed_run,
 			"players": coop._snapshot().players,
-			"wave": route.wave
+			"wave": route.wave,
+			"rules": campaign_rules.network_state()
 		}
 		var file = FileAccess.open(_report_path(role), FileAccess.WRITE)
 		file.store_string(JSON.stringify(info))
@@ -74,7 +75,7 @@ func _physics_process(delta: float) -> void:
 				seen_rooms
 			)
 			get_tree().quit(0)
-	if review_time > 160:
+	if review_time > (480 if review_chapter >= 3 or room_index >= 12 else 160):
 		print(
 			"COOP_REVIEW_TIMEOUT ",
 			role,
@@ -107,6 +108,8 @@ func _drive() -> void:
 		if pickup.distance_to(moose.position) < 75 and tap_wait <= 0:
 			_tap("interact")
 			tap_wait = 0.3
+		return
+	if _drive_room_rule():
 		return
 	if is_instance_valid(closest):
 		var direction := signf(closest.position.x - moose.position.x)
@@ -164,6 +167,55 @@ func _drive() -> void:
 			tap_wait = 0.4
 	else:
 		_move(1, true)
+
+
+func _drive_room_rule() -> bool:
+	if not is_instance_valid(campaign_rules):
+		return false
+	var rules := campaign_rules
+	_hold("crouch", rules.kind == "metro" and rules.wave_state in ["warning", "wave"])
+	if rules.kind == "port" and bool(rules.tuning.gap_enabled):
+		for enemy: Enemy in enemies:
+			if not enemy.dead and absf(enemy.position.x - moose.position.x) < 185:
+				return false
+		var right := float(rules.tuning.gap[1])
+		if moose.position.x < right + 12:
+			_hold("block", false)
+			var wait_x := float(rules.tuning.gap[0]) - 35
+			if (
+				absf(moose.position.y - rules.deck_rect().position.y) < 12
+				and moose.position.x >= rules.deck_rect().position.x
+				and moose.position.x <= rules.deck_rect().end.x
+			):
+				_move(0)
+			else:
+				_move(
+					signf(wait_x - moose.position.x) if absf(wait_x - moose.position.x) > 8 else 0.0
+				)
+			return true
+	if rules.kind in ["vines", "roofs"]:
+		var target_x := relay.x if not cleared[room_index] else 1250.0
+		for enemy: Enemy in enemies:
+			if not enemy.dead and enemy.position.x > moose.position.x:
+				target_x = minf(target_x, enemy.position.x)
+		for item: Dictionary in rules.objects:
+			var rect: Rect2 = item.rect
+			if item.health <= 0 or rect.end.x < moose.position.x or rect.position.x > target_x:
+				continue
+			_hold("block", false)
+			var distance := rect.position.x - moose.position.x
+			_move(1 if distance > 65 else 0.0)
+			if distance <= 110 and tap_wait <= 0:
+				if moose.facing < 0:
+					_tap("quick_turn")
+				_tap("kick")
+				tap_wait = 0.45
+			return true
+		if rules.kind == "roofs" and bool(rules.tuning.gap_enabled) and not rules.bridge_down:
+			_move(0)
+			_hold("block", true)
+			return true
+	return false
 
 
 func _report_path(member: String) -> String:

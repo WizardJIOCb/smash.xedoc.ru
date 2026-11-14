@@ -28,9 +28,7 @@ var bridge_progress: float = 0.0
 var bridge_down: bool = false
 
 var _view: Node2D
-var _safe_x: float = 0.0
-var _recover_left: float = 0.0
-var _hero_wave: int = -1
+var _player_states: Dictionary = {}
 var _enemy_wave: Dictionary = {}
 var _bridge_falling: bool = false
 var _projectile_serial: int = -800000
@@ -54,7 +52,6 @@ func configure(room: Dictionary) -> void:
 	tuning.merge(data[kind].duplicate(true), true)
 	tuning.floor = float(room.get("floor", tuning.floor))
 	tuning.merge(settings.duplicate(true), true)
-	_safe_x = float(tuning.get("gap", [0])[0]) - float(tuning.recovery_inset)
 	if kind == "port":
 		deck_x = _dock_x(false)
 		dock_wait = float(tuning.dock_seconds)
@@ -88,7 +85,6 @@ func advance(run, delta: float, paused: bool) -> void:
 	for enemy in run.enemies:
 		if is_instance_valid(enemy) and not enemy.dead:
 			_enemy_previous[enemy.get_instance_id()] = enemy.position
-	_recover_left = maxf(0, _recover_left - delta)
 	if kind == "port":
 		_advance_port(run, delta)
 	elif kind == "metro":
@@ -149,13 +145,19 @@ func after_move(run, previous: Vector2, _delta: float) -> void:
 	if kind not in ["port", "roofs"]:
 		return
 	var feet: Vector2 = run.moose.position
+	var player := _player_state(run.moose)
 	if (
 		not _in_gap(feet.x)
 		and absf(feet.y - float(tuning.floor)) < float(tuning.boarding_tolerance)
 	):
 		var side: float = -1 if feet.x < _gap_center() else 1
-		_safe_x = (float(tuning.gap[0 if side < 0 else 1]) + side * float(tuning.recovery_inset))
-	if feet.y > float(tuning.floor) + float(tuning.recover_depth) and _recover_left <= 0:
+		player.safe_x = (
+			float(tuning.gap[0 if side < 0 else 1]) + side * float(tuning.recovery_inset)
+		)
+	if (
+		feet.y > float(tuning.floor) + float(tuning.recover_depth)
+		and elapsed >= player.recover_until
+	):
 		_recover(run)
 
 
@@ -292,6 +294,23 @@ func _advance_port(run, delta: float) -> void:
 		run.moose.position.x = deck_x + _ride_offset
 		_last_carried_x = run.moose.position.x
 		carried_distance += absf(deck_delta)
+	for actor in _party(run):
+		var hero: Node2D = actor.moose
+		var state := _player_state(hero)
+		var aboard: bool = (
+			actor.health > 0
+			and not hero.airborne
+			and _contains_x(old_deck, hero.position.x)
+			and absf(hero.position.y - old_deck.position.y) <= float(tuning.boarding_tolerance)
+		)
+		if aboard:
+			if state.riding:
+				state.offset += hero.position.x - float(state.last_x)
+			else:
+				state.offset = hero.position.x - before
+			hero.position.x = deck_x + float(state.offset)
+			state.last_x = hero.position.x
+		state.riding = aboard
 	for enemy in run.enemies:
 		if not is_instance_valid(enemy) or enemy.dead:
 			continue
@@ -349,12 +368,16 @@ func _advance_metro(run, delta: float) -> void:
 			wave_time = 0
 	if wave_state == "wave" and wave_time == 0:
 		_hit_player_wave(run)
+		for actor in _party(run):
+			if actor.health > 0:
+				_hit_player_wave(actor)
 		wave_state = "idle"
 		wave_time = float(tuning.interval_seconds)
 
 
 func _hit_player_wave(run) -> void:
-	if wave_state != "wave" or _hero_wave == waves:
+	var player := _player_state(run.moose)
+	if wave_state != "wave" or player.wave == waves:
 		return
 	var feet: Vector2 = run.moose.position
 	var crouching: bool = (
@@ -368,7 +391,7 @@ func _hit_player_wave(run) -> void:
 		Vector2(float(tuning.body_half_width) * 2, tuning.body_height)
 	)
 	if wave_rect().intersects(body):
-		_hero_wave = waves
+		player.wave = waves
 		player_wave_hits += 1
 		run._hurt_player(
 			int(tuning.player_damage), feet - Vector2(wave_direction * tuning.wave_width, 0), true
@@ -474,11 +497,12 @@ func _block_passage(run, previous: Vector2) -> void:
 
 func _recover(run) -> void:
 	falls += 1
-	_recover_left = float(tuning.recovery_cooldown)
+	var player := _player_state(run.moose)
+	player.recover_until = elapsed + float(tuning.recovery_cooldown)
 	var facing: float = run.moose.facing
 	if run.health > 1 and int(tuning.fall_damage) > 0:
 		run._hurt_player(mini(int(tuning.fall_damage), run.health - 1), run.moose.position, false)
-	run.moose.position = Vector2(_safe_x, tuning.floor)
+	run.moose.position = Vector2(player.safe_x, tuning.floor)
 	run.floor_y = float(tuning.floor)
 	run.lift = 0
 	run.vertical_speed = 0
@@ -511,6 +535,12 @@ func _occupied(run, rect: Rect2) -> bool:
 	var feet: Vector2 = run.moose.position
 	if _contains_x(rect.grow(float(tuning.body_half_width)), feet.x):
 		return true
+	for actor in _party(run):
+		if (
+			actor.health > 0
+			and _contains_x(rect.grow(float(tuning.body_half_width)), actor.moose.position.x)
+		):
+			return true
 	for enemy in run.enemies:
 		if is_instance_valid(enemy) and not enemy.dead and rect.intersects(enemy.hurtbox()):
 			return true
@@ -579,3 +609,69 @@ func _feedback(run, at: Vector2, caption: String, sound: String) -> void:
 func _notice(run, caption: String) -> void:
 	run._notice = caption
 	run._notice_left = float(tuning.notice_seconds)
+
+
+func _party(run) -> Array:
+	var coop = run.get("coop")
+	if is_instance_valid(coop) and coop.active and coop.hosting:
+		return coop.actors.values()
+	return []
+
+
+func _player_state(hero: Node2D) -> Dictionary:
+	var id := hero.get_instance_id()
+	if not _player_states.has(id):
+		_player_states[id] = {
+			"safe_x": float(tuning.get("gap", [0])[0]) - float(tuning.recovery_inset),
+			"recover_until": 0.0,
+			"wave": -1,
+			"riding": false,
+			"offset": 0.0,
+			"last_x": 0.0
+		}
+	return _player_states[id]
+
+
+func network_state() -> Dictionary:
+	var state := {}
+	for key: String in [
+		"elapsed",
+		"deck_x",
+		"deck_delta",
+		"dock_wait",
+		"deck_right",
+		"riding",
+		"falls",
+		"carried_distance",
+		"wave_state",
+		"wave_time",
+		"wave_x",
+		"wave_previous_x",
+		"wave_direction",
+		"waves",
+		"player_wave_hits",
+		"enemy_wave_hits",
+		"broken",
+		"cover_blocks",
+		"bridge_progress",
+		"bridge_down"
+	]:
+		state[key] = get(key)
+	var healths := []
+	for item: Dictionary in objects:
+		healths.append([item.health, item.flash, item.debris])
+	state["objects"] = healths
+	return state
+
+
+func apply_network_state(state: Dictionary) -> void:
+	for key: String in state:
+		if key != "objects":
+			set(key, state[key])
+	var healths: Array = state.get("objects", [])
+	for index in range(mini(healths.size(), objects.size())):
+		objects[index].health = int(healths[index][0])
+		objects[index].flash = float(healths[index][1])
+		objects[index].debris = float(healths[index][2])
+	if is_instance_valid(_view):
+		_view.queue_redraw()

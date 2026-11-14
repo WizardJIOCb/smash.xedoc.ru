@@ -4,6 +4,7 @@ extends Node
 const Actor = preload("res://scripts/network/coop_actor.gd")
 const Codec = preload("res://scripts/network/coop_codec.gd")
 const Lobby = preload("res://scripts/ui/coop_lobby.gd")
+const CampaignContact = preload("res://scripts/world/campaign_contact.gd")
 const ACTIONS = [
 	"left",
 	"right",
@@ -127,7 +128,7 @@ func join_room(player_name: String, code: String) -> void:
 
 func _build_id() -> String:
 	return (
-		"coop1-"
+		"coop2-"
 		+ FileAccess.get_file_as_string("res://data/district_rooms.json").sha256_text().left(12)
 	)
 
@@ -343,6 +344,8 @@ func before_step(delta: float) -> bool:
 			_revive_host()
 		else:
 			run.continuation.advance_lift(run, delta, false)
+			run.campaign_rules.advance(run, delta, false)
+			run.armory.advance(delta, run.enemies, true)
 			run._move_projectiles(delta)
 			return true
 	return false
@@ -367,6 +370,7 @@ func _context(actor: Actor, operation: String, delta: float = 0, payload: Array 
 		"combat":
 			if actor.night.advance(delta):
 				run._release_impulse()
+			CampaignContact.intercept_player_fire(run, run.campaign_rules, delta)
 			actor.armory.advance(delta, run.enemies, true, false)
 			run._resolve_attacks()
 		"interact":
@@ -563,7 +567,8 @@ func _snapshot() -> Dictionary:
 		"enemies": foes,
 		"pickups": pickups,
 		"projectiles": projectiles,
-		"lift": lift_state
+		"lift": lift_state,
+		"rules": run.campaign_rules.network_state()
 	}
 
 
@@ -587,6 +592,7 @@ func _apply_snapshot(state: Dictionary) -> void:
 		run.route.chapter = int(state.chapter)
 		run.cleared.assign(state.cleared)
 		run._load_room(int(state.room), 170)
+		run.campaign_rules.set_physics_process(false)
 		run.front.hide_menu()
 	_sync_members()
 	for data: Dictionary in state.players:
@@ -613,6 +619,7 @@ func _apply_snapshot(state: Dictionary) -> void:
 	run.world_night = bool(state.night)
 	run.quarantine = not run.cleared[run.room_index]
 	run.run_state = str(state.state)
+	run.campaign_rules.apply_network_state(state.get("rules", {}))
 	if run.run_state == "won":
 		run.route.finish()
 		run.front.completed_chapters = run.route.completed
