@@ -1,12 +1,12 @@
 {
   "rest": {"grip": [14, -42], "yaw": 2.6, "pitch": 0.55, "lean": -0.05, "weight": -3, "behind": 1},
-  "load": {"grip": [-2, -48], "yaw": 2.85, "pitch": 0.45, "lean": -0.12, "weight": -7, "behind": 1},
-  "drive": {"grip": [20, -45], "yaw": 1.3, "pitch": 0.15, "lean": 0.02, "weight": 1, "behind": 0},
-  "contact": {"grip": [60, -42], "yaw": 0.0, "pitch": 0.0, "lean": 0.20, "weight": 10, "behind": 0},
-  "follow": {"grip": [52, -36], "yaw": -1.2, "pitch": 0.25, "lean": 0.20, "weight": 10, "behind": 0},
-  "finish": {"grip": [14, -57], "yaw": -2.5, "pitch": 0.65, "lean": 0.05, "weight": 3, "behind": 1},
+  "load": {"grip": [-16, -50], "yaw": 2.85, "pitch": 0.45, "lean": -0.16, "weight": -8, "behind": 1},
+  "drive": {"grip": [-9, -54], "yaw": 1.3, "pitch": 0.15, "lean": -0.06, "weight": -3, "behind": 1},
+  "contact": {"grip": [60, -38], "yaw": 0.0, "pitch": 0.0, "lean": 0.24, "weight": 12, "behind": 0},
+  "follow": {"grip": [-15, -32], "yaw": -1.2, "pitch": 0.25, "lean": 0.16, "weight": 8, "behind": 1},
+  "finish": {"grip": [-18, -51], "yaw": -2.5, "pitch": 0.65, "lean": -0.03, "weight": -3, "behind": 1},
   "guard": {"grip": [1, -48], "yaw": 1.0, "pitch": 1.0, "lean": -0.05, "weight": -3, "behind": 0},
-  "drive_at": 0.68, "follow_at": 0.32, "finish_at": 0.68,
+  "drive_at": 0.4, "follow_at": 0.32, "finish_at": 0.68,
   "depth_slope": 0.18, "min_projection": 0.65,
   "wrist_limit": 0.7, "near_bend": -1.0, "far_bend": -1.0,
   "min_arm_reach": 24.0, "max_arm_reach": 59.0

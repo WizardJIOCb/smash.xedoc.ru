@@ -2,10 +2,10 @@
 
 PROJECT: Лось: район закрыт
 PHASE: 5 — Assets and look-dev
-UPDATED: 2026-11-14 15:34
+UPDATED: 2026-11-14 20:14
 
 ## Now
-Пользователь играет smash.xedoc.ru: с обоих лифтов можно пройти прямо на верхнюю площадку. Общие art/feel gates открыты.
+Опубликовать v40 и проверить стойку, замах, попадания и возврат биты в публичной игре. Пользователь оценивает движение; art/feel gates открыты.
 
 ## Open questions
 - none
@@ -59,3 +59,4 @@ UPDATED: 2026-11-14 15:34
 | 2026-11-14 14:57 | 5 — Assets and look-dev | v38 опубликована541ed78: исправлены рукава и двуручный молот Бригадира, кастеты на обеих кистях.51GUT/722; native boss79/knuckles41frames0errors и depot won58.68s14kills4relays100HP. Public13kills3relays/лифт/мост/босс, кастеты right-left/2hits/G и молот lift/contact/recovery проверены,console0/cache2hit1download.18hashes,rollbackv37,рекорды сохранены при активации,QA закрыта без отправки результата. | Пользователь оценивает Бригадира, двуручный молот и кастеты на smash.xedoc.ru. Общие art/feel gates открыты. |
 | 2026-11-14 15:29 | 5 — Assets and look-dev | v39: закрыт20pxзазор у лифта в депо и башне; настил и все поверхности продлены до786 с4pxперекрытием. Обе полные native главы выиграны, выход с лифта jumps0/drop0. Native capture71frames0errors, переход просмотрен.51GUT/722, Web clean. | Опубликовать v39 на smash.xedoc.ru и проверить переход с лифта без прыжка в публичном браузере. |
 | 2026-11-14 15:34 | 5 — Assets and look-dev | v39 опубликована0467d82: оба лифта соединены с верхним настилом без20pxзазора.51GUT/722; обе native главы won100HP, выходы jumps0/drop0,71frames0errors. Public depot13kills2relays100HP: проход714.75->899.85->741.88->809.48,feet350/jumps0,console0/cache2hit1download.18hashes,rollbackv38,scores preserved at activation,QA closed/no score sent. | Пользователь играет smash.xedoc.ru: с обоих лифтов можно пройти прямо на верхнюю площадку. Общие art/feel gates открыты. |
+| 2026-11-14 20:14 | 5 — Assets and look-dev | v40: переработана траектория биты — более глубокий отвод назад, ранняя фаза за плечом, резкий выход с переносом веса, руки отводятся от лица до возврата ствола за голову. Native126frames0errors/both facings/3stances/queued swings, gap0.00019px/shoulder drift0; contact48frames3hits0errors.51GUT/734,Web clean,clip decoded. | Опубликовать v40 и проверить стойку, замах, попадания и возврат биты в публичной игре. Пользователь оценивает движение; art/feel gates открыты. |

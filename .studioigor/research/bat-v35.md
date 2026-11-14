@@ -17,3 +17,12 @@ horizontal swing plane with barrel foreshortening, weight shift before planted-l
 Keep hand artwork full width while barrel shortens in depth; restore ordinary fists
 on drop/death. Damage remains confined to the forward sweep.
 Images are private reference evidence only, excluded from the game export.
+
+## v40 trajectory correction — 2026-11-14
+- Previous drive moved the grip forward while the barrel was still upright; its
+  return also raised the barrel before the hands had withdrawn from the face.
+- Load pulls both hands behind the shoulder. The early drive stays back, then
+  accelerates into contact with the weight transfer. Recovery withdraws the
+  hands before bringing the barrel behind the head and back to the ready pose.
+- Preserve distinct hand artwork, native wrist/shoulder attachment, timing and
+  active damage window. Review isolated/queued swings in both facings/three stances.

@@ -279,21 +279,34 @@ func test_bat_late_return_cannot_reverse_and_buffered_swing_keeps_current_pose()
 			var chain_jump := 0.0
 			var reversed_return := false
 			var return_samples := 0
+			var upright_return_samples := 0
+			var returns_in_front_of_face := false
 			var queued := false
-			for frame in range(130):
+			for frame in range(520):
 				var timing: Dictionary = hero.combat.timings()
 				if not queued and hero.combat.elapsed >= float(timing.chain) - 0.12:
 					hero.combat.request("punch", stance[0], stance[1])
 					queued = true
-				armory.advance(1.0 / 60, [], true)
-				hero.combat.advance(1.0 / 60, stance[0], stance[1])
-				hero._process(1.0 / 60)
+				armory.advance(1.0 / 240, [], true)
+				hero.combat.advance(1.0 / 240, stance[0], stance[1])
+				hero._process(1.0 / 240)
 				armory._process(0)
 				var tip: Vector2 = armory.visual.to_global(Vector2(100, 0))
 				if hero.combat.serial != last_serial:
 					chain_jump = maxf(chain_jump, tip.distance_to(previous))
 				last_serial = hero.combat.serial
 				previous = tip
+				if (
+					hero.combat.elapsed > float(timing.hold)
+					and absf(cos(hero.melee_angle)) < 0.3
+					and sin(hero.melee_angle) < 0
+				):
+					upright_return_samples += 1
+					returns_in_front_of_face = (
+						returns_in_front_of_face
+						or hero.melee_origin.x > hero.bones.hips.position.x
+						or float(hero.bat_pose.pose.behind) <= 0.5
+					)
 				var finish := lerpf(
 					float(timing.hold),
 					float(timing.duration),
@@ -306,6 +319,11 @@ func test_bat_late_return_cannot_reverse_and_buffered_swing_keeps_current_pose()
 					reversed_return = reversed_return or axis.x > 0
 					return_samples += 1
 			assert_gt(return_samples, 0, "The final recovery was rendered")
+			assert_gt(upright_return_samples, 0, "Exercise the upright part of recovery")
+			assert_false(
+				returns_in_front_of_face,
+				"Withdraw the hands before returning the bat behind the head"
+			)
 			assert_false(
 				reversed_return, "Returning over the shoulder cannot swing the barrel forward again"
 			)
