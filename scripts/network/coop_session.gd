@@ -161,11 +161,13 @@ func _process(delta: float) -> void:
 		if not _pending.is_empty():
 			send(_pending)
 			_pending = {}
-		while socket.get_available_packet_count() > 0:
+		while socket != null and socket.get_available_packet_count() > 0:
 			var packet = JSON.parse_string(socket.get_packet().get_string_from_utf8())
 			if packet is Dictionary:
 				_last_packet = Time.get_ticks_msec()
 				_receive(packet)
+				if socket == null:
+					return
 	elif socket.get_ready_state() == WebSocketPeer.STATE_CLOSED:
 		_fail("Соединение потеряно. Можно создать новую комнату или войти снова.")
 		return
