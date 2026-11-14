@@ -311,3 +311,36 @@ func test_bat_late_return_cannot_reverse_and_buffered_swing_keeps_current_pose()
 			)
 			assert_eq(hero.combat.serial, 2, "Exercise a real buffered second swing")
 			assert_lt(chain_jump, 10.0, "A new swing must start from the pose already on screen")
+
+
+func test_worn_knuckles_keep_short_reach_for_either_hand_and_clear_on_drop_or_death() -> void:
+	for facing: float in [-1.0, 1.0]:
+		var armory = make_armory()
+		var hero: Node2D = armory.hero
+		hero.facing = facing
+		armory.grant("knuckles")
+		var sides: Array[String] = []
+		for index in range(2):
+			hero.combat.request("punch", false)
+			sides.append(hero.combat.side)
+			hero.combat.elapsed = 0.18
+			hero._process(1.0 / 60)
+			armory._process(0)
+			var hand: Vector2 = hero.bones[hero.combat.side + "_hand"].to_global(Vector2(0, 15))
+			var tip: Vector2 = armory.melee_tip(hand, "punch")
+			assert_almost_eq(tip.distance_to(hand), 6.0, 0.01, "Worn art scale cannot change reach")
+			assert_gt((tip.x - hand.x) * facing, 0.0, "Both punches extend toward the enemy")
+			hero.combat.interrupt()
+		assert_eq(sides, ["near", "far"], "Knuckles retain both hand attacks")
+		assert_eq(armory.melee_damage(20, "punch"), 27)
+		assert_eq(armory.melee_damage(20, "kick"), 20)
+		armory.drop(500)
+		armory._process(0)
+		assert_false(armory._offhand.visible, "Dropping the pair clears the far hand too")
+		armory.grant("knuckles")
+		armory._process(0)
+		hero.ragdoll_active = true
+		armory.advance(0, [], true)
+		armory._process(0)
+		assert_false(armory._offhand.visible)
+		assert_false(armory.visual.visible)

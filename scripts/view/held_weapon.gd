@@ -10,6 +10,9 @@ var grip_active: bool = false
 var bat_length: float = 1.0
 var bat_behind_head: bool = true
 var wrist_directions: Dictionary = {}
+var knuckles_worn: bool = false
+var knuckle_width: float = 320
+var knuckle_crop: float = 0.74
 var bat_grip: Texture2D = load("res://assets/weapons/bat-held-v3.png")
 var grip_data: Dictionary = (
 	JSON.parse_string(FileAccess.get_file_as_string("res://data/weapon_grips.json")).bat
@@ -70,6 +73,14 @@ func equip(id: String) -> void:
 
 func _draw() -> void:
 	if weapon_id == "bat" and grip_active:
+		return
+	if weapon_id == "knuckles" and knuckles_worn:
+		var height := knuckle_width * painting.get_height() * knuckle_crop / painting.get_width()
+		draw_texture_rect_region(
+			painting,
+			Rect2(-knuckle_width / 2, -height / 2, knuckle_width, height),
+			Rect2(0, 0, painting.get_width(), painting.get_height() * knuckle_crop)
+		)
 		return
 	if painting != null:
 		var widths := {

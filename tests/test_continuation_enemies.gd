@@ -104,3 +104,31 @@ func test_boss_phase_thresholds_and_native_death_preserve_topology() -> void:
 	assert_signal_emit_count(boss, "defeated", 1)
 	for body: RigidBody2D in boss.corpse.physical_bodies:
 		assert_true(body.position.is_finite())
+
+
+func test_foreman_both_grips_stay_on_the_handle_through_load_strike_and_return() -> void:
+	var boss := Enemy.new()
+	boss.kind = "foreman"
+	boss.tuning = (
+		JSON.parse_string(FileAccess.get_file_as_string("res://data/encounters.json")).foreman
+	)
+	add_child_autofree(boss)
+	boss.set_physics_process(false)
+	var largest_gap := 0.0
+	var largest_elbow := 0.0
+	for facing: float in [-1.0, 1.0]:
+		boss.rig.facing = facing
+		for index in range(121):
+			var time := index / 120.0
+			boss.rig.wind = sin(time * PI) if time < 0.5 else 0.0
+			boss.rig.strike = sin((time - 0.5) * TAU) if time >= 0.5 else 0.0
+			boss.rig._process(1.0 / 60)
+			var support: Array = boss.rig.weapon_pose.tuning.foreman.support
+			var painted: Vector2 = boss.rig.bones.weapon.to_global(Vector2(support[0], support[1]))
+			largest_gap = maxf(
+				largest_gap, painted.distance_to(boss.rig.bones.far_hand.global_position)
+			)
+			for side: String in ["near", "far"]:
+				largest_elbow = maxf(largest_elbow, absf(boss.rig.bones[side + "_fore"].rotation))
+	assert_lt(largest_gap, 0.05, "The lower hand cannot separate from the moving hammer")
+	assert_lt(rad_to_deg(largest_elbow), 145.0, "Neither elbow folds back onto the shoulder")

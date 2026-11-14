@@ -1,7 +1,7 @@
 {
   "beaver": {"head_socket": [0, -57], "head_pivot": [0.49, 0.87], "weapon_size": [36, 92]},
   "hare": {"head_socket": [0, -57], "head_pivot": [0.47, 0.87], "weapon_size": [34, 90]},
-  "foreman": {"head_socket": [0, -57], "head_pivot": [0.4, 0.87], "weapon_size": [39, 100]},
+  "foreman": {"head_socket": [0, -57], "head_pivot": [0.4, 0.87], "weapon_size": [43, 112], "weapon_pivot": [0.5, 0.65]},
   "fox": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [54, 28], "weapon_pivot": [0.78, 0.72], "muzzle": [0.02, 0.22]},
   "lynx": {"head_socket": [0, -57], "head_pivot": [0.5, 0.87], "weapon_size": [120, 58], "weapon_pivot": [0.66, 0.57], "muzzle": [0.02, 0.18]},
   "firewall": {"weapon_size": [110, 40]}

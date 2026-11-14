@@ -228,7 +228,8 @@ func _process(delta: float) -> void:
 	bones.far_fore.rotation += wind * 0.35 - strike * 0.55
 	if kind in ["beaver", "foreman", "hare"]:
 		# Source faces left: the trunk follows the forward blow to the left too.
-		bones.body.rotation = wind * 0.16 - strike * 0.28 - hurt * 0.24 + collapse * 1.3
+		var wind_lean := 0.0 if kind == "foreman" else 0.16
+		bones.body.rotation = wind * wind_lean - strike * 0.28 - hurt * 0.24 + collapse * 1.3
 	elif kind in ["fox", "lynx", "firewall"]:
 		# Both hands stay on the gun; far arm supports the fore-end.
 		bones.near_arm.rotation = upper_rest + 0.35 + wind * 0.08 - recoil * 0.2

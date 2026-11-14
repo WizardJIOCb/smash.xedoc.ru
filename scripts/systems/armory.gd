@@ -34,6 +34,7 @@ var _held: bool = false
 var _playing: bool = true
 var _serial: int = -1000000
 var _clock: float = 0.0
+var _offhand: Node2D
 
 
 func configure(actor: Node2D) -> void:
@@ -225,6 +226,8 @@ func melee_tip(original: Vector2, kind: String) -> Vector2:
 		return original
 	_update_visual()
 	var reach := float(tuning.weapons[equipped].reach)
+	if equipped == "knuckles":
+		return original + Vector2(hero.facing * reach * hero.power_scale, 0)
 	if equipped == "bat" and visual.grip_active:
 		var grip_end := (
 			(float(visual.grip_data.shaft_start) - float(visual.grip_data.pivot[0]))
@@ -327,6 +330,21 @@ func _update_visual() -> void:
 	var hand: Bone2D = hero.bones.near_hand
 	visual.global_position = hand.to_global(Vector2(0, 7))
 	visual.grip_active = equipped == "bat" and hero.bat_grip_active
+	visual.z_index = 0 if equipped == "knuckles" else -3
+	visual.knuckles_worn = equipped == "knuckles"
+	if is_instance_valid(_offhand):
+		_offhand.visible = equipped == "knuckles" and hero.visible and not hero.ragdoll_active
+	if equipped == "knuckles":
+		if not is_instance_valid(_offhand):
+			_offhand = HeldWeapon.new()
+			_offhand.equip("knuckles")
+			_offhand.z_as_relative = false
+			_offhand.z_index = 8
+			add_child(_offhand)
+		_offhand.visible = hero.visible and not hero.ragdoll_active
+		_wear_knuckles(visual, "near")
+		_wear_knuckles(_offhand, "far")
+		return
 	if visual.grip_active:
 		visual.global_position = hero.to_global(hero.melee_origin)
 		visual.bat_length = hero.melee_length
@@ -348,6 +366,21 @@ func _update_visual() -> void:
 			var wrist: Vector2 = hero.bones[side + "_hand"].global_position
 			var elbow: Vector2 = hero.bones[side + "_fore"].global_position
 			visual.wrist_directions[side] = visual.to_local(elbow) - visual.to_local(wrist)
+
+
+func _wear_knuckles(art: Node2D, side: String) -> void:
+	var spec: Dictionary = tuning.weapons.knuckles.wear[side]
+	var source: Sprite2D = hero.bones[side + "_hand"].get_node(
+		"fist_back" if side == "near" else "fist"
+	)
+	art.knuckles_worn = true
+	art.knuckle_width = float(spec.width)
+	art.knuckle_crop = float(tuning.weapons.knuckles.wear.crop)
+	art.global_transform = source.global_transform * Transform2D(float(spec.angle), Vector2.ZERO)
+	art.global_position = source.to_global(
+		source.texture.get_size() * Vector2(spec.uv[0], spec.uv[1])
+	)
+	art.queue_redraw()
 
 
 func _swing_started(kind: String, _side: String, _air: bool, _low: bool) -> void:
@@ -534,6 +567,10 @@ func _cancel_reload() -> void:
 
 
 func _refresh() -> void:
+	if is_instance_valid(_offhand):
+		_offhand.visible = (
+			equipped == "knuckles" and is_instance_valid(hero) and not hero.ragdoll_active
+		)
 	if is_instance_valid(hero):
 		hero.held_firearm = equipped if is_ranged() else ""
 		hero.held_melee = equipped if not is_ranged() else ""

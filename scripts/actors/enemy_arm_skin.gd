@@ -47,6 +47,10 @@ func setup(rig: Skeleton2D, bones: Dictionary, kind: String, side: String) -> vo
 			texcoords.append(uv_point * texture.get_size())
 			var fore_weight := smoothstep(0.38, 0.65, uv_point.y)
 			var hand_weight := smoothstep(0.78, 0.89, uv_point.y)
+			if kind == "foreman":
+				var axis := (WRIST - ELBOW) * SIZE
+				var along := ((uv_point - ELBOW) * SIZE).dot(axis) / axis.length_squared()
+				hand_weight = smoothstep(0.8, 1.0, along)
 			upper.append(1 - fore_weight)
 			lower.append(fore_weight * (1.0 - hand_weight))
 			wrist.append(hand_weight)
@@ -55,6 +59,8 @@ func setup(rig: Skeleton2D, bones: Dictionary, kind: String, side: String) -> vo
 				var layer: Array[PackedInt32Array] = (
 					hand_faces if row >= 14 and not wrapped_grip else faces
 				)
+				if kind == "foreman":
+					layer = hand_faces if col < 3 and row >= 11 else faces
 				layer.append(PackedInt32Array([index, index + 1, index + 8]))
 				layer.append(PackedInt32Array([index, index + 8, index + 7]))
 	polygon = points

@@ -2,10 +2,10 @@
 
 PROJECT: Лось: район закрыт
 PHASE: 5 — Assets and look-dev
-UPDATED: 2026-11-14 14:12
+UPDATED: 2026-11-14 14:45
 
 ## Now
-Пользователь в целом принял стойку/взмах v36; оценивает исправленные слои биты v37 на smash.xedoc.ru. Общие art/feel gates открыты.
+Опубликовать v38 и проверить кастеты и Бригадира в публичной игре. Пользователь оценивает вид и движения; art/feel gates открыты.
 
 ## Open questions
 - none
@@ -55,3 +55,4 @@ UPDATED: 2026-11-14 14:12
 | 2026-11-14 14:03 | 5 — Assets and look-dev | v36 published b53e6fd: fixed torso shoulders/rear upper-arm layer and wrist/cuff skin, smooth recovery/buffered entry and rear-diagonal ready.49GUT/700; native126chain+15attachment+23gun frames0errors/shoulder drift0px. Public6swings7hits2kills100HP, both facings and Tab/G verified,console0/cache2hit1download.18hashes,rollbackv35,scores preserved;QA closed. | Пользователь оценивает кисти, дальнее плечо, стойку и возврат биты на smash.xedoc.ru. Art/feel gates открыты; физический телефон не проверен. |
 | 2026-11-14 14:09 | 5 — Assets and look-dev | v37: пользователь в целом принимает v36, просит убрать уход биты под руку в стойке. Shaft split now stays in front of sleeves and under fingers; distal barrel keeps head occlusion, with correct inherited front depth.49GUT/700; native63frames/0errors, shoulder drift0px, same motion/grip geometry; Web clean. | Опубликовать v37 и проверить обычную стойку и удары на сайте. Остальные позы и движение сохранены; пользователь оценивает внешний вид. |
 | 2026-11-14 14:12 | 5 — Assets and look-dev | v37 published a635d4f: idle bat shaft stays in front of sleeve/under fingers; distal barrel keeps head occlusion.49GUT/700,native63frames0errors,public right/left ready +2swings3hits100HP and G/fists/plain pickup checked,console0/cache2hit1download.18hashes,rollbackv36,scores preserved,QA closed. | Пользователь в целом принял стойку/взмах v36; оценивает исправленные слои биты v37 на smash.xedoc.ru. Общие art/feel gates открыты. |
+| 2026-11-14 14:45 | 5 — Assets and look-dev | v38: foreman rear sleeve behind torso, wrist weights follow diagonal cuff; two-hand hammer grip/size and front lift/strike rebuilt. Knuckle plates follow both actual fists, with short reach and drop/death cleanup.51GUT/722, clean Web; boss79frames/both phases/support gap0.00019px, knuckles both facings; native depot route won58.68s/14kills4relays100HP/phases1,2. | Опубликовать v38 и проверить кастеты и Бригадира в публичной игре. Пользователь оценивает вид и движения; art/feel gates открыты. |

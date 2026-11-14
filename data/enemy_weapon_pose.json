@@ -6,6 +6,7 @@
   "heavy_wind": [54, -30],
   "wind_by_kind": {"foreman": [24, -19]},
   "heavy_strike": [-28, -43],
+  "foreman": {"rest": [-23, -22], "wind": [-35, -35], "strike": [-34, -26], "angles": [-0.45, -0.05, -1.5], "support": [0, 22]},
   "light_rest": [-12, -24],
   "light_angles": [-0.65, 1.0, -1.15],
   "light_wind": [48, -15],
