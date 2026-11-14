@@ -24,8 +24,9 @@ def main():
     (output / 'api').mkdir()
     shutil.copy2(ROOT / 'deploy/api/scores.php', output / 'api/scores.php')
     cover = ROOT / f'.studioigor/captures/menu-v{version}/frame_002.png'
-    if cover.exists():
-        shutil.copy2(cover, output / 'cover.png')
+    if not cover.exists():
+        cover = ROOT / 'art/site/cover.png'
+    shutil.copy2(cover, output / 'cover.png')
     for name in [path.name for path in output.glob('game-*') if path.suffix in ('.js', '.wasm', '.pck')]:
         data = (output / name).read_bytes()
         (output / (name + '.gz')).write_bytes(gzip.compress(data, mtime=0))
