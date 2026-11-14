@@ -1,28 +1,37 @@
-# Public release v40
+# Public release v41
 
-- Domain:https://smash.xedoc.ru/
-- Runtime source:d73e2117475bb2834480f6f862848b6335f18bb4
-- Current:/var/www/smash.xedoc.ru/releases/v40-d73e2117475b
-- Rollback:/var/www/smash.xedoc.ru/releases/v39-0467d8267168
-- Archive:93,547,752bytes;18verified files.
-- SHA256:af69b68b526478c2ae4e84827f8721a11422e45ba0fca10639d4e866888c6bd9
+- Domain: https://smash.xedoc.ru/
+- Runtime source: 09555709073fb29095d58345f3f1d9cbcdd74890
+- Current: /var/www/smash.xedoc.ru/releases/v41-09555709073f
+- Rollback: /var/www/smash.xedoc.ru/releases/v40-d73e2117475b
+- Archive: 147,325,675 bytes; 19 verified files.
+- SHA256: 8aac43e64958fc5b58465239e16c6e60f0e57dd719e759261200b1c6028c913c
+- PCK: game-07e68dccd38485851cf1.pck
 
-Bat load pulls the hands farther back; early drive stays behind the shoulder
-before accelerating into contact with the weight transfer. Recovery withdraws
-the hands before raising the barrel behind the head. Distinct palms, wrist/shoulder
-attachments, attack timing and active damage interval are preserved.
+Four approved chapters add16 rooms,16 original backgrounds,eight ordinary
+species and four bosses. Moving cargo decks,warned train waves,breakable vines
+and billboard bridges connect the post-quarantine story. Seven chapters/27rooms.
 
 Validation:
--51GUT/734assertions, format/lint, clean Web export. Regression samples the return
-  at240Hz to catch the brief upright phase in all stances and both facings.
-- Native126frames/0errors, queued swings in both facings/standing/low/air reviewed;
-  grip gap0.00019px, shoulder drift0px, maxelbow133.70deg. Native contact48frames,
-  three hits/0errors; 3.2s motion clip encoded and decoded.
-- Public revision40: left/right load, hit and recovery viewed;7swings/7hits/2kills/
-  100HP. G restores fists/one plain bat pickup. Console0errors,cache2hits/1download;
-  QA tab closed before victory, no score sent.
-- HTTPS/release.json200,18manifest hashes verified, PHP/nginx valid, services active.
-  Scores unchanged during activation:
-  d6f928b45f98499c442a69bf5f6fd36486e0d7e2e9a15d10a29e7ae0997897d6.
-- Evidence:.studioigor/captures/bat-return-final-v40,bat-contact-final-v40,public-v40.
-  User appearance/feel acceptance remains open.
+-70GUT/1089assertions,format/lint and clean Web export.
+- Complete ordinary-input routes II-VII:no deaths;three lift transfers require
+ zero jumps/height drop. Boss phases2/2/2/3.
+- Native IV31,V29,VI32,VII34 frames complete without errors. Final ending6frames/
+ 0errors;story wrapping and garden/roof endings viewed.
+- Real-rig terrain36frames/0errors:deck carries70px,pause drift0,bodies sink in
+ water and rest on the lowered bridge. Water has no solid base floor.
+- PHP seven isolated chapter contracts and ten original API checks pass.
+- Public revision41:seven chapter picker,wrapped intro,shovel pickup,six hits/
+ two kills/97HP,block,death/upright R recovery;console0errors,first visit3downloads/
+ cache ready. No leaderboard submitted.
+- HTTPS/release metadata and four public hashes match the frozen package;
+ all19hashes verified by installer,seven score endpoints return their own rows.
+ Existing score state unchanged during activation:
+ 849a48604e8c4fa7144e07a9630d7c768a889fe25e048c12b736ad754025f94c.
+- Active nginx preserved byte-for-byte including independent cooperative routes;
+ nginx/PHP active,coop health ok. Config SHA256:
+ c51e3ef792d82cfaa721e42ed6cbd9b5b55c7668e19d8741e17fbdcaf5e67d9e.
+- Evidence:.studioigor/captures/aftermath-ch4 through ch6,aftermath-ch7-final,
+ aftermath-ending-final,campaign-terrain,public-v41.
+
+User appearance/feel and physical mobile acceptance remain open.
