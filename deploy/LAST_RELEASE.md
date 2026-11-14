@@ -1,34 +1,32 @@
-# Public release v35
+# Public release v36
 
 - Domain:https://smash.xedoc.ru/
-- Runtime source:6b1e92c7a56eb065a6737c1743d0e6286428adcf
-- Current:/var/www/smash.xedoc.ru/releases/v35-6b1e92c7a56e
-- Rollback:/var/www/smash.xedoc.ru/releases/v34-11abd8fdc1ab
-- Archive:93,535,571bytes;18verified files.
-- SHA256:e24b76fdf56d3d95c5dcfe3bda6c642f31157832870c87824aa15d8997d36f3d
+- Runtime source:b53e6fd56b4dc317fbfe9d60a42c5c14f55b1765
+- Current:/var/www/smash.xedoc.ru/releases/v36-b53e6fd56b4d
+- Rollback:/var/www/smash.xedoc.ru/releases/v35-6b1e92c7a56e
+- Archive:93,540,779bytes;18verified files.
+- SHA256:ede11aa5d91be348767afd835d3f0697de241e816e100fc7202ff4d8a0d8b91d
 
 Changes:
-- Bat motion rebuilt against real grip/sequence references: Little League coach photo,
-  Texas Rangers Youth Academy Baseball101 and a full batting photo sequence.
-- Shoulder-height ready/load; separate knob-led drive, level contact, wrap/finish and
-  return. Rear-to-front weight shift before planted-leg IK; shoulder follows the turn.
-- New palm-down/palm-up grip painting with wrists trailing toward forearms. Shared
-  grip constrained to both arm reach annuli; no wrist gap or fully folded elbows.
-- Projected depth changes barrel length only; painted hands retain width. Contact
-  geometry follows the rendered shaft, damage remains confined to the forward sweep.
+- Bat recovery follows the shortest angular path; buffered follow-up starts from the
+  displayed pose. Ready stance uses open elbows and a rear diagonal barrel.
+- Barrel passes behind the head in ready/load/finish; hands retain their front layer.
+- Furry wrist ends flex toward actual forearms while fingers remain on the handle.
+  Far cuff anchor centered; both shoulders stay fixed to the torso throughout swings.
+- Far upper arm stays behind the chest; forearm and hands retain their front layers.
+  Grip skin is created only for an equipped bat, without adding skeletons to pickups.
 
 Validation:
--48GUT/674assertions, format/lint, clean Web export. Both wrists stay within0.05px
-  through standing/crouch/air swings in both facings; maximum elbow below135degrees.
-  Drop/death restore original hands; rifle recoil support and damage regressions pass.
-- Final native63frames/0errors: worst wrist gap0.00019px at2.1scale, maxelbow133.70deg.
-  Game range96frames/3contacts; phases reviewed. Final390frame/60FPS,6.5s MP4 decoded.
-- Public revision35:6swings/7hits/2kills/100HP, right and left swing frames viewed;
-  Tab/G restores fists and leaves1plain bat pickup. Console0errors,cache2hits/1download,
-  scores online. QA/ref tabs closed; no leaderboard result submitted.
-- HTTPS/release.json,18manifest hashes, PHP/nginx and active services verified.
-  Scores unchanged during activation:
-  1d1a996775589f0719e2124f0562c57c08c4a5aec54f48cd7bc25e7a1ee20ca7.
-- Evidence:.studioigor/captures/public-v35,bat-final-v35,bat-contact-v35,
-  bat-motion-final-v35.mp4; research/bat-v35.md,gauntlet/bat-v35.
-  Reference comparison rounds record remaining style/feel judgment with the user.
+-49GUT/700assertions, format/lint and clean Web export. Regression covers recovery
+  direction, buffered continuity, shoulder attachment, wrists, drop/death and gun recoil.
+- Final native126chain frames/0errors, worst wrist gap0.00019px at2.1scale,
+  maxelbow133.70deg. Attachment15frames shows shoulder drift0px. Firearms23frames/0errors.
+  Final390frame/60FPS,6.5s motion clip decoded without errors.
+- Public revision36:6swings/7hits/2kills/100HP. Right/left swing and ready frames viewed;
+  Tab/G restores fists and leaves1plain bat pickup. Console0errors,cache2hits/1download;
+  FPS171-180 during the bounded combat check. QA tab closed; no leaderboard submission.
+- HTTPS/release.json and scores API200;18manifest hashes verified, PHP/nginx valid,
+  nginx/php8.3-fpm active. Scores unchanged during activation:
+  63649ebb1e88b410a541dd8c6d848f3e3aeb63856f9ef68d1ead70ccf031a2d6.
+- Evidence:.studioigor/captures/public-v36,bat-final-v36,bat-attachment-v36,
+  firearm-final-v36,bat-motion-final-v36.mp4. User appearance/feel acceptance stays open.
