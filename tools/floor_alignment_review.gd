@@ -1,8 +1,6 @@
 extends "res://scripts/world/district_run.gd"
 ## Native render review of every new room, with its production rigs and floor planes.
 
-const GroundContact = preload("res://scripts/world/ground_contact.gd")
-
 var _review_clock: float = 0
 var _review_room: int = 11
 var _review_rows: Array[Dictionary] = []

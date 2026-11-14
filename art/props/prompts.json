@@ -1,0 +1,83 @@
+[
+  {
+    "id": "metro-refuge",
+    "size": [
+      256,
+      360
+    ],
+    "prompt": "Use case: game-asset. Create ONE polished transparent-background 2D game sprite: a deep arched maintenance refuge built into an old underground station wall. Front elevation with a slight view into the recess, never isometric. Tall narrow proportions width:height 0.68, whole object visible with 4 percent transparent margin. Chunky hand-painted illustrated adventure-game art, rich irregular brushwork and believable worn materials, matching an overgrown dark teal and warm amber European industrial metro. Surround the deep nearly black teal recess with chipped glazed bottle-green ceramic tiles, aged ivory carved stone arch, a few bronze fasteners and moss roots; give the recess real inner side walls and a dim warm ceiling bulb, shadows and a little wet sill at the bottom. The OPEN dark doorway must be wide enough for a cartoon humanoid to shelter inside. Irregular tile edges, no rectangular UI frame, no flat colored box. A small brass shield-shaped emblem above arch, NO text or lettering, NO arrows, NO characters, NO ground plane outside the object, NO background wall beyond the outer frame, NO cast shadow outside the silhouette. Ambient light from upper left, restrained amber reflection on tile bevels. Genuine transparent outer background; the dark interior of the refuge itself is opaque. Crisp painted detail at gameplay size."
+  },
+  {
+    "id": "metro-signal",
+    "size": [
+      512,
+      144
+    ],
+    "prompt": "Use case: game-asset. Create ONE transparent-background 2D sprite of a beautifully hand-painted vintage metro warning indicator, a physical railway instrument rather than a UI panel. Wide horizontal proportion about 4.3:1, full object and small mounting lugs visible with empty transparent margin. Front elevation. Solid cast-iron dark petrol green housing with rounded battered corners, copper and brass rivets, old porcelain insets, three circular thick glass signal lenses on the LEFT (red, amber, mint, unlit softly reflective), a narrow BLACK empty mechanical destination display on the RIGHT with worn brass rim; make the empty display occupy 58 percent of total width and 46 percent of height for adding crisp text in game. Tiny screws, grime, a little ivy around top corner, short bundled conduit under one side. Warm amber side light, cool turquoise highlights, painterly illustrated game textures and irregular material detail. No text, no lettering, no symbols or logos. No rectangular colored flat placard, no mockup, no scenery or floor. Keep all decorative metal outside the empty dark display. Genuine transparency around housing."
+  },
+  {
+    "id": "roof-cover",
+    "size": [
+      224,
+      284
+    ],
+    "prompt": "Use case: game-asset. ONE isolated transparent-background 2D game sprite of a reinforced rooftop maintenance barricade, front view, whole silhouette visible. Tall crate-like cover, width to height about0.76. A heavy squat weathered steel cabinet filled with battered timber planks, a thick rusted diagonal steel brace, big bolts, small corner brackets, chipped dark teal enamel and faded ochre hazard paint in only a few places. Irregular dented edges, believable thickness, metal feet placed on a thin wet base shadow inside the silhouette. It must look like a hand-painted prop from a lush detailed animated industrial-city fighting game, NOT a flat rectangle, not UI, not vector art, not photorealistic3D render. Soft amber light from upper left and cool teal reflections, green moss strands at one base corner, small ivy leaves. No text, no lettering, no characters, no background, no broad ground plane. True transparent background. Make cabinet front occupy nearly all canvas with a small safe border."
+  },
+  {
+    "id": "garden-thicket",
+    "size": [
+      192,
+      352
+    ],
+    "prompt": "Use case: game-asset. ONE isolated transparent-background 2D sprite of a dense climb of tangled greenhouse vines that blocks a path, tall narrow width:height0.55. Whole silhouette visible. Five thick twisting woody stems grow from a compact rooted base and entangle with an old thin curved bronze trellis stake. Dense varied lush broad leaves, small fern fronds, a few pale flowers, curled tendrils, torn leaf edges, cool dark green shadowed interior, yellow-green and amber highlights. There MUST be organic irregular negative spaces and small transparent holes between leaves; do not make a rectangular green wall. Rich hand-painted illustrated adventure game artwork with minute natural texture, matching mossy glasshouses and overgrown old industrial city. Directional warm light from upper left, emerald/teal shadows. No labels, no text, no icons, no characters, no pot, no background, no scenery, no flat vector leaf diamonds. Transparent background including holes through foliage, no painted checkerboard."
+  },
+  {
+    "id": "port-carrier",
+    "size": [
+      512,
+      192
+    ],
+    "prompt": "Use case: game-asset. ONE transparent-background 2D game sprite of a long low dock cargo ferry deck, side view for a side-scrolling game. Whole object visible, about3.5 times as wide as tall. Heavy worn wooden planks form a level flat walking top at around55 percent down the sprite. Below: thick aged timber beams, rusted iron strapping, rivets and two hanging wheel blocks. Above the top, only two low corner mooring bollards and a very small tied canvas cargo bag near one end, leaving center walkable and empty. Rich irregular hand-painted animated-game detail, damp wood, scratched sea-green metal, warm amber highlights and cool teal river reflections. Perspective only enough to show the narrow wet plank top, perfectly horizontal baseline; NOT an isometric platform. No floor outside the platform, no water, no background, no characters, no text, no glowing symbols, no HUD. True transparent background. Plenty of space on canvas so no ends cropped."
+  },
+  {
+    "id": "billboard-bridge",
+    "size": [
+      768,
+      132
+    ],
+    "prompt": "Use case: game-asset. ONE isolated transparent-background sprite: a long narrow rectangular salvaged rooftop billboard panel lying HORIZONTALLY to be used as a walkable bridge in a side-scrolling game. Front/side elevation, entire object at about7:1 width:height. Straight level top, visible narrow upper walking surface, believable thick riveted steel rim, flaking faded teal and ivory enamel, half-worn decorative painted sunburst and cargo-crate emblem, NO letters or words. Two battered diagonal reinforcing braces underneath and a few torn ivy strands at the ends, long broad front panel with detailed scratches, dents and rusty bolts. A few faded yellow caution marks on end corners only. Painterly high-detail illustrated industrial city asset, warm amber sunlight and cool blue shadows, strong material depth. Not a flat colored box, not UI, not vector drawing. No giant supports or poles, no environment, no ground plane or cast shadow outside silhouette, no characters. Genuine transparent background, all endpoints fully visible."
+  },
+  {
+    "id": "bridge-support",
+    "size": [
+      104,
+      344
+    ],
+    "prompt": "Use case: game-asset. ONE isolated transparent-background sprite: a tall narrow breakable support mast for an old rooftop billboard. Front elevation with slight depth, about1:3.3 width:height, full object visible. Rusted teal angle-iron lattice with cross braces, copper bolts and two thick aged wooden slats strapped inside, chunky rectangular metal mounting foot, torn short ivy strand. A small worn ochre binding around lower middle makes weak joint readable, no text or icon. Warm light from upper left, cool teal reflected light in shadows. Extremely detailed hand-painted illustrated industrial city game prop, rough metal, chipped enamel, material thickness and irregular edges. NO simple solid rectangle, no flat green box, no vector art. No billboard itself, no characters, no environment, no floor outside the object. True transparent background with transparent holes between braces."
+  },
+  {
+    "id": "river-opening",
+    "size": [
+      768,
+      320
+    ],
+    "prompt": "Use case: game-asset. Create a polished hand-painted illustrated 2D background patch of dark teal river water seen obliquely from the bank, for a side-scrolling industrial port. WIDE landscape3:1. The image consists ONLY OF WATER all the way to all edges, from nearest rippling water at bottom to slightly calmer water at top; NO horizon, NO land, NO shoreline, NO boats, NO posts, NO characters, NO objects. Soft vertically broken amber and turquoise industrial light reflections, richly painted small ripples and depth, dark bottle-green and petrol blues. Restrained light patches, not bright bands, detailed tactile brushwork matching a warm-lit overgrown industrial-city game. Opaque texture. Do not include any frame, outline, text or UI. Keep the left and right edges visually consistent for repeating or fitting a river opening."
+  },
+  {
+    "id": "roof-opening",
+    "size": [
+      768,
+      384
+    ],
+    "prompt": "Use case: game-asset. Create a polished illustrated 2D environment patch for the dark VOID BETWEEN TWO ROOFTOP WALKWAYS in a side-scrolling city game. Wide landscape2.8:1. View across a narrow deep vertical alley toward a slightly farther old industrial apartment facade; facade completely fills the entire canvas edge to edge, NO sky or horizon, NO ground, NO near left or right walls. Many dim irregular small amber windows, chipped petrol-blue plaster, pipes, metal walkways and very sparse ivy in deep teal shadow, soft atmospheric perspective, subtle warm sunrise rim accents. Small architectural scale suggests a deep drop. Hand-painted high-detail cartoon adventure-game art, material depth and irregular texture, not photorealistic. Quiet dark values so actors and foreground bridges remain readable. Opaque image, no border, no labels, no words, no characters."
+  }
+,
+{
+  "id": "masonry-bank",
+  "size": [
+    128,
+    320
+  ],
+  "prompt": "Use case: game-asset. ONE isolated transparent-background 2D sprite of the exposed cut edge of an old industrial stone quay or rooftop walkway, a tall narrow vertical masonry end cap. Front/side elevation for a side-scrolling game, about1:3 width:height. A LEVEL small flat mossy stone walking lip across top, below it a rugged dark teal-gray masonry vertical side with cracked rectangular blocks, deep aged mortar, thin rusty iron edge strapping, short roots and ivy draping from the lip down the RIGHT side. The LEFT side is roughly vertical; the RIGHT outline irregular against transparent space to face a deep water gap. Rich hand-painted animated game detail, moody deep shadow with cool wet highlights and a little amber light on the top stone. Believable chipped thickness, no evenly repeating vector blocks, no simple rectangle. No background, no water, no ground beyond the tiny top lip, no objects or characters, no text. Full object visible with genuinely transparent background. No large disconnected vines outside the main silhouette."
+}
+]

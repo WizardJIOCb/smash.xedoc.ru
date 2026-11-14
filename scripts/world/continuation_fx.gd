@@ -104,8 +104,10 @@ func sync_hud(run) -> void:
 	)
 	run.boss_label.text = ""
 	run.boss_bar.size.x = 0
+	run.boss_bar.get_parent().visible = false
 	for enemy: Enemy in run.enemies:
 		if enemy.boss and not enemy.dead:
+			run.boss_bar.get_parent().visible = true
 			run.boss_label.text = (
 				"%s · ФАЗА %d/%d" % [enemy.tuning.name, enemy.phase, enemy.phase_count]
 			)

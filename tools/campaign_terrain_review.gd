@@ -1,8 +1,6 @@
 extends "res://scripts/world/district_run.gd"
 ## Native physics fixture, not a route completion driver. Real rigs, death and corpse hits.
 
-const CampaignTerrain = preload("res://scripts/world/campaign_terrain.gd")
-
 var review_kind: String = "port"
 var review_seconds: float = 0
 var review_max_y: float = 0

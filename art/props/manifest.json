@@ -1,0 +1,82 @@
+[
+  {
+    "id": "metro-refuge",
+    "size": [
+      234,
+      360
+    ],
+    "source": "art/props/sources/metro-refuge.png"
+  },
+  {
+    "id": "metro-signal",
+    "size": [
+      512,
+      166
+    ],
+    "source": "art/props/sources/metro-signal.png"
+  },
+  {
+    "id": "roof-cover",
+    "size": [
+      213,
+      284
+    ],
+    "source": "art/props/sources/roof-cover.png"
+  },
+  {
+    "id": "garden-thicket",
+    "size": [
+      192,
+      352
+    ],
+    "source": "art/props/sources/garden-thicket.png"
+  },
+  {
+    "id": "port-carrier",
+    "size": [
+      512,
+      86
+    ],
+    "source": "art/props/sources/port-carrier.png"
+  },
+  {
+    "id": "billboard-bridge",
+    "size": [
+      768,
+      177
+    ],
+    "source": "art/props/sources/billboard-bridge.png"
+  },
+  {
+    "id": "bridge-support",
+    "size": [
+      80,
+      344
+    ],
+    "source": "art/props/sources/bridge-support.png"
+  },
+  {
+    "id": "river-opening",
+    "size": [
+      768,
+      256
+    ],
+    "source": "art/props/sources/river-opening.png"
+  },
+  {
+    "id": "roof-opening",
+    "size": [
+      768,
+      274
+    ],
+    "source": "art/props/sources/roof-opening.png"
+  },
+  {
+    "id": "masonry-bank",
+    "size": [
+      104,
+      320
+    ],
+    "source": "art/props/sources/masonry-bank.png"
+  }
+]

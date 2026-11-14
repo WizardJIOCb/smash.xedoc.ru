@@ -4,6 +4,11 @@ extends Node2D
 signal departed(upward: bool)
 signal arrived(upper: bool)
 
+const DECK = preload("res://assets/environment/props/port-carrier.png")
+const MAST = preload("res://assets/environment/props/bridge-support.png")
+const MOTOR = preload("res://assets/enemies/shield/weapon.png")
+const FONT = preload("res://assets/fonts/Manrope.ttf")
+
 var tuning: Dictionary = JSON.parse_string(
 	FileAccess.get_file_as_string("res://data/lift_tuning.json")
 )
@@ -37,7 +42,7 @@ func configure(settings: Dictionary) -> void:
 func _ready() -> void:
 	configure({})
 	z_index = -1
-	_font = ThemeDB.fallback_font
+	_font = FONT
 	body = AnimatableBody2D.new()
 	body.name = "Carrier"
 	body.collision_layer = int(tuning.terrain_layer)
@@ -130,55 +135,46 @@ func advance(delta: float, paused: bool = false) -> void:
 func _draw() -> void:
 	var x := float(tuning.x)
 	var half := float(tuning.width) / 2.0
-	var top := float(tuning.top)
 	var bottom := float(tuning.bottom)
-	var mast_top := top - float(tuning.headroom)
+	var mast_top := float(tuning.top) - float(tuning.headroom)
 	var deck_y := _y + float(tuning.shoe_offset)
-	var steel := Color("293b3d")
-	var edge := Color("648080")
-	var gold := Color("c8a65a")
+	var mast_size := MAST.get_size()
 	for side: float in [-1.0, 1.0]:
 		var rail_x := x + side * (half + 12)
-		draw_rect(Rect2(rail_x - 6, mast_top, 12, bottom - mast_top + 35), Color("14292c"))
-		draw_line(Vector2(rail_x - 2, mast_top + 5), Vector2(rail_x - 2, bottom + 30), edge, 2)
-		draw_line(
-			Vector2(x + side * (half - 12), mast_top + 18),
-			Vector2(x + side * (half - 12), deck_y),
-			Color("73877d"),
-			3
+		draw_texture_rect_region(
+			MAST,
+			Rect2(rail_x - 8, mast_top, 16, bottom - mast_top + 35),
+			Rect2(mast_size.x * 0.22, 0, mast_size.x * 0.18, mast_size.y)
 		)
-		for bolt_y in range(int(mast_top) + 20, int(bottom) + 30, 45):
-			draw_circle(Vector2(rail_x + 2, bolt_y), 2.5, gold)
-	draw_rect(Rect2(x - half - 24, mast_top, float(tuning.width) + 48, 22), steel)
-	draw_line(Vector2(x - half - 24, mast_top), Vector2(x + half + 24, mast_top), edge, 3)
-	var deck := Rect2(x - half, deck_y, float(tuning.width), float(tuning.platform_depth))
-	draw_rect(deck.grow(2), Color("101d20"))
-	draw_rect(deck, steel)
-	for stripe_x in range(int(x - half) + 5, int(x + half) - 4, 24):
-		draw_line(Vector2(stripe_x, deck_y + 15), Vector2(stripe_x + 12, deck_y + 3), gold, 7)
-	draw_rect(Rect2(x - half, deck_y, float(tuning.width), 4), Color("a5afa1"))
-	for side: float in [-1.0, 1.0]:
-		draw_rect(Rect2(x + side * (half - 6) - 4, deck_y - 17, 8, 17), steel)
-		draw_circle(Vector2(x + side * (half - 6), deck_y - 14), 3, Color("e2be75"))
-	var motor := Rect2(x - half - 53, mast_top + 29, 32, 54)
-	draw_rect(motor.grow(2), Color("14272a"))
-	draw_rect(motor, steel)
-	for index in range(4):
+		var cable_x := x + side * (half - 12)
 		draw_line(
-			motor.position + Vector2(6, 10 + index * 5),
-			motor.position + Vector2(25, 10 + index * 5),
-			edge,
-			2
+			Vector2(cable_x + 1, mast_top + 12),
+			Vector2(cable_x + 1, deck_y - 4),
+			Color("152622"),
+			3,
+			true
 		)
-	draw_circle(motor.position + Vector2(16, 42), 5, Color("dda453") if moving else Color("8ebf9b"))
+		draw_line(
+			Vector2(cable_x, mast_top + 12), Vector2(cable_x, deck_y - 4), Color("829186"), 1, true
+		)
+	var texture_size := DECK.get_size()
+	draw_texture_rect_region(
+		DECK,
+		Rect2(x - half - 24, mast_top - 2, float(tuning.width) + 48, 24),
+		Rect2(0, texture_size.y * 0.42, texture_size.x, texture_size.y * 0.38)
+	)
+	draw_texture_rect(DECK, Rect2(x - half - 4, deck_y - 16, float(tuning.width) + 8, 38), false)
+	draw_texture_rect(
+		MOTOR, Rect2(x - half - 50, mast_top + 25, 34, 69), false, Color(0.8, 0.86, 0.81)
+	)
 	if _font != null:
 		var text := "ВВЕРХ" if moving and _target < _y else ("ВНИЗ" if moving else "E · ЛИФТ")
 		draw_string(
 			_font,
-			Vector2(x - 32, deck_y + 41),
+			Vector2(x - 32, deck_y + 42),
 			text,
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
-			14,
+			12,
 			Color("e8d8ae")
 		)

@@ -26,6 +26,7 @@ const Holiday = preload("res://scripts/world/holiday_fx.gd")
 const CampaignRules = preload("res://scripts/world/campaign_rules.gd")
 const CampaignContact = preload("res://scripts/world/campaign_contact.gd")
 const CampaignTerrain = preload("res://scripts/world/campaign_terrain.gd")
+const GroundContact = preload("res://scripts/world/ground_contact.gd")
 
 var coop: Coop
 var holiday_fx: Holiday
@@ -284,6 +285,8 @@ func _load_room(index: int, spawn_x: float) -> void:
 		scenery.add_child(holiday_fx)
 	ledges.clear()
 	var room: Dictionary = rooms[index]
+	if int(room.get("chapter", 0)) in [4, 5, 6, 7]:
+		scenery.add_child(GroundContact.new(self))
 	campaign_rules = CampaignRules.new()
 	campaign_rules.configure(room)
 	add_child(campaign_rules)
