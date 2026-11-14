@@ -9,6 +9,11 @@ signal mute_requested
 signal records_requested
 signal fps_requested(enabled: bool)
 signal coop_requested
+signal survival_requested
+signal survival_menu_requested
+signal survival_coop_requested
+signal survival_records_requested(board: String)
+signal survival_submit_requested(name_text: String)
 
 const Moose = preload("res://scripts/actors/moose_rig.gd")
 const FONT = preload("res://assets/fonts/Manrope-Semibold.tres")
@@ -101,15 +106,16 @@ func show_home(resumable: bool) -> void:
 		"Рога на месте. Двор под карантином.\nУ Firewall сейчас будут проблемы.",
 		20
 	)
-	_button("Продолжить" if can_resume else "Войти во двор", 350, _play, true)
-	_button("По сети · 2–16 игроков", 402, func() -> void: coop_requested.emit())
-	_button("Выбрать главу", 454, show_chapters)
-	_button("Рекорды", 506, show_records)
+	_button("Продолжить" if can_resume else "Войти во двор", 338, _play, true)
+	_button("По сети · 2–16 игроков", 382, func() -> void: coop_requested.emit())
+	_button("Выживание · царь района", 426, func(): survival_menu_requested.emit())
+	_button("Выбрать главу", 470, show_chapters)
+	_button("Рекорды", 514, show_records)
 	_button("Как играть", 558, show_help)
-	_button("Настройки", 610, show_settings)
+	_button("Настройки", 602, show_settings)
 	for child: Node in content.get_children():
 		if child is Button:
-			child.size.y = 48
+			child.size.y = 40
 
 
 func _page(id: String) -> void:
