@@ -14,7 +14,7 @@ const url = flags.url ?? 'ws://127.0.0.1:8791/coop';
 const seconds = Number(flags.seconds ?? 10);
 if (!room || !build || !Number.isFinite(seconds) || seconds < 2 || seconds > 300 ||
     Object.keys(flags).some(key => !['room', 'build', 'url', 'seconds'].includes(key))) {
-  throw new Error('Usage: node stress-native.mjs --room=CODE --build=coop1-HASH [--url=ws://127.0.0.1:8791/coop] [--seconds=10]');
+  throw new Error('Usage: node stress-native.mjs --room=CODE --build=coop2-HASH [--url=ws://127.0.0.1:8791/coop] [--seconds=10]');
 }
 
 const errors = [];

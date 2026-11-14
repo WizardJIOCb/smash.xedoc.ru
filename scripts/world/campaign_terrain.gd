@@ -214,6 +214,10 @@ func _discover_corpses() -> void:
 		if is_instance_valid(enemy):
 			_track(enemy.corpse)
 	_track(_run.get("player_corpse"))
+	var coop = _run.get("coop")
+	if is_instance_valid(coop) and coop.active:
+		for actor in coop.actors.values():
+			_track(actor.corpse)
 
 
 func _track(corpse: Ragdoll) -> void:

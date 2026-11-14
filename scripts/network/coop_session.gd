@@ -345,6 +345,7 @@ func before_step(delta: float) -> bool:
 		else:
 			run.continuation.advance_lift(run, delta, false)
 			run.campaign_rules.advance(run, delta, false)
+			_advance_terrain(false)
 			run.armory.advance(delta, run.enemies, true)
 			run._move_projectiles(delta)
 			return true
@@ -620,6 +621,7 @@ func _apply_snapshot(state: Dictionary) -> void:
 	run.quarantine = not run.cleared[run.room_index]
 	run.run_state = str(state.state)
 	run.campaign_rules.apply_network_state(state.get("rules", {}))
+	_advance_terrain(run.run_state != "playing")
 	if run.run_state == "won":
 		run.route.finish()
 		run.front.completed_chapters = run.route.completed
@@ -640,6 +642,11 @@ func _apply_snapshot(state: Dictionary) -> void:
 			run.carrier.set(key, state.lift[key])
 		run.carrier.body.position.y = run.carrier._y + float(run.carrier.tuning.shoe_offset)
 		run.carrier.queue_redraw()
+
+
+func _advance_terrain(paused: bool) -> void:
+	if is_instance_valid(run.terrain) and run.terrain.has_method("advance"):
+		run.terrain.advance(paused)
 
 
 func _sync_metrics() -> void:
