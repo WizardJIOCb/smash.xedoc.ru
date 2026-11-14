@@ -178,6 +178,7 @@ func _physics_process(delta: float) -> void:
 		_native_finished = true
 		for action: String in review_inputs:
 			_hold(action, false)
+		_sync_metrics()
 		front.next_requested.disconnect(_continue_chapter)
 		front.start_requested.disconnect(_start_new_run)
 	var deadline := 480 if route.chapter >= 3 else 300
