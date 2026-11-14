@@ -433,7 +433,11 @@ func _physics_process(delta: float) -> void:
 		touch_controls.set_context("menu" if front.is_open() else run_state)
 		controls_hint.visible = not touch_controls.enabled
 	var simulation_paused := run_state in ["menu", "paused", "won"]
-	var dry := bool(rooms[room_index].get("indoor", false)) or bool(rooms[room_index].get("dry", false)) or bool(rooms[room_index].get("holiday", false))
+	var dry := (
+		bool(rooms[room_index].get("indoor", false))
+		or bool(rooms[room_index].get("dry", false))
+		or bool(rooms[room_index].get("holiday", false))
+	)
 	rain.paused = simulation_paused or dry
 	rain.visible = not front.is_open() and not dry
 	armory.trigger(_input_held("strike") and night.burst_time < 0 and not _input_held("block"))
@@ -1039,6 +1043,10 @@ func _select_chapter(index: int) -> void:
 
 
 func _request_chapter(index: int, gear: Dictionary = {}) -> void:
+	if is_instance_valid(coop) and coop.active and not coop.starting:
+		if coop.hosting:
+			coop.send({"type": "chapter", "chapter": index})
+		return
 	if index < 0 or index >= route.chapters.size():
 		return
 	var begin := func() -> void:

@@ -12,6 +12,7 @@ signal coop_requested
 
 const Moose = preload("res://scripts/actors/moose_rig.gd")
 const FONT = preload("res://assets/fonts/Manrope-Semibold.tres")
+const MENU_WORLD = preload("res://assets/environment/menu-ground-v1.webp")
 const KeyMenu = preload("res://scripts/ui/key_bindings_menu.gd")
 const CHAPTERS_PER_PAGE := 3
 
@@ -50,7 +51,7 @@ func _ready() -> void:
 	root.theme.default_font_size = 20
 	add_child(root)
 	background = TextureRect.new()
-	background.texture = load("res://assets/environment/menu-ground-v1.webp")
+	background.texture = MENU_WORLD
 	background.size = Vector2(1280, 720)
 	background.modulate = Color(0.86, 0.91, 0.89)
 	background.z_index = -50
@@ -113,7 +114,7 @@ func show_home(resumable: bool) -> void:
 
 func _page(id: String) -> void:
 	page = id
-	background.texture = load("res://assets/environment/menu-ground-v1.webp")
+	background.texture = MENU_WORLD
 	for child: Node in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
@@ -327,7 +328,12 @@ func _chapter_art(index: int, ending: bool = false) -> Texture2D:
 		FileAccess.get_file_as_string("res://data/district_rooms.json")
 	)
 	var chapter: Dictionary = chapters[index]
-	var room: Dictionary = rooms[int(chapter.end if ending else chapter.start)]
+	var room_index := int(chapter.end if ending else chapter.start)
+	var room: Dictionary = (
+		rooms[room_index]
+		if room_index < rooms.size()
+		else JSON.parse_string(FileAccess.get_file_as_string("res://data/holiday_room.json"))
+	)
 	var path := "res://assets/environment/" + str(room.art)
 	return load(path + (".webp" if ResourceLoader.exists(path + ".webp") else ".png"))
 

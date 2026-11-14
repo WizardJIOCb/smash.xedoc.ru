@@ -10,7 +10,9 @@ func test_chapter_content_matches_score_contract_and_reinforcements_cannot_repea
 	)
 	assert_eq(rooms.size(), 27)
 	assert_eq(route.chapters.size(), 8)
-	var holiday: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/holiday_room.json"))
+	var holiday: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/holiday_room.json")
+	)
 	holiday.chapter = 8
 	rooms.append(holiday)
 	var next_room := 0

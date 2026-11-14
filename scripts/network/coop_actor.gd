@@ -16,6 +16,7 @@ var last_input: int = 0
 var tip_serial: int = -1
 var previous_tip := Vector2.ZERO
 var caption: Label
+var compact_tag: bool = false
 
 
 func _ready() -> void:
@@ -158,7 +159,12 @@ func hurt(amount: int, source: Vector2, world) -> void:
 
 
 func _process(_delta: float) -> void:
-	caption.text = "%s · %d HP" % [player_name, health]
+	caption.position.y = -232 - (int(peer_id) % 3) * 23
+	caption.text = (
+		"%02d · %d HP" % [int(peer_id), health]
+		if compact_tag
+		else "%s · %d HP" % [player_name, health]
+	)
 	queue_redraw()
 
 

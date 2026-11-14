@@ -290,7 +290,10 @@ func _copy_invite() -> void:
 	var code := str(_info.get("code", ""))
 	if code.is_empty():
 		return
-	DisplayServer.clipboard_set("https://smash.xedoc.ru/?room=" + code.uri_encode())
+	var base := "https://smash.xedoc.ru/coop-game/"
+	if OS.has_feature("web"):
+		base = str(JavaScriptBridge.eval("location.origin + location.pathname", true))
+	DisplayServer.clipboard_set(base + "?room=" + code.uri_encode())
 	status.text = "Приглашение скопировано. Отправь ссылку друзьям."
 	status.add_theme_color_override("font_color", GOLD)
 

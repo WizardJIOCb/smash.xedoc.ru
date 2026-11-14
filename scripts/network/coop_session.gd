@@ -57,10 +57,12 @@ var _guest_epoch: int = -1
 var _inside_context: bool = false
 var _start_automatically: bool = false
 var _qa_players: int = 0
+var _solo_endpoint: String = ""
 
 
 func _ready() -> void:
 	run = get_parent()
+	_solo_endpoint = run.scores.endpoint
 	process_priority = -100
 	lobby = Lobby.new()
 	lobby.chapters = run.route.chapters
@@ -264,6 +266,7 @@ func _sync_members() -> void:
 			actor.visible = active
 			actor.reset_at(Vector2(140 + int(id) * 38, float(run.rooms[run.room_index].floor)))
 			actor.armory.pickups = run.armory.pickups
+		actors[id].compact_tag = room.players.size() > 6
 	for id: String in actors.keys():
 		if not present.has(id):
 			var actor: Actor = actors[id]
@@ -475,6 +478,7 @@ func leave() -> void:
 	send({"type": "leave"})
 	if socket != null:
 		socket.close()
+	socket = null
 	_clear()
 	lobby.open()
 
@@ -496,6 +500,7 @@ func _clear() -> void:
 	you = ""
 	_edges.clear()
 	run.network_input = false
+	run.scores.endpoint = _solo_endpoint
 	for actor: Actor in actors.values():
 		run.remove_child(actor)
 		actor.queue_free()

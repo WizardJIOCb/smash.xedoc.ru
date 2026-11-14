@@ -1,0 +1,22 @@
+[Unit]
+Description=Los Firewall cooperative room relay
+After=network.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+WorkingDirectory=/opt/los-firewall-coop-relay
+ExecStart=/usr/bin/node /opt/los-firewall-coop-relay/relay.mjs
+Environment=HOST=127.0.0.1
+Environment=PORT=18791
+Environment=COOP_ORIGINS=https://smash.xedoc.ru
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target
